@@ -35,15 +35,11 @@ CONTACT_TABLE = "Your Contact Collection Name"
 
 ### Executing Program
 **Operator Spider**
-* On the command line, navigate to the top level operators directory. 
-    - For Mac: `cd operators`
-    - For Windows:
-* Activate the spider
-    - For Mac: `scrapy crawl operators`
-    - For Windows:
+* On the command line, navigate to the repository. From there, navigate to the top level operators directory: `cd operators`
+* Activate the spider: `scrapy crawl operators`
 
 **Community Profiles**
 * Navigate to the directory that houses `community_profiles.py`. The default for this is the top level of this repository.
 * Run the Python script
     - For Mac: `python3 community_profiles.py`
-    - For Windows:
+    - For Windows: `py community_profiles.py` or `python.exe community_profiles.py`
