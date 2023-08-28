@@ -31,6 +31,22 @@ MONGODB_COLLECTION = "Operators"
 ```
 >Optional: You may also change the `USER_AGENT` to any other desired user agent.
 
+**Systems Spider**
+In the `systems` directory, navigate to `settings.py`. Change the final three lines of code to your MongoDB database information:
+```
+MONGODB_URI = "Your MongoDB Connection String"
+MONGODB_DATABASE = "Your Database Name"
+MONGODB_COLLECTION = "Your Collection Name"
+```
+
+For Example:
+```
+MONGODB_URI = "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test"
+MONGODB_DATABASE = "Outlook"
+MONGODB_COLLECTION = "Systems"
+```
+>Optional: You may also change the `USER_AGENT` to any other desired user agent.
+
 **Community Profiles**
 Navigate to `community_profiles.py`. Located near the top of this file are the MongoDB connection settings that need to be adjusted for this project to run.
 ```
@@ -54,6 +70,10 @@ CONTACT_TABLE = "Contacts"
 **Operator Spider**
 * On the command line, navigate to the repository. From there, navigate to the top level operators directory: `cd operators`
 * Activate the spider: `scrapy crawl operators`
+
+**System Spider**
+* On the command line, navigate to the repository. From there, navigate to the top level systems directory: `cd systems`
+* Activate the spider: `scrapy crawl systems`
 
 **Community Profiles**
 * Navigate to the directory that houses `community_profiles.py`. The default for this is the top level of this repository.
