@@ -36,14 +36,16 @@ In the `systems` directory, navigate to `settings.py`. Change the final three li
 ```
 MONGODB_URI = "Your MongoDB Connection String"
 MONGODB_DATABASE = "Your Database Name"
-MONGODB_COLLECTION = "Your Collection Name"
+MONGODB_COLLECTION_SYSTEMS = "Your Systems Collection Name"
+MONGODB_COLLECTION_CONTACTS = "Your Contacts Collection Name"
 ```
 
 For Example:
 ```
 MONGODB_URI = "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test"
 MONGODB_DATABASE = "Outlook"
-MONGODB_COLLECTION = "Systems"
+MONGODB_COLLECTION_SYSTEMS = "Systems"
+MONGODB_COLLECTION_CONTACTS = "SystemContacts"
 ```
 >Optional: You may also change the `USER_AGENT` to any other desired user agent.
 

@@ -17,3 +17,11 @@ class SystemsItem(scrapy.Item):
     link = scrapy.Field()
     contact = scrapy.Field()
     monitoring = scrapy.Field()
+
+class ContactsItem(scrapy.Item):
+    name = scrapy.Field()
+    title = scrapy.Field()
+    type = scrapy.Field()
+    phone = scrapy.Field()
+    address = scrapy.Field()
+    email = scrapy.Field()

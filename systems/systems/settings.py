@@ -93,10 +93,12 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
 ITEM_PIPELINES = {
-  "systems.pipelines.MongoDBPipeline": 500
+  "systems.pipelines.SystemsPipeline": 100,
+  "systems.pipelines.ContactsPipeline": 200
 }
 
 
-MONGODB_URI = "Your URI Connection String"
+MONGODB_URI = "Your MongoDB Connection String"
 MONGODB_DATABASE = "Your Database Name"
-MONGODB_COLLECTION = "Your Collection Name"
+MONGODB_COLLECTION_SYSTEMS = "Your Systems Collection Name"
+MONGODB_COLLECTION_CONTACTS = "Your Contacts Collection Name"
