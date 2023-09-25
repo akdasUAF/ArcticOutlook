@@ -1,6 +1,8 @@
 """This program retrieves an excel sheet filled with community water and contact information. This script then inserts the
 information into the specified mongodb collections."""
 
+"""Update script to be dynamic to any xl"""
+
 from pymongo import MongoClient, ASCENDING, DESCENDING, WriteConcern
 import pandas as pd
 # import ssl
