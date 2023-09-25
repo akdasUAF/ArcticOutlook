@@ -5,16 +5,35 @@ information into the specified mongodb collections."""
 
 from pymongo import MongoClient, ASCENDING, DESCENDING, WriteConcern
 import pandas as pd
+import argparse
 # import ssl
 
 # If the program throws an error about an unverified user, uncomment the following line and the import ssl.
 # ssl._create_default_https_context = ssl._create_unverified_context
 
+# Add parser information for command line calls.
+parser = argparse.ArgumentParser(description="""This program retrieves an excel sheet filled with community water 
+                                                and contact information. This script then inserts the 
+                                                information into the specified mongodb collections.""")
+parser.add_argument("-uri", help="Specifies the connection string to mongoDB.")
+parser.add_argument("-db", help="Specifies the database name in MongoDB.")
+parser.add_argument("-comm, --community", help="Specifies the collection where the community information should be stored.")
+parser.add_argument("-con, --contact", help="Specifies the collection where the contact information should be stored.")
+
+args = parser.parse_args()
+
+
 # Adjust MongoDB connection settings.
-MONGODB_URI = "Your MongoDB Connection String"
-MONGODB_DATABASE = "Your Database Name"
-COMMUNITY_TABLE = "Your Community Collection Name"
-CONTACT_TABLE = "Your Contacts Collection Name"
+MONGODB_URI = args.uri
+MONGODB_DATABASE = args.db
+COMMUNITY_TABLE = args.comm
+CONTACT_TABLE = args.con
+
+
+# MONGODB_URI = "Your MongoDB Connection String"
+# MONGODB_DATABASE = "Your Database Name"
+# COMMUNITY_TABLE = "Your Community Collection Name"
+# CONTACT_TABLE = "Your Contacts Collection Name"
 user_agent = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"}
 
 url = "https://dec.alaska.gov/Applications/Water/OpCert/community-water-sewer-improvement-contact-list.xlsx"
