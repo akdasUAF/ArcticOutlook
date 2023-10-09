@@ -29,8 +29,8 @@
     Collection(s) name refers to the Collection/Table within the Database in which you wish to store the information.</p>
     <form method="POST" ID="mongoDB">
         <div class="row">
-            <label for="Connection String">Connection String:</label>
-            <input name="Connection String" type="text">
+            <label for="Connection">Connection String:</label>
+            <input name="Connection" type="text">
         </div>
 
         <div class="row">
@@ -43,6 +43,8 @@
             <label for="Operators">Operators Collection:</label>
             <input name="Operators" type="text">
         </div>
+        <br/>
+        <input type="submit" value="Submit" name="op"/>
         {% endif %}
 
         {% if script == "Systems" %}
@@ -55,6 +57,8 @@
             <label for="SContact">Systems Contact Collection:</label>
             <input name="SContact" type="text">
         </div>
+        <br/>
+        <input type="submit" value="Submit" name="sys"/>
         {% endif %}
 
         {% if script == "Community_Profiles" %}
@@ -67,16 +71,15 @@
             <label for="CContact">Community Contact Collection:</label>
             <input name="CContact" type="text">
         </div>
-        {% endif %}
-        
         <br/>
-        <input type="submit" value="Submit" name="params"/>
+        <input type="submit" value="Submit" name="cc"/>
+        {% endif %}
     </form>
 </div>
 {% endif %}
 {% if operation == False %}
 <br/>
-<p>{{error}}</p>
+<p>{{msg}}</p>
 
 {% endif %}
 {% endblock %}
