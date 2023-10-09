@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for
-import subprocess, os
+import subprocess, os, json
+import pandas as pd
 from scripts.community_profiles import main
 
 
@@ -46,6 +47,7 @@ def display_text_input(s):
 @app.route("/", methods=['POST','GET'])
 def index():
     """Handles index page navigation and form display."""
+
     if request.method == 'POST':
         # User selected a script
         if 'script' in request.form:
@@ -53,7 +55,7 @@ def index():
             return display_text_input(script)
         
         # Operator form submitted
-        if 'op' in request.form:
+        elif 'op' in request.form:
             uri = request.form['Connection']
             db = request.form['Database']
             op = request.form['Operators']
@@ -62,21 +64,33 @@ def index():
             os.chdir("../operators") 
             path = os.getcwd()
 
-            subprocess.Popen(["scrapy", "crawl",
-                            "-s", "MONGODB_URI="+uri, 
-                            "-s", "MONGODB_DATABASE="+db, 
-                            "-s", "MONGODB_COLLECTION="+op, 
-                            "operators"],
-                            cwd=path)
+            if request.form.get("download"):
+                proc = subprocess.Popen(["scrapy", "crawl",
+                                "-s", "MONGODB_URI="+uri, 
+                                "-s", "MONGODB_DATABASE="+db, 
+                                "-s", "MONGODB_COLLECTION="+op,
+                                "-o", "operators.csv",
+                                "operators"],
+                                cwd=path)
+                proc.wait()
+
+            else:
+                proc = subprocess.Popen(["scrapy", "crawl",
+                                "-s", "MONGODB_URI="+uri, 
+                                "-s", "MONGODB_DATABASE="+db, 
+                                "-s", "MONGODB_COLLECTION="+op, 
+                                "operators"],
+                                cwd=path)
+                proc.wait()
 
             return render_template(
                 'index.html',
                 operation=False,
-                msg="Operator spider started."
+                msg="Operator spider finished."
             )
         
         # Systems form submitted
-        if 'sys' in request.form:
+        elif 'sys' in request.form:
             uri = request.form['Connection']
             db = request.form['Database']
             sys = request.form['Systems']
@@ -86,31 +100,70 @@ def index():
             os.chdir("../systems") 
             path = os.getcwd()
 
-            subprocess.Popen(["scrapy", "crawl",
-                              "-s", "MONGODB_URI="+uri,
-                              "-s", "MONGODB_DATABASE="+db,
-                              "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
-                              "-s", "MONGODB_COLLECTION_CONTACTS="+con,
-                              "systems"],
-                              cwd=path)
+            if request.form.get("download"):
+                proc = subprocess.Popen(["scrapy", "crawl",
+                                "-s", "MONGODB_URI="+uri,
+                                "-s", "MONGODB_DATABASE="+db,
+                                "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
+                                "-s", "MONGODB_COLLECTION_CONTACTS="+con,
+                                "-o", "results.json",
+                                "systems"],
+                                cwd=path)
+                proc.wait()
+
+                # Split the json data into 2 different csv's
+                contacts, systems = [], []
+                with open('results.json') as f:
+                    data = json.load(f)
+                for item in data:
+                    k = list(item.keys())[0]
+                    if k == "name":
+                        contacts.append(item)
+                    else:
+                        systems.append(item)
+
+                df_systems = pd.DataFrame(systems)
+                df_contacts = pd.DataFrame(contacts)
+
+                # Output the 2 dfs to 2 separate files, delete the json file
+                df_systems.to_csv("systems.csv")
+                df_contacts.to_csv("contacts.csv")
+                try:
+                    os.remove("results.json")
+                except OSError as e:
+                    print(e)
+                
+            else:
+                proc = subprocess.Popen(["scrapy", "crawl",
+                                "-s", "MONGODB_URI="+uri,
+                                "-s", "MONGODB_DATABASE="+db,
+                                "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
+                                "-s", "MONGODB_COLLECTION_CONTACTS="+con,
+                                "systems"],
+                                cwd=path)
+                proc.wait()
 
             return render_template(
                 'index.html',
                 operation=False,
-                msg="System spider started."
+                msg="System spider finished."
             )
         
         # Community profile form submitted
-        if 'cc' in request.form:
+        elif 'cc' in request.form:
             uri = request.form['Connection']
             db = request.form['Database']
             comm = request.form['Community']
             con = request.form['CContact']
-            main(['-uri', uri, '-db', db, '-comm', comm, '-con', con])
+            download = "False"
+            if request.form.get("download"):
+                download = "True"
+
+            main(['-uri', uri, '-db', db, '-comm', comm, '-con', con, '-dl', download])
             return render_template(
                 'index.html',
                 operation=False,
-                msg="community_profiles.py started."
+                msg="community_profiles.py finished."
             )
 
     return render_template('index.html')

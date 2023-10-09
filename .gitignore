@@ -225,4 +225,12 @@ pyrightconfig.json
 .history
 .ionide
 
+# Ignore program generated csv output files
+contacts.csv
+systems.csv
+operators.csv
+communities.csv
+community_contacts.csv
+results.json
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,visualstudiocode

@@ -17,12 +17,14 @@ def main(raw_args=None):
     parser.add_argument("-db", help="Specifies the database name in MongoDB.")
     parser.add_argument("-comm", help="Specifies the collection where the community information should be stored.")
     parser.add_argument("-con", help="Specifies the collection where the contact information should be stored.")
+    parser.add_argument("-dl", help="Specifies if the contents should be downloaded as csv files.")
     args = parser.parse_args(raw_args)
     # Adjust MongoDB connection settings.
     MONGODB_URI = args.uri
     MONGODB_DATABASE = args.db
     COMMUNITY_TABLE = args.comm
     CONTACT_TABLE = args.con
+    download = args.dl
 
 
     # MONGODB_URI = "Your MongoDB Connection String"
@@ -73,6 +75,11 @@ def main(raw_args=None):
     contacts.with_options(write_concern=WriteConcern(w=0)).insert_many(df_contacts.to_dict('records'), ordered=False)
 
     mongoClient.close()
+
+    if download == "True":
+        df.drop_duplicates().to_csv("communities.csv")
+        df_contacts.drop_duplicates().to_csv("community_contacts.csv")
+         
 
 
 if __name__ == '__main__':
