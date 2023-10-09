@@ -9,6 +9,7 @@ This project utilizes the following Python libraries:
 * [Scrapy](https://docs.scrapy.org/en/latest/)
 * [pandas](https://pandas.pydata.org/docs/)
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
+* [Python Flask](https://flask.palletsprojects.com/en/3.0.x/)
 
 In addition to ensuring Python and the required libraries are installed, this project also requires a [MongoDB](https://www.mongodb.com/) database for storing the collected information. When using a cluster provided by [MongoDB Atlas](https://www.mongodb.com/atlas/database), be sure to record the appropriate [connection string](https://www.mongodb.com/basics/mongodb-connection-string), collection name(s), and table name(s) for each script. There is also a [GUI interface](https://www.mongodb.com/products/compass) available that allows users to view database information.
 
@@ -31,6 +32,8 @@ MONGODB_COLLECTION = "Operators"
 ```
 >Optional: You may also change the `USER_AGENT` to any other desired user agent.
 
+Alternatively, you may call the spider as follows to avoid changing anything in settings.py:
+`scrapy crawl -s MONGODB_URI="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test" -s MONGODB_DATABASE="Outlook" -s MONGODB_COLLECTION="Operators"`
 **Systems Spider**
 In the `systems` directory, navigate to `settings.py`. Change the final three lines of code to your MongoDB database information:
 ```
@@ -47,38 +50,44 @@ MONGODB_DATABASE = "Outlook"
 MONGODB_COLLECTION_SYSTEMS = "Systems"
 MONGODB_COLLECTION_CONTACTS = "SystemContacts"
 ```
->Optional: You may also change the `USER_AGENT` to any other desired user agent.
 
-**Community Profiles**
-Navigate to `community_profiles.py`. Located near the top of this file are the MongoDB connection settings that need to be adjusted for this project to run.
-```
-MONGODB_URI = "Your MongoDB Connection String"
-MONGODB_DATABASE = "Your Database Name"
-COMMUNITY_TABLE = "Your Community Collection Name"
-CONTACT_TABLE = "Your Contact Collection Name"
-```
-
-For Example:
-```
-MONGODB_URI = "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test"
-MONGODB_DATABASE = "Outlook"
-COMMUNITY_TABLE = "CommunityProfiles"
-CONTACT_TABLE = "Contacts"
-```
+Alternatively, you may call the spider as follows to avoid changing anything in settings.py:
+`scrapy crawl -s MONGODB_URI="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test" -s MONGODB_DATABASE="Outlook" -s MONGODB_COLLECTION_SYSTEMS="Systems" -s MONGODB_COLLECTION_CONTACTS=SystemContacts`
 >Optional: You may also change the `USER_AGENT` to any other desired user agent.
 
 
 ### Executing Program
 **Operator Spider**
 * On the command line, navigate to the repository. From there, navigate to the top level operators directory: `cd operators`
-* Activate the spider: `scrapy crawl operators`
+* Activate the spider (default): `scrapy crawl operators`
+* Activate the spider with mongoDB settings in command line (using example values given above): 
+  `scrapy crawl -s MONGODB_URI="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test" -s MONGODB_DATABASE="Outlook" -s MONGODB_COLLECTION="Operators" operators`
 
 **System Spider**
 * On the command line, navigate to the repository. From there, navigate to the top level systems directory: `cd systems`
-* Activate the spider: `scrapy crawl systems`
+* Activate the spider (default): `scrapy crawl systems`
+* Activate the spider with MongoDB settings in command line (using example values given above): 
+  `scrapy crawl -s MONGODB_URI="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test" -s MONGODB_DATABASE="Outlook" -s MONGODB_COLLECTION_SYSTEMS="Systems" -s MONGODB_COLLECTION_CONTACTS=SystemContacts systems`
 
 **Community Profiles**
-* Navigate to the directory that houses `community_profiles.py`. The default for this is the top level of this repository.
-* Run the Python script
-    - For Mac: `python3 community_profiles.py`
+* Navigate to the directory that houses `community_profiles.py`. The default for this is the scripts directory of this repository.
+* Run the Python script:
+    - For Mac: 
+    `python3 community_profiles.py -uri mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test -db Database_Name -comm Community_Collection_Name -con Contact_Collection_Name`
     - For Windows: `py community_profiles.py` or `python.exe community_profiles.py`
+    - Flags:
+      - `-uri`:         Sets the MongoDB connection string
+      - `-db`:          Sets the MongoDB database name
+      - `-comm`:        Sets the MongoDB communities collection name
+      - `-con`:         Sets the MongoDB community contacts collection name
+      - `--download`:   (Optional) Boolean flag to download the scraped information as 2 csv files.
+      - `-h`:           Help flag, explains each of the above commands
+
+## Flask Server
+An alternative way of launching this project may be done through a simple [Python Flask](https://flask.palletsprojects.com/en/3.0.x/) server. When launched, this will allow the user to open a webpage located at 127.0.0.1:5000 to run each of the scrapers defined in this project. Additionally, there is the option for the user to download the output of the scrapers immediately as a csv file after the process has completed.
+
+### Executing Program
+* On the command line, navigate to the repository. From there, navigate to the server directory: `cd server`
+* Activate the Flask server: `flask run`
+* Open a web browser and type `127.0.0.1:5000` in the search bar. This should open up the simple server for running each scraper.
+* Once looking at the webpage, select which scraper you would like to run. Once the submit button is pressed, the page will provide additional text input needed by the user to run the scrapers. When the scraper is complete, it will display a short message on the screen.

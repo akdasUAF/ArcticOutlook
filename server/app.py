@@ -155,11 +155,10 @@ def index():
             db = request.form['Database']
             comm = request.form['Community']
             con = request.form['CContact']
-            download = "False"
             if request.form.get("download"):
-                download = "True"
-
-            main(['-uri', uri, '-db', db, '-comm', comm, '-con', con, '-dl', download])
+                main(['-uri', uri, '-db', db, '-comm', comm, '-con', con, '--download'])
+            else:
+                main(['-uri', uri, '-db', db, '-comm', comm, '-con', con])
             return render_template(
                 'index.html',
                 operation=False,

@@ -31,18 +31,18 @@
         <label for="download">Download as CSV?</label>
         <input type="checkbox" id="download" name="download" value="download">
         <div class="row">
-            <label for="Connection">Connection String:</label>
+            <label for="Connection">Connection String (Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test)</label>
             <input name="Connection" type="text">
         </div>
 
         <div class="row">
-            <label for="Database">Database:</label>
+            <label for="Database">Database Name (Example: Outlook)</label>
             <input name="Database" type="text">
         </div>
 
         {% if script == "Operators" %}
         <div class="row">
-            <label for="Operators">Operators Collection:</label>
+            <label for="Operators">Operators Collection Name (Example: Operators)</label>
             <input name="Operators" type="text">
         </div>
         <br/>
@@ -51,12 +51,12 @@
 
         {% if script == "Systems" %}
         <div class="row">
-            <label for="Systems">Systems Collection:</label>
+            <label for="Systems">Systems Collection Name (Example: Systems)</label>
             <input name="Systems" type="text">
         </div>
 
         <div class="row">
-            <label for="SContact">Systems Contact Collection:</label>
+            <label for="SContact">Systems Contact Collection Name (Example: SystemContacts)</label>
             <input name="SContact" type="text">
         </div>
         <br/>
@@ -65,12 +65,12 @@
 
         {% if script == "Community_Profiles" %}
         <div class="row">
-            <label for="Community">Community Collection:</label>
+            <label for="Community">Community Collection Name (Example: Community)</label>
             <input name="Community" type="text">
         </div>
 
         <div class="row">
-            <label for="CContact">Community Contact Collection:</label>
+            <label for="CContact">Community Contact Collection Name (Example: Contacts)</label>
             <input name="CContact" type="text">
         </div>
         <br/>

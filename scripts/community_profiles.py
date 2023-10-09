@@ -17,20 +17,14 @@ def main(raw_args=None):
     parser.add_argument("-db", help="Specifies the database name in MongoDB.")
     parser.add_argument("-comm", help="Specifies the collection where the community information should be stored.")
     parser.add_argument("-con", help="Specifies the collection where the contact information should be stored.")
-    parser.add_argument("-dl", help="Specifies if the contents should be downloaded as csv files.")
+    parser.add_argument('--download', help="Flag to download csv files containing scraped information.", action=argparse.BooleanOptionalAction)
     args = parser.parse_args(raw_args)
-    # Adjust MongoDB connection settings.
+
     MONGODB_URI = args.uri
     MONGODB_DATABASE = args.db
     COMMUNITY_TABLE = args.comm
     CONTACT_TABLE = args.con
-    download = args.dl
 
-
-    # MONGODB_URI = "Your MongoDB Connection String"
-    # MONGODB_DATABASE = "Your Database Name"
-    # COMMUNITY_TABLE = "Your Community Collection Name"
-    # CONTACT_TABLE = "Your Contacts Collection Name"
     user_agent = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"}
 
     url = "https://dec.alaska.gov/Applications/Water/OpCert/community-water-sewer-improvement-contact-list.xlsx"
@@ -76,11 +70,10 @@ def main(raw_args=None):
 
     mongoClient.close()
 
-    if download == "True":
+    if args.download:
         df.drop_duplicates().to_csv("communities.csv")
         df_contacts.drop_duplicates().to_csv("community_contacts.csv")
          
-
 
 if __name__ == '__main__':
     # Add parser information for command line calls.
