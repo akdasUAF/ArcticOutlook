@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for
-import subprocess
+import subprocess, os
 from scripts.community_profiles import main
 
 
@@ -57,7 +57,10 @@ def index():
             uri = request.form['Connection']
             db = request.form['Database']
             op = request.form['Operators']
-            path = ""
+
+            # Change directory to operators directory
+            os.chdir("../operators") 
+            path = os.getcwd()
 
             subprocess.Popen(["scrapy", "crawl",
                             "-s", "MONGODB_URI="+uri, 
@@ -78,7 +81,10 @@ def index():
             db = request.form['Database']
             sys = request.form['Systems']
             con = request.form['SContact']
-            path = ""
+
+            # Change path to systems directory
+            os.chdir("../systems") 
+            path = os.getcwd()
 
             subprocess.Popen(["scrapy", "crawl",
                               "-s", "MONGODB_URI="+uri,
