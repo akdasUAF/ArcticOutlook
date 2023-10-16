@@ -7,81 +7,16 @@
 {% endblock %}
 
 {% block body %}
-<div ID="scriptselection">
-    <h3> Script Selection </h3>
-    <p>Please select a script to run.</p>
-    <form method="POST" enctype=multipart/form-data>
-        <select id="SelectScript" name="SelectScript">
-            <option value="Operators">Operators Spider</option>
-            <option value="Systems">Systems Spider</option>
-            <option value="Community_Profiles">Community Profiles</option>
-        </select>
-        <br/>
-        <input type="submit" value="Submit" name="script"/>
+<div id="main">
+    <p>Please select which process you would like to run. Pressing submit will redirect you to the proper page.</p>
+    <p>Static Scrapers: This option will redirect you to the page that handles the automatic process of scraping and downloading
+        the already completed scripts (Operators, Water Systems, and the Community Profiles).</p>
+    <p>Dynamic Scrapers: This option will redirect you to the page that houses the work-in-progress Dynamic web scraper.</p>
+    <form id="select_task" method="POST">
+        <select id="SelectTask" name="SelectTask">
+            <option value="static_scrapers">Static Scrapers</option>
+            <option value="dynamic_scraper">Dynamic Scraper</option>
+        <input type="submit" value="Submit" name="select_task">
     </form>
 </div>
-
-{% if operation == True %}
-<div ID="mongodb">
-    <h3>Please input the following MongoDB information:</h3>
-    <p>This information can be found in your MongoDB Database.<br/>The connection string, or URI, is what allows the script
-    to input the information into the database.<br/>The Database name is the name of your primary Database.<br/>The 
-    Collection(s) name refers to the Collection/Table within the Database in which you wish to store the information.</p>
-    <form method="POST" ID="mongoDB">
-        <label for="download">Download as CSV?</label>
-        <input type="checkbox" id="download" name="download" value="download">
-        <div class="row">
-            <label for="Connection">Connection String (Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test)</label>
-            <input name="Connection" type="text">
-        </div>
-
-        <div class="row">
-            <label for="Database">Database Name (Example: Outlook)</label>
-            <input name="Database" type="text">
-        </div>
-
-        {% if script == "Operators" %}
-        <div class="row">
-            <label for="Operators">Operators Collection Name (Example: Operators)</label>
-            <input name="Operators" type="text">
-        </div>
-        <br/>
-        <input type="submit" value="Submit" name="op"/>
-        {% endif %}
-
-        {% if script == "Systems" %}
-        <div class="row">
-            <label for="Systems">Systems Collection Name (Example: Systems)</label>
-            <input name="Systems" type="text">
-        </div>
-
-        <div class="row">
-            <label for="SContact">Systems Contact Collection Name (Example: SystemContacts)</label>
-            <input name="SContact" type="text">
-        </div>
-        <br/>
-        <input type="submit" value="Submit" name="sys"/>
-        {% endif %}
-
-        {% if script == "Community_Profiles" %}
-        <div class="row">
-            <label for="Community">Community Collection Name (Example: Community)</label>
-            <input name="Community" type="text">
-        </div>
-
-        <div class="row">
-            <label for="CContact">Community Contact Collection Name (Example: Contacts)</label>
-            <input name="CContact" type="text">
-        </div>
-        <br/>
-        <input type="submit" value="Submit" name="cc"/>
-        {% endif %}
-    </form>
-</div>
-{% endif %}
-{% if operation == False %}
-<br/>
-<p>{{msg}}</p>
-
-{% endif %}
 {% endblock %}
