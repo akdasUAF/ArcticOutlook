@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <title>Dynamic Scraper</title>
+    
+{% endblock %}
+
+{% block body %}
+<div id="main">  
+{% if link == True %}
+    <div id="output">
+        <p>Link: {{url_text}} </p>
+        {% if text == True %}
+            <p>{{iter}}</p>
+        {% else %}
+            <ul>
+                {% for i in iter %}
+                <li>{{ i }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+{% endif %}
+    <div id="selections">
+        <form id="url_submit" method="POST">
+            <p>Please enter the url of the webpage you would like to scrape.
+            <label for="url">URL Link (Example: https://dec.alaska.gov/dww/index.jsp)</label>
+            <input name="url" type="text"></p>
+            <p>You can choose to search by a specific ID, class, name, or css-selector if you have that value available.
+            <label for="id">Search by element ID (Example: 'PointOfContactType')</label>
+            <input type="text" name="id">
+            <label for="class">Search by element class (Example: 'col-md-8') </label>
+            <input type="text" name="class">
+            <label for="css">Search by element css selector (Example: '#PointOfContactType') </label>
+            <input type="text" name="css"></p>
+            <p>Alternatively, please select which option from the dropdown you would like to see. Each option will return all viable items from the url.</br>
+            </br>None (Default): This will return nothing in this section.
+            </br>HTML: This will return the entire html page.
+            </br>Body: This will return the main part of the html page.
+            </br>Head: This will return the heading part of the html page.
+            </br>Div: This will return a list of each 'div' type object.
+            </br>Attributes: This will return each attribute of the page. This usually contains links/urls/hrefs in the page that can be used to go to
+                a different page. 
+            </br>Href: This will return all the links stored within attributes.
+            </br>Text: This will return all the text of the page.
+            </br>Input: This will return all the expected input options on the page.
+            </br>Select: This will return all possible drop downs and their available options.
+            </p>
+            <select id="scrape_content" name="scrape_content">
+                <option value="none">None</option>
+                <option value="html">Whole html</option>
+                <option value="body">Body</option>
+                <option value="head">Head</option>
+                <option value="div">Div</option>
+                <option value="a">Attributes</option>
+                <option value="href">href</option>
+                <option value="text">Text</option>
+                <option value="input">Input</option>
+                <option value="select">Select</option>
+            <input type="submit" value="Submit" name="url_link">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

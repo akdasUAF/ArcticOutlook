@@ -10,6 +10,7 @@ This project utilizes the following Python libraries:
 * [pandas](https://pandas.pydata.org/docs/)
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
 * [Python Flask](https://flask.palletsprojects.com/en/3.0.x/)
+* [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
 
 In addition to ensuring Python and the required libraries are installed, this project also requires a [MongoDB](https://www.mongodb.com/) database for storing the collected information. When using a cluster provided by [MongoDB Atlas](https://www.mongodb.com/atlas/database), be sure to record the appropriate [connection string](https://www.mongodb.com/basics/mongodb-connection-string), collection name(s), and table name(s) for each script. There is also a [GUI interface](https://www.mongodb.com/products/compass) available that allows users to view database information.
 
@@ -90,4 +91,3 @@ An alternative way of launching this project may be done through a simple [Pytho
 * On the command line, navigate to the repository. From there, navigate to the server directory: `cd server`
 * Activate the Flask server: `flask run`
 * Open a web browser and type `127.0.0.1:5000` in the search bar. This should open up the simple server for running each scraper.
-* Once looking at the webpage, select which scraper you would like to run. Once the submit button is pressed, the page will provide additional text input needed by the user to run the scrapers. When the scraper is complete, it will display a short message on the screen.
