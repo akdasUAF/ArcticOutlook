@@ -49,11 +49,16 @@ def display_text_input(s):
     """Simple method to determine which text boxes should be displayed for the static scrapers in the new form. 
     Returns an error if something goes wrong."""
     # Display operator parameters based on user input.
+    with open('./files/settings.json','r') as f :
+        file=json.load(f)
+
     if s == 'Operators' or 'Systems' or 'Community_Profiles':
+        defaults = list(file[s].values())
         return render_template(
             'static_scrapers.html',
             operation=True,
-            val=s)
+            val=s,
+            default=defaults)
     
     # Something went wrong
     else:

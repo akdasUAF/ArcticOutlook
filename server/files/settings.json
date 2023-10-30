@@ -1,0 +1,22 @@
+{
+    "Operators":
+    {
+        "URI": "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test",
+        "Database": "Outlook",
+        "Collection": "Operators"
+    },
+    "Systems":
+    {
+        "URI": "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test",
+        "Database": "Outlook",
+        "Systems Collection": "Systems",
+        "Contacts Collection": "SystemContacts"
+    },
+    "Community_Profiles":
+    {
+        "URI": "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test",
+        "Database": "Outlook",
+        "Community Collection": "Community",
+        "Contacts Collection": "Contacts"
+    }
+}

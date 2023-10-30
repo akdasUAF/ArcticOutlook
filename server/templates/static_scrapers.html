@@ -33,18 +33,18 @@
         <input type="checkbox" id="download" name="download" value="download">
         <div class="row">
             <label for="Connection">Connection String (Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test)</label>
-            <input name="Connection" type="text" value="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test">
+            <input name="Connection" type="text" value={{default[0]}}>
         </div>
 
         <div class="row">
             <label for="Database">Database Name (Example: Outlook)</label>
-            <input name="Database" type="text" value="Outlook">
+            <input name="Database" type="text" value={{default[1]}}>
         </div>
 
         {% if val == "Operators" %}
         <div class="row">
             <label for="Operators">Operators Collection Name (Example: Operators)</label>
-            <input name="Operators" type="text" value="Operators">
+            <input name="Operators" type="text" value={{default[2]}}>
         </div>
         <br/>
         <input type="submit" value="Submit" name="op"/>
@@ -53,12 +53,12 @@
         {% if val == "Systems" %}
         <div class="row">
             <label for="Systems">Systems Collection Name (Example: Systems)</label>
-            <input name="Systems" type="text" value="Systems">
+            <input name="Systems" type="text" value={{default[2]}}>
         </div>
 
         <div class="row">
             <label for="SContact">Systems Contact Collection Name (Example: SystemContacts)</label>
-            <input name="SContact" type="text" value="SystemContacts">
+            <input name="SContact" type="text" value={{default[3]}}>
         </div>
         <br/>
         <input type="submit" value="Submit" name="sys"/>
@@ -67,12 +67,12 @@
         {% if val == "Community_Profiles" %}
         <div class="row">
             <label for="Community">Community Collection Name (Example: Community)</label>
-            <input name="Community" type="text" value="Community">
+            <input name="Community" type="text" value={{default[2]}}>
         </div>
 
         <div class="row">
             <label for="CContact">Community Contact Collection Name (Example: Contacts)</label>
-            <input name="CContact" type="text" value="Contacts">
+            <input name="CContact" type="text" value={{default[3]}}>
         </div>
         <br/>
         <input type="submit" value="Submit" name="cc"/>
