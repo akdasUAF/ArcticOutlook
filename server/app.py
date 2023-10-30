@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, send_file
-import subprocess, os, json
+import subprocess, os, json, zipfile
 import pandas as pd
 from scripts.community_profiles import main
 from scripts.initial_scrape import main as init_scrape
@@ -21,7 +21,7 @@ class ScrapeItems():
         self.args = []
 
 si = ScrapeItems()
-def split_json():
+def split_json(cwd):
     """This function handles the split of the water systems json file."""
     # Split the json data into 2 different csv's.
     contacts, systems = [], []
@@ -44,6 +44,7 @@ def split_json():
         os.remove("results.json")
     except OSError as e:
         print(e)
+    os.chdir(cwd)
 
 def display_text_input(s):
     """Simple method to determine which text boxes should be displayed for the static scrapers in the new form. 
@@ -76,6 +77,7 @@ def run_operators_spider(request):
     op = request.form['Operators']
 
     # Change directory to operators directory
+    root = os.getcwd()
     os.chdir("../operators") 
     path = os.getcwd()
 
@@ -85,11 +87,11 @@ def run_operators_spider(request):
                         "-s", "MONGODB_URI="+uri, 
                         "-s", "MONGODB_DATABASE="+db, 
                         "-s", "MONGODB_COLLECTION="+op,
-                        "-o", "operators.csv",
+                        "-o", os.path.join(root, "files", "operators.csv"),
                         "operators"],
                         cwd=path)
         proc.wait()
-
+        return redirect("/scrapers/download-op")
 
     # Otherwise, only upload information to MongoDB.
     else:
@@ -100,7 +102,7 @@ def run_operators_spider(request):
                         "operators"],
                         cwd=path)
         proc.wait()
-
+    os.chdir(root)
     # Return response to the user.
     return render_template(
         'static_scrapers.html',
@@ -131,7 +133,8 @@ def run_systems_spider(request):
                         "systems"],
                         cwd=path)
         proc.wait()
-        split_json()
+        split_json(cwd)
+        return redirect("/scrapers/download-sys")
         
     # Otherwise, only upload information to MongoDB.
     else:
@@ -161,6 +164,7 @@ def run_community_profiles_script(request):
     # Check if the user wants to download the information as a csv.
     if request.form.get("download"):
         main(['-uri', uri, '-db', db, '-comm', comm, '-con', con, '--download'])
+        return redirect("/scrapers/download-cc")
     
     # Otherwise, only upload information to MongoDB.
     else:
@@ -301,7 +305,7 @@ def dynamic_download():
 @app.route("/scrapers/download-op")
 def static_download_op():
     return send_file(
-            'output.csv',
+            '../operators/operators.csv',
             mimetype='text/csv',
             download_name='output_operators.csv',
             as_attachment=True
@@ -309,19 +313,25 @@ def static_download_op():
 
 @app.route("/scrapers/download-sys")
 def static_download_sys():
+    zipf = zipfile.ZipFile('systems.zip','w', zipfile.ZIP_DEFLATED)
+    zipf.write("../systems/contacts.csv")
+    zipf.write("../systems/systems.csv")
+    zipf.close()
     return send_file(
-            'output.csv',
-            mimetype='text/csv',
-            download_name='output_systems.csv',
+            'systems.zip',
+            download_name='output_systems.zip',
             as_attachment=True
         )
 
 @app.route("/scrapers/download-cc")
 def static_download_cc():
+    zipf = zipfile.ZipFile('community.zip','w', zipfile.ZIP_DEFLATED)
+    zipf.write("./communities.csv")
+    zipf.write("./community_contacts.csv")
+    zipf.close()
     return send_file(
-            'output.csv',
-            mimetype='text/csv',
-            download_name='output.csv',
+            'community.zip',
+            download_name='output_community.zip',
             as_attachment=True
         )
 

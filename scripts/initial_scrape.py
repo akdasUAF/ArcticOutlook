@@ -50,7 +50,6 @@ def main(raw_args=None):
                 item = soup.select_one(i)
                 if item.text:
                     data.append(item.text)
-                    print("item.text ", item.text)
                 elif item['href']:
                     data.append(item['href'])
                 else:
