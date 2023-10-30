@@ -12,9 +12,9 @@
     <p>Please select a script to run.</p>
     <form method="POST" enctype=multipart/form-data>
         <select id="SelectScript" name="SelectScript">
-            <option value="Operators">Operators Spider</option>
-            <option value="Systems">Systems Spider</option>
-            <option value="Community_Profiles">Community Profiles</option>
+            <option value="Operators" {% if val== "Operators" %} selected {% endif %}>Operators Spider</option>
+            <option value="Systems" {% if val== "Systems" %} selected {% endif %}>Systems Spider</option>
+            <option value="Community_Profiles"{% if val== "Community_Profiles" %} selected {% endif %}>Community Profiles</option>
         </select>
         <br/>
         <input type="submit" value="Submit" name="script"/>
@@ -32,46 +32,46 @@
         <input type="checkbox" id="download" name="download" value="download">
         <div class="row">
             <label for="Connection">Connection String (Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test)</label>
-            <input name="Connection" type="text">
+            <input name="Connection" type="text" value="mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test">
         </div>
 
         <div class="row">
             <label for="Database">Database Name (Example: Outlook)</label>
-            <input name="Database" type="text">
+            <input name="Database" type="text" value="Outlook">
         </div>
 
-        {% if script == "Operators" %}
+        {% if val == "Operators" %}
         <div class="row">
             <label for="Operators">Operators Collection Name (Example: Operators)</label>
-            <input name="Operators" type="text">
+            <input name="Operators" type="text" value="Operators">
         </div>
         <br/>
         <input type="submit" value="Submit" name="op"/>
         {% endif %}
 
-        {% if script == "Systems" %}
+        {% if val == "Systems" %}
         <div class="row">
             <label for="Systems">Systems Collection Name (Example: Systems)</label>
-            <input name="Systems" type="text">
+            <input name="Systems" type="text" value="Systems">
         </div>
 
         <div class="row">
             <label for="SContact">Systems Contact Collection Name (Example: SystemContacts)</label>
-            <input name="SContact" type="text">
+            <input name="SContact" type="text" value="SystemContacts">
         </div>
         <br/>
         <input type="submit" value="Submit" name="sys"/>
         {% endif %}
 
-        {% if script == "Community_Profiles" %}
+        {% if val == "Community_Profiles" %}
         <div class="row">
             <label for="Community">Community Collection Name (Example: Community)</label>
-            <input name="Community" type="text">
+            <input name="Community" type="text" value="Community">
         </div>
 
         <div class="row">
             <label for="CContact">Community Contact Collection Name (Example: Contacts)</label>
-            <input name="CContact" type="text">
+            <input name="CContact" type="text" value="Contacts">
         </div>
         <br/>
         <input type="submit" value="Submit" name="cc"/>

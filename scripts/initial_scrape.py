@@ -6,10 +6,8 @@ def main(raw_args=None):
     # Set arguments for the argparse to interpret.
     parser = argparse.ArgumentParser()
     parser.add_argument("-url", help="The url link of the initial html scrape.")
-    parser.add_argument("-sel")
-    parser.add_argument("-id")
-    parser.add_argument("-cla")
-    parser.add_argument("-css")
+    parser.add_argument("-i", "--items", nargs='*')
+    parser.add_argument("-a", nargs='*')
     args = parser.parse_args(raw_args)
 
     # Set the scraper's user-agent.
@@ -17,54 +15,52 @@ def main(raw_args=None):
     
     # Create variables to store passed in arguments.
     url = args.url
-    sel = args.sel
-    sel_id = args.id
-    cla = args.cla
-    css = args.css
+    iter = args.items[0]
+    type = args.a[0]
 
     # Get html of provided webpage.
     response = requests.get(url, headers=user_agent)
-    soup = BeautifulSoup(response.content, "lxml")
+
+    # Adjusted the parser to use html5lib. This allows it to parse broken html.
+    soup = BeautifulSoup(response.content, "html5lib")
 
     # Create list to return each item
-    items = []
+    data = []
+    x = 0
+    try:
+        for i in iter:
+            if type[x] == 'text':
+                data.append(soup.select_one(i).text)
 
-    # If the user selected a drop down item, return all appearances of that selected item.
-    if sel != 'none':
-        if sel == 'text':
-            items.append(soup.get_text())
+            elif type[x] == 'href':
+                item = soup.select_one(i)
+                data.append(item['href'])
 
-        elif sel == 'href':
-            for link in soup.find_all('a'):
-                items.append(link.get('href'))
+            # If the user selects the entire table, the program should pull each item out of the table.
+            elif type[x] == 'table':
+                table = soup.select_one(i)
+                rows = table.find_all(lambda tag: tag.name=='td')
+                for y in range(0, len(rows)):
+                    rows[y] = rows[y].text
+                data.append(rows)
 
-        elif sel == 'html':
-            items.append(soup.find('html'))
-
-        elif sel == 'select':
-            for s in soup.find_all('select'):
-                items.append(s)
-
-        else:
-            for s in soup.find_all(sel):
-                items.append(s)
-
-    # If the user inputted an ID, retrieve that item.
-    if sel_id:
-        sel_id = "#"+sel_id
-        items.append(soup.select(sel_id))
-
-    # If the user inputted a class, retrieve all appearances of that class.
-    if cla:
-        for i in soup.find_all(class_=cla):
-            items.append(i)
-
-    # If the user inputted a css-selector, retrieve that item.
-    if css:
-        items.append(soup.select(css))
+            # If no specific tag is specified, it will default here. First will attempt to take the text, then the href.
+            # If neither work, it will append the item to the list.
+            else:
+                item = soup.select_one(i)
+                if item.text:
+                    data.append(item.text)
+                    print("item.text ", item.text)
+                elif item['href']:
+                    data.append(item['href'])
+                else:
+                    data.append(item)
+            x=x+1
+    except Exception as e:
+        return "Exception thrown in initial_scrape: " + str(e)
 
     # Return list of generated items.
-    return items
+    return data
 
 
 if __name__ == '__main__':

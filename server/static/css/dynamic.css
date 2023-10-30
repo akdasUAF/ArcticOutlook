@@ -4,7 +4,7 @@
 }
 #selections 
 {
-    width: 40%;
+    width: 50%;
     float:left;
     display:flex;
 }
@@ -12,6 +12,30 @@
 #output
 {
     flex-grow: 1;
-    width: 60%;
+    width: 50%;
     float: right;
+}
+
+#list
+{
+    width:80%;
+    float:left;
+}
+#form
+{
+    width:50%;
+    float:right;
+}
+
+table, td, th {
+    border: 1px solid;
+  }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+.error {
+    color: red;
 }

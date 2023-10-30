@@ -232,5 +232,6 @@ operators.csv
 communities.csv
 community_contacts.csv
 results.json
+output.csv
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,visualstudiocode
