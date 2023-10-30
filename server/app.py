@@ -118,7 +118,7 @@ def run_systems_spider(request):
     con = request.form['SContact']
 
     # Change path to systems directory
-    cwd = os.getcwd()
+    root = os.getcwd()
     os.chdir("../systems") 
     path = os.getcwd()
 
@@ -133,7 +133,7 @@ def run_systems_spider(request):
                         "systems"],
                         cwd=path)
         proc.wait()
-        split_json(cwd)
+        split_json(root)
         return redirect("/scrapers/download-sys")
         
     # Otherwise, only upload information to MongoDB.
@@ -146,7 +146,7 @@ def run_systems_spider(request):
                         "systems"],
                         cwd=path)
         proc.wait()
-
+        os.chdir(root) 
     # Return response to the user.
     return render_template(
         'static_scrapers.html',
@@ -243,7 +243,6 @@ def run_dynamic_scraper():
                                     error="Error encountered during scrape: " + output,
                                     url_needed=True)
                 result = {keys[i]: [output[i]] for i in range(len(keys))}
-                print(result)
                 pd.DataFrame(result).to_csv('output.csv', index=False)
                 items=si.scrape_items
                 url=si.url
@@ -317,6 +316,8 @@ def static_download_sys():
     zipf.write("../systems/contacts.csv")
     zipf.write("../systems/systems.csv")
     zipf.close()
+    os.remove("../systems/contacts.csv")
+    os.remove("../systems/systems.csv")
     return send_file(
             'systems.zip',
             download_name='output_systems.zip',
@@ -329,6 +330,8 @@ def static_download_cc():
     zipf.write("./communities.csv")
     zipf.write("./community_contacts.csv")
     zipf.close()
+    os.remove("./communities.csv")
+    os.remove("./community_contacts.csv")
     return send_file(
             'community.zip',
             download_name='output_community.zip',

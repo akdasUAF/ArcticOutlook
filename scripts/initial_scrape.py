@@ -26,23 +26,30 @@ def main(raw_args=None):
 
     # Create list to return each item
     data = []
-    x = 0
+    x, z = 0,0
     try:
         for i in iter:
-            if type[x] == 'text':
-                data.append(soup.select_one(i).text)
-
-            elif type[x] == 'href':
+            if type[x] == 'href':
                 item = soup.select_one(i)
-                data.append(item['href'])
+                links = item.find_all('a', href=True)
+                l = {}
+
+                for i in links:
+                    l['Link ' + str(z)] = i['href']
+                    z=z+1
+                data.append(l)
+                z=0
 
             # If the user selects the entire table, the program should pull each item out of the table.
             elif type[x] == 'table':
                 table = soup.select_one(i)
                 rows = table.find_all(lambda tag: tag.name=='td')
+                cols = table.find_all(lambda tag: tag.name=='th')
+                t = {}
                 for y in range(0, len(rows)):
-                    rows[y] = rows[y].text
-                data.append(rows)
+                    # rows[y] = rows[y].text
+                    t[cols[y].text] = rows[y].text
+                data.append(t)
 
             # If no specific tag is specified, it will default here. First will attempt to take the text, then the href.
             # If neither work, it will append the item to the list.

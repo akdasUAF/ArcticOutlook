@@ -9,9 +9,11 @@
 {% block body %}
 <div id="main">
     <p>Please select which process you would like to run. Pressing submit will redirect you to the proper page.</p>
-    <p>Static Scrapers: This option will redirect you to the page that handles the automatic process of scraping and downloading
+    <p><b>Static Scrapers</b>: This option will redirect you to the page that handles the automatic process of scraping and downloading
         the already completed scripts (Operators, Water Systems, and the Community Profiles).</p>
-    <p>Dynamic Scrapers: This option will redirect you to the page that houses the work-in-progress Dynamic web scraper.</p>
+    <p><b>Dynamic Scraper</b>: This option will redirect you to the page that houses the work-in-progress web scraper. As of now, this scraper
+    will allow the user to select any number of items off of a single webpage for scraping purposes. They will provide a name and the css selector
+    for this task.</p>
     <form id="select_task" method="POST">
         <select id="SelectTask" name="SelectTask">
             <option value="static_scrapers">Static Scrapers</option>

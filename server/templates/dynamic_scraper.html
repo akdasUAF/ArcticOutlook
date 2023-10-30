@@ -43,7 +43,7 @@
             {% else %}
                 <p>Please input the css-selectors of the items you would like to scrape.</p>
                 <p class="error">{{error}}</p>
-                <p>Submitted Items:</p>
+                <p><b>Submitted Items</b>:</p>
                 {% if items_submitted==True %}
                 <table>
                     <thead>
@@ -61,11 +61,6 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                    <!-- <ul>
-                        {% for i in items %}
-                        <li>{{ i }}</li>
-                        {% endfor %}
-                    </ul> -->
                 {% endif %}
             {% endif %}
         </div>
@@ -73,22 +68,30 @@
         <div id="form">
             {% if url_needed == True %}
             <form method="POST" id="url_submit">
-                <p><label for="url">URL Link</label>
-                <br>Example: https://dec.alaska.gov/dww/index.jsp
+                <p><label for="url"><b>URL Link</b></label>
+                <br>Example: any operator link found here 
+                https://dec.alaska.gov/Applications/Water/OpCert/Home.aspx?p=OperatorSearchResults&name=&city=
                 <input name="url" type="text"></p>
                 <input type="submit" name="url_submit" value="Submit URL">
             </form>
             {% else %}
             <form method="POST" id="scrape">
                 <p>URL: {{url}} </p>
-                <p><label for="name">Item Name (Example: 'Contacts')</label>
+                <p>For a simple scrape, provide the name of the scraped item and the css-selector path to the item in the html.
+                    To acquire the css-selector, right click on the item you wish to scrape and press 'inspect'. This will take you to the 
+                    exact item in the developer tools. Simply right click the item in the developer tools and press 'Copy > CSS-Selector'. You can 
+                    then paste the item into the proper text bar. Leave the dropdown as 'None'.
+                </p>
+                <p>Additionally, you can specify a few options. If 'Link' is selected in the drop down, the scraper will try to pull every link from
+                    the specified selector. If 'table' is selected, it will attempt to retrieve all the information from the table (minus the header).
+                </p>
+                <p><label for="name">Item Name (Example: 'Operator Name')</label>
                 <input type="text" name="name"></p>
-                <p><label for="item">New css-selector (Example: '#PointOfContactType')</label>
+                <p><label for="item">New css-selector (Example: '#ctl00_ContentPlaceHolder1_ctl00_lblName')</label>
                 <input type="text" name="item"></p>
                 <label for="arg_select">Choose what to return in item:</label>
                 <select id="arg_select" name="arg_select">
                     <option value="none">None</option>
-                    <option value="text">Text</option>
                     <option value="table">Table</option>
                     <option value="href">Link</option>
                 <input type="submit" name="add_item" value="Add Item"></input>

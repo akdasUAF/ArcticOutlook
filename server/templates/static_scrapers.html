@@ -25,9 +25,14 @@
 {% if operation == True %}
 <div ID="mongodb">
     <h3>Please input the following MongoDB information:</h3>
-    <p>This information can be found in your MongoDB Database.<br/>The connection string, or URI, is what allows the script
-    to input the information into the database.<br/>The Database name is the name of your primary Database.<br/>The 
-    Collection(s) name refers to the Collection/Table within the Database in which you wish to store the information.</p>
+    <p><strong>This information can be found in your MongoDB Database.</strong><br/>The <b>connection string</b>, or 
+        <a href="https://www.mongodb.com/docs/manual/reference/connection-string/">URI</a>, is what allows the script
+    to input the information into the database. Following the link will show you how to collect the URI string from your 
+    MongoDB database.<br/>The <b>Database</b> name is the name of the Database in which the scraper should store this information.<br/>The 
+    <b>Collection(s)</b> name refers to the Collection/Table within the Database in which you wish to store the information.</p>
+    <p>These fields are automatically populated based on the values found in the settings.json file in /files. To change any of these
+        values, please visit this file and adjust the needed fields.
+    </p>
     <form method="POST" ID="mongoDB">
         <label for="download">Download as CSV?</label>
         <input type="checkbox" id="download" name="download" value="download">
