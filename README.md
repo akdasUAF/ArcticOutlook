@@ -11,6 +11,7 @@ This project utilizes the following Python libraries:
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
 * [Python Flask](https://flask.palletsprojects.com/en/3.0.x/)
 * [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
+* [html5lib](https://pypi.org/project/html5lib/)
 
 In addition to ensuring Python and the required libraries are installed, this project also requires a [MongoDB](https://www.mongodb.com/) database for storing the collected information. When using a cluster provided by [MongoDB Atlas](https://www.mongodb.com/atlas/database), be sure to record the appropriate [connection string](https://www.mongodb.com/basics/mongodb-connection-string), collection name(s), and table name(s) for each script. There is also a [GUI interface](https://www.mongodb.com/products/compass) available that allows users to view database information.
 
