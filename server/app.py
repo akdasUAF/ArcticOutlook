@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, send_file
-import subprocess, os, json, zipfile
+import subprocess, os, json, zipfile, pymongo
 import pandas as pd
 from scripts.community_profiles import main
 from scripts.initial_scrape import main as init_scrape
@@ -8,6 +8,7 @@ from scripts.initial_scrape import main as init_scrape
 # Name of the module initializing / running the program
 app = Flask(__name__)
 app.debug = True
+app.config['UPLOAD_FOLDER'] = './files'
 
 class ScrapeItems():
     def __init__(self):
@@ -21,30 +22,15 @@ class ScrapeItems():
         self.args = []
 
 si = ScrapeItems()
-def split_json(cwd):
-    """This function handles the split of the water systems json file."""
-    # Split the json data into 2 different csv's.
-    contacts, systems = [], []
-    with open('results.json') as f:
-        data = json.load(f)
-    for item in data:
-        k = list(item.keys())[0]
-        if k == "name":
-            contacts.append(item)
-        else:
-            systems.append(item)
 
-    df_systems = pd.DataFrame(systems)
-    df_contacts = pd.DataFrame(contacts)
+def output_csv(uri, db, col, file):
+    """A simple function that pulls a collection from MongoDB without the index and stores it into the specified file."""
+    client = pymongo.MongoClient(uri)
+    database = client[db]
+    collection = database[col]
 
-    # Output the 2 dfs to 2 separate files, delete the json file
-    df_systems.dropna().to_csv("systems.csv")
-    df_contacts.dropna().drop_duplicates().to_csv("contacts.csv")
-    try:
-        os.remove("results.json")
-    except OSError as e:
-        print(e)
-    os.chdir(cwd)
+    df = pd.DataFrame(list(collection.find({}, {'_id': False})))
+    df.to_csv(file)
 
 def display_text_input(s):
     """Simple method to determine which text boxes should be displayed for the static scrapers in the new form. 
@@ -81,33 +67,23 @@ def run_operators_spider(request):
     os.chdir("../operators") 
     path = os.getcwd()
 
-    # Check if the user wants to download the information as a csv.
-    if request.form.get("download"):
-        proc = subprocess.Popen(["scrapy", "crawl",
-                        "-s", "MONGODB_URI="+uri, 
-                        "-s", "MONGODB_DATABASE="+db, 
-                        "-s", "MONGODB_COLLECTION="+op,
-                        "-o", os.path.join(root, "files", "operators.csv"),
-                        "operators"],
-                        cwd=path)
-        proc.wait()
-        return redirect("/scrapers/download-op")
-
-    # Otherwise, only upload information to MongoDB.
-    else:
-        proc = subprocess.Popen(["scrapy", "crawl",
+    # Run the scrapy subprocess
+    proc = subprocess.Popen(["scrapy", "crawl",
                         "-s", "MONGODB_URI="+uri, 
                         "-s", "MONGODB_DATABASE="+db, 
                         "-s", "MONGODB_COLLECTION="+op, 
                         "operators"],
                         cwd=path)
-        proc.wait()
+    proc.wait()
     os.chdir(root)
-    # Return response to the user.
+
+    if request.form.get("download"):
+        return static_download_op(uri, db, op)
+
     return render_template(
         'static_scrapers.html',
         operation=False,
-        msg="Operator spider finished."
+        msg="Operator spider finished uploading to MongoDB."
     )
 
 def run_systems_spider(request):
@@ -122,36 +98,26 @@ def run_systems_spider(request):
     os.chdir("../systems") 
     path = os.getcwd()
 
+    # Run the scrapy subprocess
+    proc = subprocess.Popen(["scrapy", "crawl",
+                        "-s", "MONGODB_URI="+uri,
+                        "-s", "MONGODB_DATABASE="+db,
+                        "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
+                        "-s", "MONGODB_COLLECTION_CONTACTS="+con,
+                        "systems"],
+                        cwd=path)
+    proc.wait()
+    os.chdir(root)
+
     # Check if the user wants to download the information as a csv.
     if request.form.get("download"):
-        proc = subprocess.Popen(["scrapy", "crawl",
-                        "-s", "MONGODB_URI="+uri,
-                        "-s", "MONGODB_DATABASE="+db,
-                        "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
-                        "-s", "MONGODB_COLLECTION_CONTACTS="+con,
-                        "-o", "results.json",
-                        "systems"],
-                        cwd=path)
-        proc.wait()
-        split_json(root)
-        return redirect("/scrapers/download-sys")
-        
-    # Otherwise, only upload information to MongoDB.
-    else:
-        proc = subprocess.Popen(["scrapy", "crawl",
-                        "-s", "MONGODB_URI="+uri,
-                        "-s", "MONGODB_DATABASE="+db,
-                        "-s", "MONGODB_COLLECTION_SYSTEMS="+sys,
-                        "-s", "MONGODB_COLLECTION_CONTACTS="+con,
-                        "systems"],
-                        cwd=path)
-        proc.wait()
-        os.chdir(root) 
+        return static_download_sys(uri, db, sys, con)
+
     # Return response to the user.
     return render_template(
         'static_scrapers.html',
         operation=False,
-        msg="System spider finished."
+        msg="System spider finished uploading to MongoDB."
     )
 
 def run_community_profiles_script(request):
@@ -161,20 +127,17 @@ def run_community_profiles_script(request):
     comm = request.form['Community']
     con = request.form['CContact']
 
+    main(['-uri', uri, '-db', db, '-comm', comm, '-con', con])
+
     # Check if the user wants to download the information as a csv.
     if request.form.get("download"):
-        main(['-uri', uri, '-db', db, '-comm', comm, '-con', con, '--download'])
-        return redirect("/scrapers/download-cc")
-    
-    # Otherwise, only upload information to MongoDB.
-    else:
-        main(['-uri', uri, '-db', db, '-comm', comm, '-con', con])
+        return static_download_cc(uri, db, comm, con)
     
     # Return response to the user.
     return render_template(
         'static_scrapers.html',
         operation=False,
-        msg="community_profiles.py finished."
+        msg="Finished uploading community information to MongoDB."
     )
 
 """App Routing Functions"""
@@ -238,7 +201,6 @@ def run_dynamic_scraper():
                 items = list(si.scrape_items.values())
                 output = init_scrape(['-url', si.url, '-i', items, '-a', si.args])
                 if isinstance(output, str):
-                    print(output)
                     return render_template('dynamic_scraper.html',
                                     error="Error encountered during scrape: " + output,
                                     url_needed=True)
@@ -301,42 +263,77 @@ def dynamic_download():
             as_attachment=True
         )
 
-@app.route("/scrapers/download-op")
-def static_download_op():
+def static_download_op(uri, db, col):
+    # Create file paths.
+    file = os.path.join(app.config['UPLOAD_FOLDER'], "operators.csv")
+
+    # Pull information from MongoDB
+    output_csv(uri, db, col, file)
+
+    # Return file to the user.
     return send_file(
-            '../operators/operators.csv',
+            file,
             mimetype='text/csv',
             download_name='output_operators.csv',
             as_attachment=True
         )
 
-@app.route("/scrapers/download-sys")
-def static_download_sys():
-    zipf = zipfile.ZipFile('systems.zip','w', zipfile.ZIP_DEFLATED)
-    zipf.write("../systems/contacts.csv")
-    zipf.write("../systems/systems.csv")
+def static_download_sys(uri, db, sys, con):
+    # Create file paths
+    sys_file = os.path.join(app.config['UPLOAD_FOLDER'], "systems.csv")
+    con_file = os.path.join(app.config['UPLOAD_FOLDER'], "contacts.csv")
+    archive = os.path.join(app.config['UPLOAD_FOLDER'], "systems.zip")
+
+    # Pull information from MongoDB
+    output_csv(uri, db, sys, sys_file)
+    output_csv(uri, db, con, con_file)
+
+    # Create archive for returning necessary files to the user.
+    zipf = zipfile.ZipFile(archive,'w', zipfile.ZIP_DEFLATED)
+    zipf.write(sys_file)
+    zipf.write(con_file)
     zipf.close()
-    os.remove("../systems/contacts.csv")
-    os.remove("../systems/systems.csv")
     return send_file(
-            'systems.zip',
+            archive,
             download_name='output_systems.zip',
             as_attachment=True
         )
 
-@app.route("/scrapers/download-cc")
-def static_download_cc():
-    zipf = zipfile.ZipFile('community.zip','w', zipfile.ZIP_DEFLATED)
-    zipf.write("./communities.csv")
-    zipf.write("./community_contacts.csv")
+def static_download_cc(uri, db, comm, con):
+    # Create file paths
+    communities = os.path.join(app.config['UPLOAD_FOLDER'], "communities.csv")
+    contacts = os.path.join(app.config['UPLOAD_FOLDER'], "community_contacts.csv")
+    archive = os.path.join(app.config['UPLOAD_FOLDER'], "community.zip")
+    
+    # Pull information from MongoDB
+    output_csv(uri, db, comm, communities)
+    output_csv(uri, db, con, contacts)
+
+    # Create archive for returning necessary files to the user.
+    zipf = zipfile.ZipFile(archive,'w', zipfile.ZIP_DEFLATED)
+    zipf.write(communities)
+    zipf.write(contacts)
     zipf.close()
-    os.remove("./communities.csv")
-    os.remove("./community_contacts.csv")
+    # Create archive for returning necessary files to the user.
     return send_file(
-            'community.zip',
+            archive,
             download_name='output_community.zip',
             as_attachment=True
         )
+
+def clean_files():
+    """A simple function that removes all files found in the upload folder except for settings.json."""
+    try:
+        for file in os.listdir(app.config['UPLOAD_FOLDER']):
+            if file != 'settings.json':
+                path = os.path.join(app.config['UPLOAD_FOLDER'], file)
+                print("Removing: ", path)
+                os.remove(os.path.join(path)) 
+    except Exception as e:
+        return "Error thrown will attempting to remove user generated files: " + str(e)
+
+# Clean misc files from upload folder when the server is restarted.
+clean_files()
 
 if __name__ == "__main__":
     app.run(debug=True)
