@@ -14,6 +14,7 @@ class ScrapeItems():
         self.scrape_items = {}
         self.url = ""
         self.args = []
+        self.url_count = 0
 
     def clear(self):
         self.scrape_items = {}
@@ -197,75 +198,151 @@ def run_dynamic_scraper():
     if request.method == 'POST':
         if 'url_submit' in request.form:
             si.url = request.form['url'].strip()
+            si.url_count = si.url_count + 1
+            si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
             if si.url == '':
                 return render_template('dynamic_scraper.html',
                                         error="Please submit a valid url.",
                                         url_needed=True)
        
+            return redirect("/dynamic-add-item")
+        if 'add_item' in request.form and si.url_count == 0:
             return render_template('dynamic_scraper.html',
-                                    url_needed=False,
-                                    url=si.url)
+                                        error="Please submit a valid url before trying to add items.",
+                                        url_needed=True)
         
-        if 'add_item' in request.form:
-            name = request.form['name'].strip()
-            item = request.form['item'].strip()
-            if name == '':
-                return render_template('dynamic_scraper.html',
-                                items_submitted=True,
-                                result=si.scrape_items,
-                                url_needed=False,
-                                url=si.url,
-                                error="Name string was empty. Please resubmit item with proper name.")
-            if item == '':
-                return render_template('dynamic_scraper.html',
-                                items_submitted=True,
-                                result=si.scrape_items,
-                                url_needed=False,
-                                url=si.url,
-                                error="Selector string was empty. Please resubmit item with proper selector.")
-            si.scrape_items[name] = item
-            si.args.append(request.form['arg_select'])
+        if 'scrape' in request.form and si.url_count == 0:
             return render_template('dynamic_scraper.html',
-                                items_submitted=True,
-                                result=si.scrape_items,
-                                url_needed=False,
-                                url=si.url)
-        
-        if 'scrape' in request.form:
-            # If no scrape_items, scrape whole html and return that
-            try:
-                keys = list(si.scrape_items.keys())
-                items = list(si.scrape_items.values())
-                output = init_scrape(['-url', si.url, '-i', items, '-a', si.args])
-                if isinstance(output, str):
-                    print(output)
-                    return render_template('dynamic_scraper.html',
-                                    error="Error encountered during scrape: " + output,
-                                    url_needed=True)
-                result = {keys[i]: [output[i]] for i in range(len(keys))}
-                pd.DataFrame(result).to_csv('output.csv', index=False)
-                items=si.scrape_items
-                url=si.url
-                si.clear()
-                return render_template('dynamic_scraper.html',
-                                    scrape=True,
-                                    result=items,
-                                    url_needed=True,
-                                    url=url,
-                                    iter=result)
-            except Exception as e:
-                si.clear()
-                return render_template('dynamic_scraper.html',
-                                    error="Error encountered during scrape: " + str(e),
-                                    url_needed=True)
-    
-        if 'download' in request.form:
-            return redirect("/dynamic/download")
+                                        error="Please submit a valid url and items before trying to run a scrape.",
+                                        url_needed=True)
         
     # Otherwise, respond to the GET request by displaying the webpage.
     else:
         si.clear()
         return render_template('dynamic_scraper.html', url_needed=True)
+
+@app.route("/dynamic-add-item", methods=['POST', 'GET'])
+def dynamic_add():
+    if 'url_submit' in request.form:
+        si.url = request.form['url'].strip()
+        si.url_count = si.url_count + 1
+        si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
+        if si.url == '':
+            return render_template('dynamic_scraper.html',
+                                    error="Please submit a valid url.",
+                                    url_needed=True)
+        return render_template('dynamic_scraper.html',
+                            items_submitted=True,
+                            result=si.scrape_items,
+                            url_needed=False,
+                            dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
+       
+    if 'add_item' in request.form:
+        # Pull all items from the form
+        name = request.form['name'].strip()
+        item = request.form['item'].strip()
+        arg_select = request.form['arg_select']
+        if name == '':
+            return render_template('dynamic_scraper.html',
+                            items_submitted=True,
+                            result=si.scrape_items,
+                            url_needed=False,
+                            url=si.url,
+                            error="Name string was empty. Please resubmit item with proper name.")
+        if item == '':
+            return render_template('dynamic_scraper.html',
+                            items_submitted=True,
+                            result=si.scrape_items,
+                            url_needed=False,
+                            url=si.url,
+                            error="Selector string was empty. Please resubmit item with proper selector.")
+        
+        # If the item is valid, add it to the dictionary and return the new list of items.
+        si.scrape_items['Link ' + str(si.url_count)]['scraped items'][name] = {'item':item, 'type':arg_select}
+        return render_template('dynamic_scraper.html',
+                            items_submitted=True,
+                            result=si.scrape_items,
+                            url_needed=False,
+                            dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
+    
+    if 'scrape' in request.form:
+        return redirect("/dynamic-scrape")
+    
+    return render_template('dynamic_scraper.html',
+                            items_submitted=True,
+                            result=si.scrape_items,
+                            url_needed=False,
+                            dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
+
+@app.route("/dynamic-scrape", methods=['POST', 'GET'])
+def dynamic_scrape():
+    if request.method =='POST':
+        if 'url_submit' in request.form:
+            return redirect("/dynamic-add-item")
+        
+        if 'download' in request.form:
+            return redirect("/dynamic/download")
+
+    try:
+        # For each link, run the scraper.
+        vals = list(si.scrape_items.values())
+        result = []
+        for v in vals:
+            url = v['url']
+            scraped = v['scraped items']
+            output = init_scrape(['-url', url, '-v', str(scraped)])
+            if isinstance(output, str):
+                return render_template('dynamic_scraper.html',
+                                error="Error encountered during scrape: " + output,
+                                url_needed=True) 
+            result.append(output)
+        
+        # Add the scraped items to a dictionary
+        data = {}
+        for r in result:
+            data.update(r)
+
+        # Create a dataframe and a csv file containing the scraped contents.
+        df = pd.DataFrame([data])
+        df.to_csv('output.csv', index=False)
+        si.clear()
+        return render_template('dynamic_scraper.html',
+                            scrape=True,
+                            output=df)
+    except Exception as e:
+        si.clear()
+        return render_template('dynamic_scraper.html',
+                            error="Error encountered during scrape: " + str(e),
+                            url_needed=True)
+
+@app.route("/dynamic-delete/<string:link>&<string:key>")
+def dynamic_delete(link, key):
+    i = si.scrape_items[link]['scraped items']
+    i.pop(key)
+    return redirect("/dynamic-add-item")
+
+@app.route("/dynamic-update/<string:link>&<string:key>", methods=['POST','GET'])
+def dynamic_update(link, key):
+    # If the user submits an update request, update the item.
+    if 'update_item' in request.form:
+        name = request.form['name'].strip()
+        item = request.form['item'].strip()
+        arg_select = request.form['arg_select']
+        i = si.scrape_items[link]['scraped items']
+        i[name] = {'item':item, 'type':arg_select}
+        return redirect("/dynamic-add-item")
+    
+    # Otherwise, find the item the user is requesting to delete and display it.
+    name = key
+    i = si.scrape_items[link]['scraped items']
+    selector = i[key]['item']
+    select_type = i[key]['type']
+    i.pop(key)
+    return render_template('dynamic_update.html',
+                           name=name,
+                           css_selector=selector,
+                           select_type=select_type)
+
 
 @app.route("/scrapers", methods=['POST','GET'])
 def run_static_scrapers():

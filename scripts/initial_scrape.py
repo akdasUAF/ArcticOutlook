@@ -1,13 +1,11 @@
-import requests
+import requests, argparse, json
 from bs4 import BeautifulSoup
-import argparse
 
 def main(raw_args=None):
     # Set arguments for the argparse to interpret.
     parser = argparse.ArgumentParser()
     parser.add_argument("-url", help="The url link of the initial html scrape.")
-    parser.add_argument("-i", "--items", nargs='*')
-    parser.add_argument("-a", nargs='*')
+    parser.add_argument("-v", "--values", default="{}")
     args = parser.parse_args(raw_args)
 
     # Set the scraper's user-agent.
@@ -15,8 +13,9 @@ def main(raw_args=None):
     
     # Create variables to store passed in arguments.
     url = args.url
-    iter = args.items[0]
-    type = args.a[0]
+    vals = eval(args.values)
+
+    iter = list(vals.keys())
 
     # Get html of provided webpage.
     response = requests.get(url, headers=user_agent)
@@ -26,47 +25,61 @@ def main(raw_args=None):
 
     # Create list to return each item
     data = []
-    x, z = 0,0
+    z = 0
     try:
         for i in iter:
-            if type[x] == 'href':
-                item = soup.select_one(i)
+            v = vals[i]
+            selector = v['item']
+            type = v['type']
+            if type == 'href':
+                item = soup.select_one(selector)
                 links = item.find_all('a', href=True)
                 l = {}
-
-                for i in links:
-                    l['Link ' + str(z)] = i['href']
-                    z=z+1
-                data.append(l)
-                z=0
+                if not links:
+                    data.append(item['href'])
+                else:
+                    for h in links:
+                        l['Link ' + str(z)] = h['href']
+                        z=z+1
+                    data.append(l)
+                    z=0
 
             # If the user selects the entire table, the program should pull each item out of the table.
-            elif type[x] == 'table':
-                table = soup.select_one(i)
-                rows = table.find_all(lambda tag: tag.name=='td')
+            # TODO: Update this for weird system table
+            elif type == 'table':
+                table = soup.select_one(selector)
                 cols = table.find_all(lambda tag: tag.name=='th')
-                t = {}
-                for y in range(0, len(rows)):
-                    # rows[y] = rows[y].text
-                    t[cols[y].text] = rows[y].text
+                rows = table.findChildren(['th', 'tr'])
+                t = []
+                y=0
+                x = 'Item ' + str(y)
+                for row in rows:
+                    cells = row.findChildren('td')
+                    scraped_row = {}
+                    for cell, x in zip(cells, range(0, len(cols))):
+                        value = cell.string
+                        scraped_row[cols[x].text] = value
+                    # Do not add dictionary to list if dictionary is empty
+                    if len(scraped_row) > 0:
+                        t.append(scraped_row)
+                        
                 data.append(t)
 
             # If no specific tag is specified, it will default here. First will attempt to take the text, then the href.
             # If neither work, it will append the item to the list.
             else:
-                item = soup.select_one(i)
+                item = soup.select_one(selector)
                 if item.text:
                     data.append(item.text)
                 elif item['href']:
                     data.append(item['href'])
                 else:
                     data.append(item)
-            x=x+1
     except Exception as e:
         return "Exception thrown in initial_scrape: " + str(e)
 
     # Return list of generated items.
-    return data
+    return dict(zip(iter,data))
 
 
 if __name__ == '__main__':

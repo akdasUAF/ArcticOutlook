@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <title>Update Item</title>
+    
+{% endblock %}
+
+{% block body %}
+<form method="POST" id="update_item">
+<p><label for="name">Change Item Name (Originally: '{{name}}')</label>
+    <input type="text" name="name"></p>
+    <p><label for="item">Change css-selector (Originally: '{{css_selector}}')</label>
+    <input type="text" name="item"></p>
+    <label for="arg_select">Choose what to return in item (Originally: '{{select_type}}'):</label>
+    <select id="arg_select" name="arg_select">
+        <option value="none">None</option>
+        <option value="table">Table</option>
+        <option value="href">Link</option>
+    <input type="submit" name="update_item" value="Update Item"></input>
+</form>
+{% endblock %}
