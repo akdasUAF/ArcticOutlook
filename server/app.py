@@ -160,23 +160,18 @@ def run_dynamic_scraper():
     # If the user hits the submit button, send the information to the server.
     if request.method == 'POST':
         if 'url_submit' in request.form:
-            si.url = request.form['url'].strip()
-            si.url_count = si.url_count + 1
-            si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
-            if si.url == '':
+            if request.form['url'].strip() == '':
                 return render_template('dynamic_scraper.html',
                                         error="Please submit a valid url.",
                                         url_needed=True)
+            si.url = request.form['url'].strip()
+            si.url_count = si.url_count + 1
+            si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
        
             return redirect("/dynamic-add-item")
-        if 'add_item' in request.form and si.url_count == 0:
+        if 'add_item' or 'scrape' in request.form:
             return render_template('dynamic_scraper.html',
-                                        error="Please submit a valid url before trying to add items.",
-                                        url_needed=True)
-        
-        if 'scrape' in request.form and si.url_count == 0:
-            return render_template('dynamic_scraper.html',
-                                        error="Please submit a valid url and items before trying to run a scrape.",
+                                        error="Please submit a valid url before trying to add/scrape items.",
                                         url_needed=True)
         
     # Otherwise, respond to the GET request by displaying the webpage.
@@ -186,54 +181,44 @@ def run_dynamic_scraper():
 
 @app.route("/dynamic-add-item", methods=['POST', 'GET'])
 def dynamic_add():
-    if 'url_submit' in request.form:
-        si.url = request.form['url'].strip()
-        si.url_count = si.url_count + 1
-        si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
-        if si.url == '':
+    if request.method == 'POST':
+        if 'url_submit' in request.form:
+            if request.form['url'].strip() == '':
+                return render_template('dynamic_scraper.html',
+                                        error="Please submit a valid url.",
+                                        url_needed=True)
+            si.url = request.form['url'].strip()
+            si.url_count = si.url_count + 1
+            si.scrape_items['Link ' + str(si.url_count)] = {'url': si.url, 'scraped items': {}}
             return render_template('dynamic_scraper.html',
-                                    error="Please submit a valid url.",
-                                    url_needed=True)
-        return render_template('dynamic_scraper.html',
-                            items_submitted=True,
-                            result=si.scrape_items,
-                            url_needed=False,
-                            dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
-       
-    if 'add_item' in request.form:
-        # Pull all items from the form
-        name = request.form['name'].strip()
-        item = request.form['item'].strip()
-        arg_select = request.form['arg_select']
-        if name == '':
-            return render_template('dynamic_scraper.html',
-                            items_submitted=True,
-                            result=si.scrape_items,
-                            url_needed=False,
-                            url=si.url,
-                            error="Name string was empty. Please resubmit item with proper name.")
-        if item == '':
-            return render_template('dynamic_scraper.html',
-                            items_submitted=True,
-                            result=si.scrape_items,
-                            url_needed=False,
-                            url=si.url,
-                            error="Selector string was empty. Please resubmit item with proper selector.")
+                                items_submitted=True,
+                                url_needed=False,
+                                dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
         
-        # If the item is valid, add it to the dictionary and return the new list of items.
-        si.scrape_items['Link ' + str(si.url_count)]['scraped items'][name] = {'item':item, 'type':arg_select}
-        return render_template('dynamic_scraper.html',
-                            items_submitted=True,
-                            result=si.scrape_items,
-                            url_needed=False,
-                            dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
-    
-    if 'scrape' in request.form:
-        return redirect("/dynamic-scrape")
+        if 'add_item' in request.form:
+            # Pull all items from the form
+            name = request.form['name'].strip()
+            item = request.form['item'].strip()
+            arg_select = request.form['arg_select']
+            if name == '' or item == '':
+                return render_template('dynamic_scraper.html',
+                                items_submitted=True,
+                                url_needed=False,
+                                dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())),
+                                error="Input string was empty. Please resubmit item with proper name and selector values.")
+            
+            # If the item is valid, add it to the dictionary and return the new list of items.
+            si.scrape_items['Link ' + str(si.url_count)]['scraped items'][name] = {'item':item, 'type':arg_select}
+            return render_template('dynamic_scraper.html',
+                                items_submitted=True,
+                                url_needed=False,
+                                dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
+        
+        if 'scrape' in request.form:
+            return redirect("/dynamic-scrape")
     
     return render_template('dynamic_scraper.html',
                             items_submitted=True,
-                            result=si.scrape_items,
                             url_needed=False,
                             dict=zip(list(si.scrape_items.values()),list(si.scrape_items.keys())))
 
