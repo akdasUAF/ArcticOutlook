@@ -45,24 +45,34 @@ def main(raw_args=None):
                     z=0
 
             # If the user selects the entire table, the program should pull each item out of the table.
-            # TODO: Update this for weird system table
+            # Special tables such as the System Table at DWW.
+            elif type == 'left-table':
+                table = soup.select_one(selector)
+                cols = table.find_all(lambda tag: tag.name=='th')
+                rows = table.find_all(lambda tag: tag.name=='td')
+                t = {}
+                for y in range(0, len(rows)):
+                    t[cols[y].text] = rows[y].text
+                data.append(t)
+
+            # Regular tables with header on the top of the table.
             elif type == 'table':
                 table = soup.select_one(selector)
                 cols = table.find_all(lambda tag: tag.name=='th')
                 rows = table.findChildren(['th', 'tr'])
                 t = []
-                y=0
-                x = 'Item ' + str(y)
                 for row in rows:
                     cells = row.findChildren('td')
                     scraped_row = {}
+                    print(row.text)
                     for cell, x in zip(cells, range(0, len(cols))):
+                        # print(cell.text)
                         value = cell.string
                         scraped_row[cols[x].text] = value
                     # Do not add dictionary to list if dictionary is empty
                     if len(scraped_row) > 0:
                         t.append(scraped_row)
-                        
+
                 data.append(t)
 
             # If no specific tag is specified, it will default here. First will attempt to take the text, then the href.
