@@ -12,7 +12,7 @@
 #output
 {
     flex-grow: 1;
-    width: 50%;
+    width: 100%;
     float: right;
 }
 
@@ -23,7 +23,7 @@
 }
 #form
 {
-    width:50%;
+    width:40%;
     float:right;
 }
 

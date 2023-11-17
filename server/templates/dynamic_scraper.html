@@ -8,6 +8,7 @@
 
 {% block body %}
 <a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
+<a class="reset" href="{{ url_for('run_dynamic_scraper') }}">Reset Scraper</a>
 <div id="main">  
 {% if scrape == True %}
     <div id="output">
@@ -15,7 +16,6 @@
         <form id="download" method="POST">
             <input type="submit" name="download" value="Download as csv">
         </form>
-        <p>Link: {{url}} </p>
         <table>
             <thead>
               <tr>
@@ -24,17 +24,17 @@
               </tr>
             </thead>
             <tbody>
-            {% for key, value in iter.items() %}
+            {% for key, value in output.items() %}
              <tr>
-                 <td> {{ key }} </td>
-                 <td> {{ value[0] }} </td>
+                <td> {{ key }} </td>
+                <td> {{ value[0] }} </td>
              </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 {% endif %}
-
+{%if scrape != True %}
     <div id="selections">
         <div id="list">
             {% if url_needed == True %}
@@ -45,28 +45,39 @@
                 <p class="error">{{error}}</p>
                 <p><b>Submitted Items</b>:</p>
                 {% if items_submitted==True %}
+                {% for u,link in dict %}
+                <p><b>url:</b> {{u['url']}}
                 <table>
                     <thead>
                       <tr>
                         <th>Name</th>
                         <th>CSS-Selector</th>
+                        <th>Type</th>
                       </tr>
                     </thead>
                     <tbody>
-                    {% for key, value in result.items() %}
+                    {% for key, value in u['scraped items'].items() %}
                      <tr>
-                         <td> {{ key }} </td>
-                         <td> {{ value }} </td>
+                        <td> {{ key }} </td>
+                        <td> {{ value['item'] }} </td>
+                        <td> {{ value['type'] }}</td>
+                        <td><a href="{{url_for('dynamic_update', link=link, key=key)}}">Update</a></td>
+                        <td><a href="{{url_for('dynamic_delete', link=link, key=key)}}">Delete</a></td>
                      </tr>
                     {% endfor %}
                     </tbody>
-                </table>
+                </table></p>
+                {% endfor %}
                 {% endif %}
             {% endif %}
         </div>
     </div>
         <div id="form">
             {% if url_needed == True %}
+            <p>Please submit a starting url.</p>
+            {% else %}
+            <p>If you would like to scrape another url, please submit one below.</p>
+            {%endif%}
             <form method="POST" id="url_submit">
                 <p><label for="url"><b>URL Link</b></label>
                 <br>Example: any operator link found here 
@@ -74,16 +85,16 @@
                 <input name="url" type="text"></p>
                 <input type="submit" name="url_submit" value="Submit URL">
             </form>
-            {% else %}
             <form method="POST" id="scrape">
-                <p>URL: {{url}} </p>
                 <p>For a simple scrape, provide the name of the scraped item and the css-selector path to the item in the html.
                     To acquire the css-selector, right click on the item you wish to scrape and press 'inspect'. This will take you to the 
                     exact item in the developer tools. Simply right click the item in the developer tools and press 'Copy > CSS-Selector'. You can 
-                    then paste the item into the proper text bar. Leave the dropdown as 'None'.
+                    then paste the item into the proper text bar. If attempting to grab a table, be sure to select the table tag, as sometimes inspect
+                    will take you to the title above/below a table and not the table tag itself.
                 </p>
                 <p>Additionally, you can specify a few options. If 'Link' is selected in the drop down, the scraper will try to pull every link from
                     the specified selector. If 'table' is selected, it will attempt to retrieve all the information from the table (minus the header).
+                    The default 'None' will attempt to retrieve any text data within the given selector.
                 </p>
                 <p><label for="name">Item Name (Example: 'Operator Name')</label>
                 <input type="text" name="name"></p>
@@ -93,11 +104,12 @@
                 <select id="arg_select" name="arg_select">
                     <option value="none">None</option>
                     <option value="table">Table</option>
+                    <option value="left-table">Table Header Left</option>
                     <option value="href">Link</option>
                 <input type="submit" name="add_item" value="Add Item"></input>
                 <input type="submit" name="scrape" value="Start Scrape"/> 
             </form>
-            {% endif %}
         </div>
+        {%endif%}
 </div>
 {% endblock %}
