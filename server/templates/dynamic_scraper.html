@@ -3,37 +3,12 @@
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
     <title>Dynamic Scraper</title>
-    
 {% endblock %}
 
 {% block body %}
 <a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
 <a class="reset" href="{{ url_for('run_dynamic_scraper') }}">Reset Scraper</a>
 <div id="main">  
-{% if scrape == True %}
-    <div id="output">
-        <h2>Output</h2>
-        <form id="download" method="POST">
-            <input type="submit" name="download" value="Download as csv">
-        </form>
-        <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for key, value in output.items() %}
-             <tr>
-                <td> {{ key }} </td>
-                <td> {{ value[0] }} </td>
-             </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% endif %}
 {%if scrape != True %}
     <div id="selections">
         <div id="list">
@@ -72,44 +47,56 @@
             {% endif %}
         </div>
     </div>
-        <div id="form">
+    <div id="form">
+        <form method="POST" id="url_submit">
             {% if url_needed == True %}
-            <p>Please submit a starting url.</p>
+            Please submit a starting url.<br/>
             {% else %}
-            <p>If you would like to scrape another url, please submit one below.</p>
+            If you would like to scrape another url, please submit one below.<br/>
             {%endif%}
-            <form method="POST" id="url_submit">
-                <p><label for="url"><b>URL Link</b></label>
-                <br>Example: any operator link found here 
-                https://dec.alaska.gov/Applications/Water/OpCert/Home.aspx?p=OperatorSearchResults&name=&city=
-                <input name="url" type="text"></p>
-                <input type="submit" name="url_submit" value="Submit URL">
-            </form>
-            <form method="POST" id="scrape">
-                <p>For a simple scrape, provide the name of the scraped item and the css-selector path to the item in the html.
-                    To acquire the css-selector, right click on the item you wish to scrape and press 'inspect'. This will take you to the 
-                    exact item in the developer tools. Simply right click the item in the developer tools and press 'Copy > CSS-Selector'. You can 
-                    then paste the item into the proper text bar. If attempting to grab a table, be sure to select the table tag, as sometimes inspect
-                    will take you to the title above/below a table and not the table tag itself.
-                </p>
-                <p>Additionally, you can specify a few options. If 'Link' is selected in the drop down, the scraper will try to pull every link from
-                    the specified selector. If 'table' is selected, it will attempt to retrieve all the information from the table (minus the header).
-                    The default 'None' will attempt to retrieve any text data within the given selector.
-                </p>
-                <p><label for="name">Item Name (Example: 'Operator Name')</label>
-                <input type="text" name="name"></p>
-                <p><label for="item">New css-selector (Example: '#ctl00_ContentPlaceHolder1_ctl00_lblName')</label>
-                <input type="text" name="item"></p>
-                <label for="arg_select">Choose what to return in item:</label>
-                <select id="arg_select" name="arg_select">
-                    <option value="none">None</option>
-                    <option value="table">Table</option>
-                    <option value="left-table">Table Header Left</option>
-                    <option value="href">Link</option>
-                <input type="submit" name="add_item" value="Add Item"></input>
-                <input type="submit" name="scrape" value="Start Scrape"/> 
-            </form>
-        </div>
-        {%endif%}
+            <label for="url" title="Example: https://dec.alaska.gov/Applications/Water/OpCert/Home.aspx?p=OperatorSearchResults&name=&city="><b>URL Link</b>
+            <input name="url" type="text"></label><br/>
+            <input type="submit" name="url_submit" value="Submit URL">
+        </form>
+        <form method="POST" id="scrape">
+            <p>For a simple scrape, provide the name of the scraped item and the css-selector path to the item in the html.
+                To acquire the css-selector, right click on the item you wish to scrape and press 'inspect'. This will take you to the 
+                exact item in the developer tools. Simply right click the item in the developer tools and press 'Copy > CSS-Selector'. You can 
+                then paste the item into the proper text bar. If attempting to grab a table, be sure to select the table tag, as sometimes inspect
+                will take you to the title above/below a table and not the table tag itself.
+            </p>
+            <p>Additionally, you can specify a few options. If 'Link' is selected in the drop down, the scraper will try to pull every link from
+                the specified selector. If 'table' is selected, it will attempt to retrieve all the information from the table (minus the header).
+                The default 'None' will attempt to retrieve any text data within the given selector.
+            </p>
+            <label for="name" title="Example: 'Operator Name'"><b> New Item Name:</b>
+            <input type="text" name="name"></label>
+            <label for="item" title="Example: '#ctl00_ContentPlaceHolder1_ctl00_lblName'"><b>New css-selector:</b>
+            <input type="text" name="item"></label>
+            <label for="arg_select"><b>Specify Item Type:</b>
+            <select id="arg_select" name="arg_select" onchange="showSpan('follow_through', this)"></label>
+                <option value ="none">None</option>
+                <option value="table">Table</option>
+                <option value="left-table">Table Header Left</option>
+                <option value="href">Link</option>
+            </select>
+            <fieldset id="follow_through">
+                <legend>Do you want to follow through this link?</legend>
+                <input type="radio" name="follow" id="yes" value="yes" />
+                <label for="yes">Yes</label>
+                <input type="radio" name="follow" id="no" value="no" checked="checked"/>
+                <label for="no">No</label>
+            </fieldset>
+            <br/>
+            <input type="submit" name="add_item" value="Add Item"></input>
+            <input type="submit" name="scrape" value="Start Scrape"/> 
+        </form>
+        <script>
+            function showSpan(spanID, element) {
+               document.getElementById(spanID).style.display = element.value == "href" ? 'block' : 'none';
+            }
+         </script>
+    </div>
+    {%endif%}
 </div>
 {% endblock %}

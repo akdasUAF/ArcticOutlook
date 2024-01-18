@@ -1,30 +1,36 @@
 #main
 {
-    width: 100%;
-}
-#selections 
-{
-    width: 50%;
-    float:left;
-    display:flex;
+    display: grid;
+    grid-template-columns: 60% 40%;
+    justify-content: space-between;
+    word-wrap: break-word;
 }
 
 #output
 {
-    flex-grow: 1;
     width: 100%;
-    float: right;
 }
 
-#list
-{
-    width:80%;
-    float:left;
-}
 #form
 {
-    width:40%;
     float:right;
+}
+
+#selections 
+{
+    float:left;
+}
+
+#scrape, #url_submit, #list {
+    border-style: ridge;
+    border-width: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+
+
+#follow_through {
+    display: none;
 }
 
 table, td, th {
@@ -38,4 +44,35 @@ table {
 
 .error {
     color: red;
+}
+
+input[type=text],
+select
+{
+    padding: 5px;
+    margin: 5px;
+    border-radius:10px;
+    border: 1px solid rgba(238, 238, 238, 0.405);
+    background-color: #fafafa;
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+    transition: .3s box-shadow;
+}
+
+input[type=text]:hover, select:hover 
+{
+    box-shadow:0 0 4px rgba(0,0,0,0.5);
+}
+
+fieldset
+{
+    padding: 5px;
+    margin: 5px;
+    border-radius:10px;
+    border: 1px solid rgba(238, 238, 238, 0.405);
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+}
+
+legend
+{
+    background-color: #f2f2f2;
 }
