@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Dynamic Scraper</title>
+{% endblock %}
+
+{% block body %}
+<a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
+<a class="reset" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
+<div id="main">  
+{%if scrape != True %}
+    <div id="selections">
+        <div id="list">
+            {% if url_needed == True %}
+            <p>Please input the url of the items you would like to scrape.</p>
+            <p class="error">{{error}}</p>
+            {% else %}
+                <p><b>Starting URL:</b> {{url}}</p>
+                <p>Please input the css-selectors of the items you would like to scrape.</p>
+                <p class="error">{{error}}</p>
+                <p><b>Submitted Items</b>:</p>
+                {% if items_submitted==True %}
+                <table>
+                    <tr>
+                        <th>Instruction</th>
+                    </tr>
+                {%for i in instructions %}
+                    <tr>
+                        <td>{{i}}</td>
+                    </tr>
+                {%endfor%}
+                </table>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div id="form">
+        <form method="POST" id="url_submit">
+            {% if url_needed == True %}
+            Please submit a starting url.<br/>
+            {% else %}
+            If you would like to scrape another url, please submit one below.<br/>
+            {%endif%}
+            <label for="url" title="Example: https://dec.alaska.gov/Applications/Water/OpCert/Home.aspx?p=OperatorSearchResults&name=&city="><b>URL Link</b>
+            <input name="url" type="text"></label><br/>
+            <label for="jsp" title="Does this url need to pass through a unique button press to access list?"><b>JSP Button?</b>
+            <select name="jsp" id="jsp">
+                <option value="jsp_false">False</option>
+                <option value="jsp_true">True</option>
+            </select></label>
+
+            <input type="submit" name="url_submit" value="Submit URL">
+        </form>
+        <form method="POST" id="scrape">
+            <label for="instruction_select"><b>Specify Instruction:</b>
+            <select id="instruction_select" name="instruction_select" onchange="showMore(this)"></label>
+                <option>Select Instruction</option>
+                <option value="1">skip_to_tag</option>
+                <option value="2">skip_to_class</option>
+                <option value="3">save_value_as_property</option>
+                <option value="4">save_attribute_as_property</option>
+                <option value="5">back_to_beginning</option>
+                <option value="6">skip_to_element_with_attribute</option>
+                <option value="7">click_element</option>
+                <option value="8">goto_previous_page</option>
+                <option value="9">scrape_table</option>
+                <option value="10">run_function</option>
+                <option value="11">for_each</option>
+                <option value="12">create_function</option>
+                <option value="13">end_function</option>
+            </select>
+
+            <div class ="10 2 1 3 4 9 12 op" style="display:none">
+                <label for="param">Parameter:</label>
+                <input name="param" type="text" placeholder="param">
+            </div>
+
+            <div class = "6 4 11 op" style="display:none">
+                <label for="tag">Tag:</label>
+                <input name="tag" type="text" placeholder="tag">
+            </div>
+
+            <div class = "11 6 op" style="display:none">
+                <label for="attribute">Attribute:</label>
+                <input name="attribute" type="text" placeholder="attribute">
+            </div>
+
+            <div class = "6 11 op" style="display:none">
+                <label for="value">Value:</label>
+                <input name="value" type="text" placeholder="value">
+            </div>
+
+            <div class = "11 op" style="display:none">
+                <label for="function_name">Function Name:</label>
+                <input name="function_name" type="text" placeholder="function_name">
+            </div>
+
+            <script>
+                var showMore = function(option)
+                    {
+                        var divClass = option.value;
+                        $(".op").hide();
+                        $("."+divClass).slideDown('medium');
+                    }
+            </script>
+
+            <br/>
+            <input type="submit" name="add_item" value="Add Item"></input>
+            <input type="submit" name="scrape" value="Start Scrape"/> 
+        </form>
+    </div>
+    {%endif%}
+</div>
+{% endblock %}

@@ -3,6 +3,7 @@ import subprocess, os, json, zipfile, pymongo
 import pandas as pd
 from scripts.community_profiles import main
 from scripts.initial_scrape import main as init_scrape
+from dynamic_v2.Extract import main as dynamic_v2
 
 
 # Name of the module initializing / running the program
@@ -17,12 +18,16 @@ class ScrapeItems():
         self.base_url = ""
         self.args = []
         self.url_count = 0
+        self.instructions = []
+        self.jsp = False
 
     def clear(self):
         self.scrape_items = {}
         self.url, self.base_url = "", ""
         self.args = []
         self.url_count = 0
+        self.jsp = False
+        self.instructions = []
 
 si = ScrapeItems()
 
@@ -151,6 +156,8 @@ def index():
         if 'select_task' in request.form:
             if request.form['SelectTask'] == 'static_scrapers':
                 return redirect("/scrapers")
+            elif request.form['SelectTask'] == 'dynamic_v2':
+                return redirect("/dynamic_v2")
             else:
                 return redirect("/dynamic")
         return render_template('index.html')   
@@ -394,5 +401,100 @@ def clean_files():
 # Clean misc files from upload folder when the server is restarted.
 clean_files()
 
+
+@app.route("/dynamic_v2", methods=['POST', 'GET'])
+def run_dynamic_scraper_v2():
+    """This function handles the display and operation of the WIP 'dynamic' scraper interface."""
+    # If the user hits the submit button, send the information to the server.
+    if request.method == 'POST':
+        if 'url_submit' in request.form:
+            url = request.form['url'].strip()
+            if url == '':
+                return render_template('dynamic_scraper_v2.html',
+                                        error="Please submit a valid url.",
+                                        url_needed=True)
+            si.base_url = url
+            jsp = request.form['jsp']
+            if jsp == "jsp_true":
+                si.jsp = True
+            return redirect("/dynamic-v2-add-item")
+        if 'add_item' or 'scrape' in request.form:
+            return render_template('dynamic_scraper_v2.html',
+                                        error="Please submit a valid url before trying to add/scrape items.",
+                                        url_needed=True)
+        
+    # Otherwise, respond to the GET request by displaying the webpage.
+    else:
+        si.clear()
+        return render_template('dynamic_scraper_v2.html', url_needed=True)
+    
+@app.route("/dynamic-v2-add-item", methods=['POST', 'GET'])
+def dynamic_v2_add():
+    if request.method == 'POST':
+        if 'url_submit' in request.form:
+            url = request.form['url'].strip()
+            if url == '':
+                return render_template('dynamic_scraper_v2.html',
+                                        error="Please submit a valid url.",
+                                        url_needed=True)
+            return render_template('dynamic_scraper_v2.html',
+                                items_submitted=True,
+                                url_needed=False,
+                                url=si.base_url,
+                                instructions=si.instructions)
+        
+        if 'add_item' in request.form:
+            # Pull all items from the form
+            i = request.form['instruction_select']
+            param = request.form['param'].strip()
+            tag = request.form['tag'].strip()
+            attribute = request.form['attribute'].strip()
+            value = request.form['value'].strip()
+            function_name = request.form['function_name'].strip()
+            params = [param, tag, attribute, value, function_name]
+            si.instructions.append((i, params))
+
+            return render_template('dynamic_scraper_v2.html',
+                                items_submitted=True,
+                                url_needed=False,
+                                url=si.base_url,
+                                instructions=si.instructions)
+        
+        if 'scrape' in request.form:
+            return redirect("/dynamic-v2-scrape")
+    
+    return render_template('dynamic_scraper_v2.html',
+                            items_submitted=True,
+                            url_needed=False,
+                            url=si.base_url,
+                            instructions=si.instructions)
+
+@app.route("/dynamic-v2-scrape", methods=['POST', 'GET'])
+def dynamic_v2_scrape():
+    if request.method =='POST':
+        if 'url_submit' in request.form:
+            return redirect("/dynamic-v2-add-item")
+        
+        if 'download' in request.form:
+            return redirect("/dynamic/download")
+
+    # try:
+        # Pass the dictionary to the scraper
+    result = dynamic_v2(si.base_url, si.instructions, si.jsp)
+    if isinstance(result, str):
+            return render_template('dynamic_scraper.html',
+                            error="Error encountered during scrape: " + result,
+                            url_needed=True)
+    
+    file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+    final = json.dumps(result, indent=2)
+    output = open(file, "w") 
+    json.dump(result, output, indent=2)
+    output.close()
+    si.clear()
+
+    return render_template('dynamic_scraper_v2_output.html',
+                        scrape=True,
+                        output=final)   
 if __name__ == "__main__":
     app.run(debug=True)

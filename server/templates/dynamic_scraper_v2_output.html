@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <title>Dynamic Scraper</title>
+{% endblock %}
+
+{% block body %}
+<a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
+<a class="reset" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
+<div id="main">  
+{% if scrape == True %}
+    <div id="output">
+        <h2>Output</h2>
+        <form id="download" method="POST">
+            <input type="submit" name="download" value="Download as JSON">
+        </form>
+        <div class="scraped_values">
+            <pre>{{ output }}</pre>
+        </div>
+    </div>
+{% endif %}
+</div>
+{% endblock %}
