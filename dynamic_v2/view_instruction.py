@@ -1,3 +1,6 @@
+# Slightly edited version of the Extract.py file. 
+# This file will follow the instruction list to the current url and return it.
+
 from dynamic_v2.Extract import main as dynamic_v2
 
 from time import sleep
@@ -43,11 +46,9 @@ def main(url, instructs, jsp):
         temp_scraper.then_go_back_to_beginning()
         temp_scraper.then_skip_to_element_with_attribute("input", "value", "Search For Water Systems")
     
-        # My Edit
         actions = ActionChains(driver)
         actions.move_to_element(temp_scraper.current_element).perform()
 
-        # My Edit
         WebDriverWait(driver, 1000).until(EC.element_to_be_clickable(temp_scraper.current_element)).click()
         #temp_scraper.current_element.click()
 
