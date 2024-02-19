@@ -25,6 +25,8 @@ class Crawler(object):
         self.sub_item_element = None
         self.max_items = 10
 
+        self.last_url = ""
+
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
 
@@ -90,7 +92,7 @@ class Crawler(object):
 
             scraper_data = scraper.scrape()
             self.data.append(scraper_data)
-
+            self.last_url = self.webdriver.current_url
             self.webdriver.back()
             self.back_to_beginning()
 

@@ -4,6 +4,7 @@ import pandas as pd
 from scripts.community_profiles import main
 from scripts.initial_scrape import main as init_scrape
 from dynamic_v2.Extract import main as dynamic_v2
+from dynamic_v2.view_instruction import main as get_url
 
 
 # Name of the module initializing / running the program
@@ -495,6 +496,64 @@ def dynamic_v2_scrape():
 
     return render_template('dynamic_scraper_v2_output.html',
                         scrape=True,
-                        output=final)   
+                        output=final)
+
+@app.route("/dynamic-v2-delete/<int:key>")
+def dynamic_delete_v2(key):
+    instructs = si.instructions
+    i = instructs[key]
+
+    # Option 2: If i[key] == click element, pop each instruction up + including 'go back previous page'
+    # Update list to linked list
+    if int(i[0]) == 7:
+        new_instructs = instructs[0:key]
+        finished = False
+        l = len(instructs)
+        for x in range(key, l):
+            if finished:
+                new_instructs.append(instructs[x])
+            else:
+                num = instructs[x][0]
+                if int(num) == 8 or finished:
+                    finished = True
+        si.instructions = new_instructs
+
+    # Else, pop one instruction
+    else:
+        instructs.pop(key)
+
+    return redirect("/dynamic-v2-add-item")
+
+@app.route("/dynamic-v2-update/<int:key>", methods=['POST','GET'])
+def dynamic_update_v2(key):
+    # If the user submits an update request, update the item.
+    if 'update_item' in request.form:
+        i = request.form['instruction_select']
+        param = request.form['param'].strip()
+        tag = request.form['tag'].strip()
+        attribute = request.form['attribute'].strip()
+        value = request.form['value'].strip()
+        function_name = request.form['function_name'].strip()
+        params = [param, tag, attribute, value, function_name]
+        si.instructions.insert(key, (i, params))
+        return redirect("/dynamic-v2-add-item")
+    
+    # Otherwise, find the item the user is requesting to delete and display it.
+    i = si.instructions[key]
+    instruct = i[0]
+    params = i[1]
+    si.instructions.pop(key)
+    return render_template('dynamic_update_v2.html',
+                           instruct=instruct,
+                           params=params)
+
+@app.route("/dynamic-v2/<int:key>")
+def view_instruction(key):
+    instructs = si.instructions[0:key+1]
+    # Load all of the instructions into Selenium
+    # Run scraper up until given instruction
+    url = get_url(si.base_url, instructs, si.jsp)
+    return redirect(url)
+
 if __name__ == "__main__":
     app.run(debug=True)
