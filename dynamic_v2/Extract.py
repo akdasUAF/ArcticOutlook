@@ -22,7 +22,7 @@ import dynamic_v2.Debug as Debug
 #import ScraperDefinitions.WaterSystem
 import dynamic_v2.create_instruction as create_instruction
 
-def main(url, instructs, jsp):
+def main(url, instructs, jsp, auto_list):
     # TEMPORARY FOR TESTING
 
     crawler = Crawler.Crawler()
@@ -58,11 +58,14 @@ def main(url, instructs, jsp):
 
     scrappy.set_web_driver(driver)
     crawler.set_web_driver(driver)
-    max_items = 5
-    crawler.set_max_items(max_items + 2)
-    # data = scrappy.scrape()
-    data = crawler.crawl_and_scrape(scrappy)
 
+    # If the user specifies that the first page is a list of links that needs to be scraper, 
+    if auto_list:
+        max_items = 5
+        crawler.set_max_items(max_items + 2)
+        data = crawler.crawl_and_scrape(scrappy)
+    else:
+        data = scrappy.scrape()
     driver.close()
 
     return data

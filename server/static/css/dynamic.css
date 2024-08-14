@@ -1,7 +1,5 @@
 #main
 {
-    display: grid;
-    grid-template-columns: 60% 40%;
     justify-content: space-between;
     word-wrap: break-word;
 }
@@ -19,13 +17,17 @@
 #selections 
 {
     float:left;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    border-style: ridge;
+    border-width: 2px;
+    max-height: 75%;
 }
 
-#scrape, #url_submit, #list, #update, #orig {
+#scrape, #url_submit, #update, #orig, #scraped_values {
     border-style: ridge;
-    border-width: 5px;
+    border-width: 2px;
     padding: 5px;
-    margin: 5px;
 }
 
 
@@ -46,7 +48,12 @@ table {
     color: red;
 }
 
-input[type=text],
+.form-label {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+/* input[type=text],
 select
 {
     padding: 5px;
@@ -61,7 +68,12 @@ select
 input[type=text]:hover, select:hover 
 {
     box-shadow:0 0 4px rgba(0,0,0,0.5);
-}
+} */
+
+/* .form-text
+{
+    font-size: 12px;
+} */
 
 fieldset
 {
@@ -76,3 +88,6 @@ legend
 {
     background-color: #f2f2f2;
 }
+.legend { list-style: none; }
+.legend li { float: left; margin-right: 10px; }
+.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }

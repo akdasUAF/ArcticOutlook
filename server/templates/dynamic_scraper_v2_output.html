@@ -2,21 +2,76 @@
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <title>Dynamic Scraper</title>
 {% endblock %}
 
 {% block body %}
-<a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
-<a class="reset" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
+<nav class="nav">
+    <a id="return" class="nav-link" href="{{ url_for('index') }}">Return to Main Page</a>
+    <a id="reset" class="nav-link" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
+</nav>
 <div id="main">  
 {% if scrape == True %}
     <div id="output">
         <h2>Output</h2>
-        <form id="download" method="POST">
-            <input type="submit" name="download" value="Download as JSON">
+        <div class="row mb-3">
+            <form id="download" method="POST">
+                <input type="submit" name="download" value="Download as JSON">
+            </form>
+        </div>
+        <form id="upload" method="POST">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label" for="upload_confirm">Upload to MongoDB?</label>
+                    <select class="form-select" id="upload_confirm" onchange="showMore(this)">
+                        <option selected disabled value="">Select Option</option>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div id="upload_yes" style="display:none" class="row mb-4">
+                <div class="col-md-9">
+                    <label class="form-label" for="Connection">Connection String</label>
+                    <input name="Connection" class="form-control" type="text" value={{default[0]}} aria-describedby=" con_tip">
+                </div>
+                <div class="form-text" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
+
+                <div class="col-md-9">
+                    <label class="form-label" for="Database">Database Name</label>
+                    <input name="Database" class="form-control" type="text" value={{default[1]}} aria-describedby=" db_tip">
+                </div>
+                <div class="form-text" id="db_tip">Example: Outlook</div>
+
+                <div class="col-md-9">
+                    <label class="form-label" for="Collection">Collection Name</label>
+                    <input name="Collection" class="form-control" type="text" value={{default[2]}} aria-describedby=" col_tip">
+                </div>
+                <div class="form-text" id="col_tip">Example: Data_Dump</div>
+            </div>
+            <script>
+                var showMore = function(option)
+                    {
+                        if (option.value == 'Yes')
+                        {
+                            document.getElementById('upload_yes').style.display = '';
+                        }
+                        else
+                        {
+                            document.getElementById('upload_yes').style.display = 'none';
+                        }
+                    }
+            </script>
+            <input type="submit" name="upload" value="Upload to MongoDB" class="mb-4">
         </form>
-        <div class="scraped_values">
-            <pre>{{ output }}</pre>
+        </div class="row mb-3">
+            <div id="scraped_values" class="border border-primary">
+                <pre>{{ output }}</pre>
+            </div>
         </div>
     </div>
 {% endif %}

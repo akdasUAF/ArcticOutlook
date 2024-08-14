@@ -12,6 +12,10 @@ from selenium.common import StaleElementReferenceException
 from selenium.common import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 
+from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+
 
 # PSEUDOCODE Usage
 #
@@ -34,6 +38,7 @@ class Scraper(object):
         self.function_writing = None
         self.live_mode = False
         self.webdriver = None
+        self.max_items = 5
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
@@ -201,6 +206,14 @@ class Scraper(object):
         self.__debug(names.__str__())
         self.__debug(row_dictionary_list.__str__())
         return row_dictionary_list
+    
+    # WIP: Instruction to scrape a table of links / perform action on subpages?
+    def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
+        return start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
+
+    def special_for_each(self, param, tag, attribute, value, function_name):
+        instruction = [ScraperInstructionType.special_for_each, param, tag, attribute, value, function_name]
+        self.handle_instruction(instruction)
 
     def scrape(self):
         self.__debug("Scraping...")
@@ -221,7 +234,7 @@ class Scraper(object):
 
     def execute_instruction(self, data, instruction):
         self.__debug("Running instruction: " + instruction.__str__())
-
+        
         time_start = time.time()
 
         if instruction[0] is ScraperInstructionType.skip_to_class:
@@ -246,9 +259,12 @@ class Scraper(object):
             self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
 
         if instruction[0] is ScraperInstructionType.click_element:
+            actions = ActionChains(self.webdriver)
+            actions.move_to_element(self.current_element).perform()
             for j in range(3):
                 try:
-                    self.current_element.click()
+                    #self.current_element.click()
+                    WebDriverWait(self.webdriver, 1000).until(EC.element_to_be_clickable(self.current_element)).click()
                     break
                 except ElementNotInteractableException:
                     # Sleep for a moment and try again
@@ -280,7 +296,31 @@ class Scraper(object):
                 objects.append(item)
 
             data[instruction[4]] = objects
+        
+        if instruction[0] is ScraperInstructionType.special_for_each:
+            # user passes css selector for 1st item
+            # change end of css selector to be enumerated
+            # keep the rest, should work
+            selector = instruction[2] + "[" + instruction[3] + "='" + instruction[4] + "']"
+            self.__debug(selector)
+            # elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
+            objects = []
+            for i in range(self.max_items):
+                # table tr:nth-of-type(0) a
+                # #ctl00_ContentPlaceHolder1_pnlContent > a:nth-child(3)
+                # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
+                # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
+                selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
+                try:
+                    elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
+                    item = dict()
+                    self.set_current_element(elem)
+                    self.execute_function(instruction[5], item)
+                    objects.append(item)
+                except:
+                    continue
 
+            data[instruction[4]] = objects
         time_end = time.time()
         self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__())
 

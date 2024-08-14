@@ -26,6 +26,7 @@ class Crawler(object):
         self.max_items = 10
 
         self.last_url = ""
+        self.last_instruction = ""
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
@@ -62,7 +63,7 @@ class Crawler(object):
         self.current_element = element
         self.__debug("Current element is now at " + self.current_element.location.__str__())
 
-    def crawl_and_scrape(self, scraper):
+    def crawl_and_scrape(self, scraper, view=False):
         self.__debug("Crawling...")
         self.back_to_beginning()
         self.data = []
@@ -70,7 +71,7 @@ class Crawler(object):
         for i in range(self.max_items):
 
             selector = self.create_selector_for_element_in_list(i)
-
+            
 
             self.__debug(selector.__str__())
 
@@ -93,8 +94,10 @@ class Crawler(object):
             scraper_data = scraper.scrape()
             self.data.append(scraper_data)
             self.last_url = self.webdriver.current_url
-            self.webdriver.back()
-            self.back_to_beginning()
+            self.last_instruction = scraper.current_element
+            if not view:
+                self.webdriver.back()
+                self.back_to_beginning()
 
 
         return self.data

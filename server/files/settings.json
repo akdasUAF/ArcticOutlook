@@ -18,5 +18,11 @@
         "Database": "Outlook",
         "Community Collection": "Community",
         "Contacts Collection": "Contacts"
+    },
+    "Dynamic_Scraper_Upload":
+    {
+        "URI": "mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test",
+        "Database": "Outlook",
+        "Collection": "Data_Dump"
     }
 }

@@ -20,7 +20,7 @@ import dynamic_v2.Debug as Debug
 #import ScraperDefinitions.WaterSystem
 import dynamic_v2.create_instruction as create_instruction
 
-def main(url, instructs, jsp):
+def main(url, instructs, jsp, auto_list):
     # TEMPORARY FOR TESTING
 
     crawler = Crawler.Crawler()
@@ -56,10 +56,27 @@ def main(url, instructs, jsp):
     crawler.set_web_driver(driver)
     max_items = 1
     crawler.set_max_items(max_items + 2)
-    # data = scrappy.scrape()
-    data = crawler.crawl_and_scrape(scrappy)
+    # If the user specifies that the first page is a list of links that needs to be scraper, 
+    if auto_list:
+        data = crawler.crawl_and_scrape(scrappy, True)
+        url = crawler.last_url
+        elem = crawler.last_instruction
+    else:
+        data = scrappy.scrape()
+        url = driver.current_url
+        elem = driver.switch_to.active_element
+    js = 'arguments[0].style.backgroundColor = "blue";'
+    # js = """const nodeList = document.querySelectorAll("table"); 
+    #                 for (let i = 0; i < nodeList.length; i++) { //looping over each table
+    #                 nodeList[i].style.backgroundColor = "red";
+    #                 if(nodeList[i].text.includes("AK")){ 
+    #                     nodeList[i].style.backgroundColor = "blue";
+    #                 }
+    #                 }"""
+    driver.execute_script(js, elem)
 
-    url = crawler.last_url
+    # driver.execute_script(js, elem2)
+    sleep(15)
     driver.close()
 
     return url

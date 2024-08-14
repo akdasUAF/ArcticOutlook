@@ -1,0 +1,58 @@
+#upload-nav
+{
+  background-color: #e3f2fd;
+}
+
+#gui-nav
+{
+  overflow: auto; 
+  height:100vh;
+}
+
+#query-list
+{
+  overflow: scroll;
+  display: inline-block;
+  height:100vh;
+  width:hidden;
+}
+/* 
+div.nested-sortable > div.query_step:nth-of-type(even) {
+  background-color: #FFC68F;
+} */
+
+.query_step
+{
+  background-color: hue-rotate(90deg);
+}
+
+#q_info
+{
+  white-space: pre-line;
+}
+
+#q_syntax
+{
+  white-space: pre-wrap;
+}
+
+#query_argument, #query_parameter
+{
+  height: 100px;
+}
+
+.option_1 {
+    background-color: red;
+  }
+
+.option_2 {
+    background-color: blue;
+  }
+
+.option_3 {
+    background-color: blue;
+  }
+
+.option_4 {
+    background-color: blue;
+  }

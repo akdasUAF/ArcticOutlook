@@ -1,0 +1,623 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">    
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/query_manager.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<!-- jsDelivr :: Sortable :: Latest (https://www.jsdelivr.com/package/npm/sortablejs) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+<script src="{{ url_for('static', filename='js/query_manager.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+<title>Query Manager</title>
+{% endblock %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light mb-3" id="upload-nav">
+    <div class="container-fluid">
+        <a class="navbar-brand disabled" href="#">Uploading a file to MongoDB.</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item px-1">
+                    <a id="step_1" class="nav-link border border" href="{{ url_for('reset_upload') }}">Reset</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_1" class="nav-link border" href="{{ url_for('upload_csv') }}">Step 1: Upload CSV</a>
+                </li>
+                {% if compared %}
+                <li class="nav-item px-1">
+                    <a id="step_2" class="nav-link border" href="{{ url_for('display_csv') }}">Step 2: View Table</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_3" class="nav-link border" href="{{ url_for('comparison_setup') }}">Step 3: Column Matching</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_4" class="nav-link border" href="{{ url_for('compare_csv') }}">Step 4: Table Comparison</a>
+                </li>
+                {% else %}
+                <li class="nav-item px-1">
+                    <a id="step_2" class="nav-link border" href="{{ url_for('csv_mongodb') }}">Step 2: View Table</a>
+                </li>
+                {% endif %}
+                <li class="nav-item px-1">
+                    <a id="step_5" class="nav-link border border-primary active" href="#">Query Manager</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div id="main" class="row">
+    <h4>Manage Queries</h4>
+    <p>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#query-misc-info" aria-expanded="true" aria-controls="select">Manage Query Info</button>
+    </p>  
+    <div class="row mb-3 collapse show" id="query-misc-info">
+        <p>Press the 'Manage Query Info' button to hide this tab.</p>
+        <div class="col-4 mb-6 flex-nowrap border p-3" id="select-template">
+            <p>Current Template: {{template_name}}</p>
+            <form id="template" class="" method="POST" enctype="multipart/form-data">
+                <div class="col input-group mb-3">
+                    <label class="input-group-text" for="template_select">Select Template</label>
+                    <select class="form-select" name="template_select" id="template_select">
+                        <option value="No Template" selected>No Template</option>
+                        {% for temp in templates %}
+                            <option value='{{temp["Index"]}}'>{{ temp["Name"] }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" class="btn btn-primary" name="select_template" value="Submit">
+                </div>
+                <hr>
+                <p>What MongoDB server/collection should the query apply to?</p>
+                <div class="col input-group">
+                    <span class="input-group-text" for="Connection">Connection String</span>
+                    <input name="Connection" class="form-control" type="text" aria-describedby=" con_tip" value={{mongodb_info[0]}}>
+                </div>
+                {% if mongodb_info[0] %}
+                <div class="form-text mb-3" id="con_tip">Currently: {{mongodb_info[0]}}</div>
+                {% else %}
+                <div class="form-text mb-3" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
+                {% endif %}
+                <div class="col input-group">
+                    <span class="input-group-text" for="Database">Database Name</span>
+                    <input name="Database" class="form-control" type="text" aria-describedby=" db_tip" value={{mongodb_info[1]}}>
+                </div>
+                {% if mongodb_info[1] %}
+                <div class="form-text mb-3" id="db_tip">Currently: {{mongodb_info[1]}}</div>
+                {% else %}
+                <div class="form-text mb-3" id="db_tip">Example: Outlook</div>
+                {% endif %}
+                <div class="col input-group">
+                    <span class="input-group-text" for="Collection">Collection Name</span>
+                    <input name="Collection" class="form-control" type="text" aria-describedby=" coll_tip" value={{mongodb_info[2]}}>
+                </div>
+                {% if mongodb_info[2] %}
+                <div class="form-text mb-3" id="coll_tip">Currently: {{mongodb_info[2]}}</div>
+                {% else %}
+                <div class="form-text mb-3" id="coll_tip">Example: Data_Dump</div>
+                {% endif %}
+                <input type="submit" class="btn btn-primary" name="set_mongodb_info" value="Submit">
+            </form>
+        </div>
+        <div class="col-8 mb-6 flex-nowrap border p-3" id="select-query">
+            <div class="row">
+                <div class="list-group col-6 mb-3" id="query-list" style="max-height: 40vh; text-align: center; overflow: scroll;">
+                    <div class="list-group-item list-group-item-secondary disabled">Query List</div>
+                    {% for query in query_list %}
+                    <div class="list-group-item list-group-item-primary selectable-query-list" id="{{query['Query']}}">{{query['Query']}}</div>
+                    {% endfor %}
+                </div>
+                <div class="list-group col-6 mb-3" id="query-order" style="max-height: 40vh; text-align: center; overflow: scroll;">
+                    <div class="list-group-item list-group-item-secondary disabled">Query Order</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <button class="btn btn-primary" name="load_query" id="load_query" value="Load">Load Query</button>
+                    <button class="btn btn-primary" name="delete_query" id="delete_query" value="Delete">Delete Query</button>
+                    <p>If a query is in the 'Query Order' list, it cannot be loaded or deleted.</p>
+                </div>
+                <div class="col-6 mb-3">
+                    <button class="btn btn-primary" name="run_query_order" id="run_query_order">Run Order</button>
+                    <!-- <button class="btn btn-primary" name="remove_query_order" id="remove_query_order">Remove from Order</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3" id="queryInfo"></div>
+    <div class="mb-3 row flex-nowrap" id="create-gui">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-secondary bg-gradient" id="gui-nav">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li>
+                        <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="command_menu">
+                            <span class="fs-5 d-none d-sm-inline text-light">Commands </span><i class="fa-solid fa-chevron-down"></i></a>
+                        <ul class="collapse show nav flex-column ms-1" id="submenu1" data-bs-parent="#menu">
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="set_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="set">Set Field</button>
+                            </li>
+                            <!-- <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="setVariable_info"><i class="fa-solid fa-circle-info" disabled></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="setVariable">Set Variable</button>
+                            </li> -->
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="project_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="project">Select Field</button>
+                            </li>
+                            <!-- Project selects multiple fields, need a unique way to make sure i have enough fields-->
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="project_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="projectMulti">Select Fields</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="match_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="match">Match on Value</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="addFields_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="addFields">Add New Field</button>
+                            </li>
+                            <!-- <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="lookup_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="lookup">Join on Field</button>
+                            </li> -->
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="unset_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="unset">Remove Field</button>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- <li>
+                        <a href="#submenu2" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="find_menu">
+                            <span class="fs-5 d-none d-sm-inline text-light">Find Records </span><i class="fa-solid fa-chevron-down"></i></a>
+                        <ul class="collapse show nav flex-column ms-1" id="submenu2" data-bs-parent="#menu">
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="find_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-info cmdBtn" id="find">Find</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="findOne_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-info cmdBtn" id="findOne">Find One</button>
+                            </li>
+                        </ul>
+                    </li> -->
+                    <li>
+                        <a href="#submenu3" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="output_menu">
+                            <span class="fs-5 d-none d-sm-inline text-light">Output </span><i class="fa-solid fa-chevron-down"></i></a>
+                        <ul class="collapse show nav flex-column ms-1" id="submenu3" data-bs-parent="#menu">
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="merge_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-success cmdBtn" id="merge">Merge Data</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="out_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-success cmdBtn" id="out">Output Data</button>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#submenu4" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="misc_menu">
+                            <span class="fs-5 d-none d-sm-inline text-light">Misc </span><i class="fa-solid fa-chevron-down"></i></a>
+                        <ul class="collapse show nav flex-column ms-1" id="submenu4" data-bs-parent="#menu">
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="index_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="index">Create Index</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="coll_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="coll">Create Coll</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="concat_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="concat">Concat</button>
+                            </li>
+                            <!-- <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="concatArrays_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="concatArrays" disabled>Concat Arrays</button>
+                            </li> -->
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="filter_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="filter">Filter</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="map_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="map">Map</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="range_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="range">Range</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="reduce_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="reduce">Reduce</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="regexMatch_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="regexMatch">regexMatch</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="substrCP_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-warning cmdBtn" id="substrCP">substrCP</button>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="btn btn-primary" name="new_query_gui" id="new_query_gui">Submit Query</button>
+                    </li>
+                </ul>
+                <hr>
+            </div>
+        </div>
+        <div class="col py-3 border border-secondary border-start-0 bg-light bg-gradient" id="query-list">
+            <p class="h3 text-center">Query</p>
+            <p>Special Notation:
+                <ol>@: This should be the <b>Name</b> of a <b>Sub / Nested Command</b></ol>
+                <ol>$: This typically refers to the <b>Value</b> of an item stored inside of a Column ("$Community" would return "Adak"). Alternatively, it can be a MongoDB command.</ol>
+            </p>
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="main_name">Query Name</label>
+                <input type="text" class="form-control" name="main_name" id="main_name">
+            </div>
+            <div class="list-group">
+                <div id="sortable" class="list-group nested-sortable" data-nest="1">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Delete a step from gui
+    $("body").on("click", "#delete_step", function () {
+        $(this).parent('.input-group-btn').parent('.input-group').parent('.query-contents').parent(".query_step").remove();
+    })
+
+    // This jquery shows/collapses query contents for the user.
+    $("body").on("click", "#show-step", function () {
+        var btn = $(this);
+        $(this).parent('.input-group').parent(".query_step").children(".query-contents").slideToggle(500, function(){
+            if ($(this).is(':visible'))
+            {
+                btn.text('Hide'); 
+            }
+            else
+            {
+                btn.text('Show');
+            }
+        });
+    })
+</script>
+<script>
+    var queryList = document.getElementById("query-list")
+    new Sortable(queryList, {
+    group: {
+        name: 'shared',
+        //pull: 'clone', // To clone: set pull to 'clone',
+        put: true,
+    },
+    animation: 150,
+    sort:false
+});
+var queryOrder = document.getElementById("query-order")
+    new Sortable(queryOrder, {
+    group: {
+        name: 'shared',
+        put: true,
+    },
+    animation: 150,
+    onAdd: function(f)
+    {
+        $(f.target).unbind("click");
+        $("#query-order").find(".list-group-item-warning").removeClass("list-group-item-warning");
+    }
+});
+
+
+$(".selectable-query-list").bind("click", function(e)
+{
+    $("#query-list").find(".list-group-item-warning").removeClass("list-group-item-warning");
+    $("#query-order").find(".list-group-item-warning").removeClass("list-group-item-warning");
+    // $(e.target).removeClass("list-group-item-primary");
+    $(e.target).addClass("list-group-item-warning");
+})
+</script>
+<!-- <script>
+    // Remove an item from the query order list
+    var rm = document.getElementById("remove_query_order");
+    rm.addEventListener('click', function(){
+        var queryOrder = document.getElementById("query-order");
+        var elem = queryOrder.querySelector(".list-group-item-warning");
+        queryOrder.removeChild(elem);
+    })
+</script> -->
+<script>
+    var run = document.getElementById("run_query_order");
+    run.addEventListener('click', function(){
+        var queryOrder = document.getElementById("query-order");
+        var elems = queryOrder.querySelectorAll(".selectable-query-list");
+        query_list = []
+        for (e of elems)
+        {
+            query_list.push(e.id);
+        }
+        $.ajax({
+                url: "{{ url_for('run_query_order', query_list='')}}" + JSON.stringify(query_list),
+                method: "POST",
+                success: function(msg) {
+                    var div = document.createElement('div');
+                    div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                    div.setAttribute('role', 'alert');
+
+                    var h4 = document.createElement('h4');
+                    h4.setAttribute('class', 'alert-heading');
+                    h4.innerText = "Query Status";
+
+                    var p = document.createElement('p');
+                    p.setAttribute('id', 'q_info');
+                    p.innerText = msg;
+
+                    var btn = document.createElement('button');
+                    btn.setAttribute('class', 'btn-close');
+                    btn.setAttribute('data-bs-dismiss', 'alert');
+                    btn.setAttribute('aria-label', 'Close');
+
+                    div.appendChild(h4);
+                    div.appendChild(p);
+                    div.append(btn);
+                    $("#queryInfo").append(div);
+                },
+                error: function(error) {
+                    var div = document.createElement('div');
+                    div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                    div.setAttribute('role', 'alert');
+
+                    var h4 = document.createElement('h4');
+                    h4.setAttribute('class', 'alert-heading');
+                    h4.innerText = "Query Status";
+
+                    var p = document.createElement('p');
+                    p.setAttribute('id', 'q_info');
+                    p.innerText = error;
+
+                    var btn = document.createElement('button');
+                    btn.setAttribute('class', 'btn-close');
+                    btn.setAttribute('data-bs-dismiss', 'alert');
+                    btn.setAttribute('aria-label', 'Close');
+
+                    div.appendChild(h4);
+                    div.appendChild(p);
+                    div.append(btn);
+                    $("#queryInfo").append(div);
+                }
+
+            });
+    })
+</script>
+<script>
+    // Load button script: load the query into the query manager
+    var load = document.getElementById("load_query");
+    load.addEventListener('click', function(){
+        var queryList = document.getElementById("query-list");
+        var elem = queryList.querySelector(".list-group-item-warning");
+        var value = elem.id;
+        $.ajax({
+                url: "{{ url_for('get_jsarray', query_name='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    populateJS(data); // populate the JS
+                },
+            });
+        })
+</script>
+<script>
+    // Load button script: load the query into the query manager
+    var load = document.getElementById("delete_query");
+    load.addEventListener('click', function(){
+        var queryList = document.getElementById("query-list");
+        var elem = queryList.querySelector(".list-group-item-warning");
+        var value = elem.id;
+        $.ajax({
+                url: "{{ url_for('delete_query', query='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    queryList.removeChild(elem);
+                },
+            });
+        })
+</script>
+<script>
+    // nested sortable serializer
+    function serialize( sortable ){
+        var result = [];
+        var subs = [].slice.call(sortable.children);
+        for (var i in subs) {
+            var nested = subs[i].querySelector('.nested-sortable');
+            var name = subs[i].querySelector('.input-group > .form-control').value;
+            console.log(name);
+            var qc = subs[i].querySelectorAll('div.query-contents > div.input-group > .form-control');
+            var queryContents = [];
+            for (var j = 0; j < qc.length; j++)
+            {
+                var name2 = qc[j].name;
+                var contents = qc[j].value;
+                queryContents.push({"name": name2,"contents": contents});
+            }
+            result.push({
+                id: subs[i].dataset.id,
+                name: name,
+                contents: queryContents,
+                subs: nested ? serialize(nested) : []
+            });
+        }
+        return result;
+    }
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/query_manager.js') }}">
+    // initialize all cmdBtns to have same event listener
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', addLi);
+    }
+</script>
+<script>
+    // If the user presses the info button next to a query, this function / ajax call displays query info for the user.
+    var elements = document.getElementsByClassName("infoBtn");
+    function getQueryInfo() {
+        var id = this.getAttribute("id");
+        $.ajax({
+                url: "{{ url_for('get_command_infoBtn', command='')}}" + id,
+                method: "POST",
+                success: function(data) {
+                    var div = document.createElement('div');
+                    div.setAttribute('class', 'alert alert-secondary alert-dismissible fade show');
+                    div.setAttribute('role', 'alert');
+
+                    var h4 = document.createElement('h4');
+                    h4.setAttribute('class', 'alert-heading');
+                    const cmd = id.split('_');
+                    h4.innerText = cmd[0];
+
+                    var p = document.createElement('p');
+                    p.setAttribute('id', 'q_info');
+                    p.innerText = data[0];
+
+                    var pre = document.createElement('pre');
+                    pre.setAttribute('id', 'q_syntax');
+
+                    var code = document.createElement('code');
+                    code.innerText = data[1];
+
+                    var btn = document.createElement('button');
+                    btn.setAttribute('class', 'btn-close');
+                    btn.setAttribute('data-bs-dismiss', 'alert');
+                    btn.setAttribute('aria-label', 'Close');
+
+                    div.appendChild(h4);
+                    div.appendChild(p);
+                    div.appendChild(document.createElement('hr'));
+                    pre.appendChild(code);
+                    div.appendChild(pre);
+                    div.append(btn);
+                    $("#queryInfo").append(div);
+                },
+            });
+    }
+    // initialize all cmdBtns to have same event listener
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', getQueryInfo);
+    }
+</script>
+<script type="text/javascript">
+    // https://www.geeksforgeeks.org/how-to-add-and-remove-input-fields-dynamically-using-jquery-with-bootstrap/
+    $("#add_step").click(function () {
+        newRowAdd =
+            '<div id="query_step" class="border border-1 border-secondary rounded-3 p-3"> <div class="input-group mb-3">' +
+            '<div class="input-group-prepend">' + 
+            '<button class="btn btn-danger" id="remove_step" type="button">Remove Step</div>'+
+            '<label class="input-group-text" for="query">Query Command</label>' +
+            '<select class="form-select" id="query" name="query" required>' +
+            '<option selected disabled value="">Choose Query Command...</option>' +
+            '{% for x in commands %}<option value="{{x}}">{{x}}</option>{% endfor %} </select> </div>' +
+            '<div class="alert alert-secondary" role="alert">' + 
+            '<h4 class="alert-heading" id="q_name"></h4>' +
+            '<p id="q_info"></p> <hr>' + 
+            '<pre class="mb-0" id="q_syntax"><code></code></pre> </div>' +
+            '<div class="form-floating mb-3">' + 
+            '<textarea class="form-control" id="query_argument" name="query_argument"></textarea>' + 
+            '<label for="query">Query Argument</label> </div>';
+
+        $('#query_steps').append(newRowAdd);
+    });
+    $("body").on("click", "#remove_step", function () {
+        $(this).parents("#query_step").remove();
+    })
+</script>
+<script>
+$(document).ready( function() {
+    $('#new_query_gui').click(function() {
+        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
+        var result = serialize( $('#sortable')[0] );
+        console.log(result);
+        var main_name = document.getElementById("main_name").value;
+        result.push({query_name: main_name});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#sortable').innerHTML;
+        console.log(html);
+        data.push(formdata);
+        data.push(html);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: 'http://127.0.0.1:5000/query_manager/submit',
+            success: function (msg) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = msg[0];
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+            },
+            error: function(error) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = error[0];
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -19,3 +19,4 @@ class ScraperInstructionType(Enum):
     for_each = 11
     create_function = 12
     end_function = 13
+    special_for_each = 14
