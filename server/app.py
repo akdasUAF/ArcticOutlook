@@ -545,7 +545,11 @@ def dynamic_v2_scrape():
             return dynamic_upload(uri, db, col)
 
     # Replace False with si.auto once implemented
-    result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
+    try:
+        result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
+    except:
+        flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.')
+        return redirect("/dynamic-v2-add-item")
     if isinstance(result, str):
             return render_template('dynamic_scraper.html',
                             error="Error encountered during scrape: " + result,

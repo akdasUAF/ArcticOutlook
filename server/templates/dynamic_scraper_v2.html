@@ -18,6 +18,23 @@
     <a id="return" class="nav-link" href="{{ url_for('index') }}">Return to Main Page</a>
     <a id="reset" class="nav-link" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
 </nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
 <div id="main" class="row px-4">  
     <div id="selections" class="col-8 gx-5">
         <h4>Scraper Instructions</h4>
