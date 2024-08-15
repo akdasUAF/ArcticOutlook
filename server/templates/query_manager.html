@@ -569,7 +569,7 @@ $(document).ready( function() {
             contentType: 'application/json',
             data: JSON.stringify(data),
             dataType: 'json',
-            url: 'http://127.0.0.1:5000/query_manager/submit',
+            url: "{{ url_for('submit_gui_query') }}",
             success: function (msg) {
                 var div = document.createElement('div');
                 div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
