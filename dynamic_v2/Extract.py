@@ -13,6 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.firefox.options import Options
 
 import dynamic_v2.Crawler as Crawler
 import dynamic_v2.Scraper as Scraper
@@ -34,8 +35,9 @@ def main(url, instructs, jsp, auto_list):
 
     create_instruction.setup_scraper(scrappy, instructs)
 
-
-    driver = webdriver.Firefox()
+    options = webdriver.FirefoxOptions()
+    options.add_argument("-headless")
+    driver = webdriver.Firefox(options=options)
     driver.get(url)
     driver.maximize_window() # Small edit to tell Selenium to maximize the window so that it may see all elements on the page.
 
