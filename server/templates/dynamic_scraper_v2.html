@@ -261,12 +261,9 @@
             url: "{{ url_for('view_instruction', key='')}}" + key,
             method: "GET",
             success: function(response) {
-                console.log(response);
-                // document.write(response);
-                // window.location.href = "{{ url_for('dynamic_delete_v2', key='')}}" + key;
-    }
-        });
-});
+                window.open(response, "_blank");
+        }})
+    });
 </script>
 
 <script>

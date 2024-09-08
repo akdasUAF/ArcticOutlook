@@ -1,4 +1,4 @@
-import subprocess, os, json, zipfile, math, re, webbrowser
+import subprocess, os, json, zipfile, math, re
 import pandas as pd
 import numpy as np
 from flask import Flask, render_template, request, redirect, send_file, flash, url_for, jsonify
@@ -543,12 +543,11 @@ def dynamic_v2_scrape():
             db = request.form['Database']
             col = request.form['Collection']
             return dynamic_upload(uri, db, col)
-
     # Replace False with si.auto once implemented
     try:
         result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
-    except:
-        flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.')
+    except Exception as e:
+        flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.\n'+str(e), 'error')
         return redirect("/dynamic-v2-add-item")
     if isinstance(result, str):
             return render_template('dynamic_scraper.html',
@@ -696,8 +695,7 @@ def view_instruction(key):
     # Load all of the instructions into Selenium
     # Run scraper up until given instruction
     url = get_url(si.base_url, instructs, si.jsp, si.auto)
-    return webbrowser.open_new_tab(url)
-    #return redirect(url)
+    return url
 
 @app.route("/dynamic-v2-popup/<int:key>", methods=['POST','GET'])
 def instruction_info(key):
@@ -725,6 +723,10 @@ def update_template(template, index=None):
     """Helper function to update a user defined template for the file upload / query manager features."""
     if not index:
         index = template["Index"]
+        # If new and empty template, report an error.
+        if index == "":
+            flash('Attempted to update an empty template.', 'error')
+            return ""
     file_temp = os.path.join(app.config['TEMPLATE_FOLDER'], "templates.json")
     with open(file_temp, 'r') as f:
         temp = json.load(f)
@@ -750,7 +752,10 @@ def update_template(template, index=None):
 def delete_template(index, temp):
     """Helper function to delete a specific user defined template."""
     file_temp = os.path.join(app.config['TEMPLATE_FOLDER'], "templates.json")
-
+    # If the template is empty, report an error
+    if (index == "" or temp == ""):
+        flash("No template selected for delete.", 'error')
+        return ""
     # Loop through template file for specific template index. 
     for x in range(0, len(temp)):
         if temp[x]["Index"] == index:
@@ -1044,7 +1049,7 @@ def update_row_col_str(row, col):
         for c in col:
             if ':' in c:
                 r = c.split(':')
-                for i in range(eval(r[0])-1, eval(r[1])-1):
+                for i in range(int(r[0])-1, int(r[1])-1):
                     cols.append(i)
             else:
                 cols.append(int(c)-1)
@@ -1057,7 +1062,7 @@ def update_row_col_str(row, col):
         for c in row:
             if ':' in c:
                 r = c.split(':')
-                for i in range(eval(r[0])-1, eval(r[1])-1):
+                for i in range(int(r[0])-1, int(r[1])-1):
                     rows.append(i)
             else:
                 rows.append(int(c)-1)
