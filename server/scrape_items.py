@@ -11,6 +11,7 @@ class ScrapeItems():
         self.jsp = False
         self.num = 1.0
         self.auto = False
+        self.scraped = False
 
         self.instruct_list = []
         self.head = Node("Head Node", -55)

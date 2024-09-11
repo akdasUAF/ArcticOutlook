@@ -518,8 +518,11 @@ def dynamic_v2_add():
         if 'scrape' in request.form:
             return redirect("/dynamic-v2-scrape")
         
-        if 'num_submit' in request.form:
+        if 'num_submit' in request.form: 
             return dynamic_update_v2(int(request.form['update_num']))
+    
+    elif si.base_url == '':
+        return redirect("/dynamic_v2")
 
     return render_template('dynamic_scraper_v2.html',
                             items_submitted=True,
@@ -542,30 +545,49 @@ def dynamic_v2_scrape():
             uri = request.form['Connection']
             db = request.form['Database']
             col = request.form['Collection']
-            return dynamic_upload(uri, db, col)
+            if (uri == '' or db == '' or col == ''):
+                flash('MongoDB Connection details were not inputted. Please try again.', 'error')
+            else:
+                try:
+                    return dynamic_upload(uri, db, col)
+                except:
+                    flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
     # Replace False with si.auto once implemented
-    try:
-        result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
-    except Exception as e:
-        flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.\n'+str(e), 'error')
-        return redirect("/dynamic-v2-add-item")
-    if isinstance(result, str):
-            return render_template('dynamic_scraper.html',
-                            error="Error encountered during scrape: " + result,
-                            url_needed=True)
+    else:
+        if not si.scraped:
+            try:
+                result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
+            except Exception as e:
+                flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.\n'+str(e), 'error')
+                return redirect("/dynamic-v2-add-item")
+            if isinstance(result, str):
+                    si.scraped = True
+                    return render_template('dynamic_scraper.html',
+                                    error="Error encountered during scrape: " + result,
+                                    url_needed=True)
+        
+        file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+        final = json.dumps(result, indent=2)
+        output = open(file, "w") 
+        json.dump(result, output, indent=2)
+        output.close()
+        si.clear()
+        default_values = display_text_input("Dynamic_Scraper_Upload")
+
+        return render_template('dynamic_scraper_v2_output.html',
+                            scrape=True,
+                            output=final,
+                            default=default_values)
     
     file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+    with open(file) as f:
+        result = json.load(f)
     final = json.dumps(result, indent=2)
-    output = open(file, "w") 
-    json.dump(result, output, indent=2)
-    output.close()
-    si.clear()
     default_values = display_text_input("Dynamic_Scraper_Upload")
-
     return render_template('dynamic_scraper_v2_output.html',
-                        scrape=True,
-                        output=final,
-                        default=default_values)
+                            scrape=True,
+                            output=final,
+                            default=default_values)
 
 @app.route("/dynamic-v2-delete/<key>")
 def dynamic_delete_v2(key):

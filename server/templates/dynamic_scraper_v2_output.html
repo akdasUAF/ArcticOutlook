@@ -14,16 +14,28 @@
     <a id="return" class="nav-link" href="{{ url_for('index') }}">Return to Main Page</a>
     <a id="reset" class="nav-link" href="{{ url_for('run_dynamic_scraper_v2') }}">Reset Scraper</a>
 </nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
 <div id="main">  
 {% if scrape == True %}
     <div id="output">
         <h2>Output</h2>
-        <div class="row mb-3">
-            <form id="download" method="POST">
-                <input type="submit" name="download" value="Download as JSON">
-            </form>
-        </div>
-        <form id="upload" method="POST">
+        <form id="output-form" method="POST">
             <div class="row mb-4">
                 <div class="col-md-4">
                     <label class="form-label" for="upload_confirm">Upload to MongoDB?</label>
@@ -66,13 +78,12 @@
                         }
                     }
             </script>
-            <input type="submit" name="upload" value="Upload to MongoDB" class="mb-4">
-        </form>
-        </div class="row mb-3">
-            <div id="scraped_values" class="border border-primary">
-                <pre>{{ output }}</pre>
+            <input type="submit" class="btn btn-primary" name="upload" value="Upload to MongoDB">
+            <input type="submit" class="btn btn-primary" name="download" value="Download as JSON">
+            <div class="row mb-4 mt-4 border scraped_values">
+                <pre id="json_output" style="overflow: scroll; height:50vh; width:hidden;">{{ output }}</pre>
             </div>
-        </div>
+        </form>
     </div>
 {% endif %}
 </div>
