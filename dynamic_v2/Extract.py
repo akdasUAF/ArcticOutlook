@@ -22,7 +22,7 @@ import dynamic_v2.Debug as Debug
 #import ScraperDefinitions.WaterSystem
 import dynamic_v2.create_instruction as create_instruction
 
-def main(url, instructs, jsp, auto_list):
+def main(url, instructs):
     # TEMPORARY FOR TESTING
 
     crawler = Crawler.Crawler()
@@ -40,36 +40,38 @@ def main(url, instructs, jsp, auto_list):
     options.add_argument("-headless")
 
     driver = webdriver.Firefox(options=options, service=service)
+    #driver = webdriver.Firefox(options=options)
     driver.get(url)
     driver.maximize_window() # Small edit to tell Selenium to maximize the window so that it may see all elements on the page.
 
     # Click the button to navigate to the water system list
     # If the webpage has a JSP button to navigate, this will create a temporary scraper to navigate through the form.
-    if jsp:
-        temp_scraper = Scraper.Scraper()
-        temp_scraper.activate_live_mode()
-        temp_scraper.set_web_driver(driver)
-        temp_scraper.then_go_back_to_beginning()
-        temp_scraper.then_skip_to_element_with_attribute("input", "value", "Search For Water Systems")
+    # if jsp:
+    #     temp_scraper = Scraper.Scraper()
+    #     temp_scraper.activate_live_mode()
+    #     temp_scraper.set_web_driver(driver)
+    #     temp_scraper.then_go_back_to_beginning()
+    #     temp_scraper.then_skip_to_element_with_attribute("input", "value", "Search For Water Systems")
     
-        # Small edit to ensure that the scraper moves to the proper web element on the page
-        actions = ActionChains(driver)
-        actions.move_to_element(temp_scraper.current_element).perform()
+    #     # Small edit to ensure that the scraper moves to the proper web element on the page
+    #     actions = ActionChains(driver)
+    #     actions.move_to_element(temp_scraper.current_element).perform()
 
-        # Small edit to ensure that the scraper will wait until the element is clickable.
-        WebDriverWait(driver, 1000).until(EC.element_to_be_clickable(temp_scraper.current_element)).click()
-        #temp_scraper.current_element.click()
+    #     # Small edit to ensure that the scraper will wait until the element is clickable.
+    #     WebDriverWait(driver, 1000).until(EC.element_to_be_clickable(temp_scraper.current_element)).click()
+    #     #temp_scraper.current_element.click()
 
     scrappy.set_web_driver(driver)
     crawler.set_web_driver(driver)
 
     # If the user specifies that the first page is a list of links that needs to be scraper, 
-    if auto_list:
-        max_items = 5
-        crawler.set_max_items(max_items + 2)
-        data = crawler.crawl_and_scrape(scrappy)
-    else:
-        data = scrappy.scrape()
+    # if auto_list:
+    #     max_items = 5
+    #     crawler.set_max_items(max_items + 2)
+    #     data = crawler.crawl_and_scrape(scrappy)
+    #else:
+    data = scrappy.scrape()
+    sleep(50)
     driver.close()
 
     return data

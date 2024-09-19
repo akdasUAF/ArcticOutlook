@@ -15,6 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.select import Select
 
 
 # PSEUDOCODE Usage
@@ -207,6 +208,19 @@ class Scraper(object):
         self.__debug(row_dictionary_list.__str__())
         return row_dictionary_list
     
+    def then_send_keys(self, parameter, tag, attribute, value):
+        instruction = [ScraperInstructionType.form_send_keys, tag, attribute, value, parameter]
+        self.handle_instruction(instruction)
+    
+    def then_form_submit(self, tag, attribute, value):
+        # Instruction type, 
+        instruction = [ScraperInstructionType.form_submit, tag, attribute, value]
+        self.handle_instruction(instruction)
+    
+    def then_delay(self):
+        instruction = [ScraperInstructionType.delay]
+        self.handle_instruction(instruction)
+
     # WIP: Instruction to scrape a table of links / perform action on subpages?
     def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
         return start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
@@ -214,6 +228,13 @@ class Scraper(object):
     def special_for_each(self, param, tag, attribute, value, function_name):
         instruction = [ScraperInstructionType.special_for_each, param, tag, attribute, value, function_name]
         self.handle_instruction(instruction)
+
+    def scroll_to_current_element(self):
+        self.webdriver.execute_script("arguments[0].scrollIntoView();", self.current_element)
+        WebDriverWait(self.webdriver, .5)
+        
+    def wait_for_visibility(self, selector_type, selector):
+        return WebDriverWait(self.webdriver, 20).until(EC.visibility_of_element_located((selector_type, selector)))
 
     def scrape(self):
         self.__debug("Scraping...")
@@ -321,6 +342,37 @@ class Scraper(object):
                     continue
 
             data[instruction[4]] = objects
+        
+        if instruction[0] is ScraperInstructionType.form_send_keys:
+            # Set our webdriver to look at current element
+            selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
+            self.__debug(selector)
+            if self.wait_for_visibility(By.CSS_SELECTOR, selector):
+                elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
+                self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
+                
+                self.scroll_to_current_element()
+
+                # TODO: If there are more form options, implement them
+                if instruction[1] == 'select':
+                    select = Select(self.current_element)
+                    WebDriverWait(self.webdriver, 15).until(EC.element_to_be_clickable(self.current_element))
+                    select.select_by_value(instruction[4])
+                else:
+                    self.current_element.send_keys(instruction[4])
+
+        if instruction[0] is ScraperInstructionType.form_submit:
+            selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
+            self.__debug(selector)
+            elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
+            self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
+            self.scroll_to_current_element()
+            self.current_element.click()
+            self.back_to_beginning()
+        
+        if instruction[0] is ScraperInstructionType.delay:
+            # TODO: Allow user to set the delay 
+            WebDriverWait(self.webdriver, 5)
         time_end = time.time()
         self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__())
 

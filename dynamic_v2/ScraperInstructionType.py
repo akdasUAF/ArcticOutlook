@@ -20,3 +20,6 @@ class ScraperInstructionType(Enum):
     create_function = 12
     end_function = 13
     special_for_each = 14
+    form_send_keys = 15
+    form_submit = 16
+    delay = 17

@@ -36,6 +36,12 @@ def setup_scraper(scraper, instructions):
                 scraper.end_function()
             case "special_for_each":
                 scraper.special_for_each(params[0], params[1], params[2], params[3], params[4])
+            case "form_send_keys":
+                scraper.then_send_keys(params[0], params[1], params[2], params[3])
+            case "form_submit":
+                scraper.then_form_submit(params[1], params[2], params[3])
+            case "delay":
+                scraper.then_delay()
             case _:
                 print("Invalid Instruction")
 

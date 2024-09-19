@@ -437,12 +437,6 @@ def run_dynamic_scraper_v2():
                                         error="Please submit a valid url.",
                                         url_needed=True)
             si.base_url = url
-            jsp = request.form['jsp']
-            link_table = request.form['link_table']
-            if jsp == "jsp_true":
-                si.jsp = True
-            if link_table == "link_table_true":
-                si.auto = True
             return redirect("/dynamic-v2-add-item")
         if 'add_item' or 'scrape' in request.form:
             return render_template('dynamic_scraper_v2.html',
@@ -556,7 +550,7 @@ def dynamic_v2_scrape():
     else:
         if not si.scraped:
             try:
-                result = dynamic_v2(si.base_url, si.instructions, si.jsp, si.auto)
+                result = dynamic_v2(si.base_url, si.instructions)
             except Exception as e:
                 flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.\n'+str(e), 'error')
                 return redirect("/dynamic-v2-add-item")
@@ -716,7 +710,7 @@ def view_instruction(key):
     instructs = si.instructions[0:int(key)+1]
     # Load all of the instructions into Selenium
     # Run scraper up until given instruction
-    url = get_url(si.base_url, instructs, si.jsp, si.auto)
+    url = get_url(si.base_url, instructs)
     return url
 
 @app.route("/dynamic-v2-popup/<int:key>", methods=['POST','GET'])
@@ -1636,6 +1630,9 @@ def csv_download():
             download_name='output_table.json',
             as_attachment=True
         )
+@app.route("/scraper_ui")
+def scraper_ui():
+    return render_template("scraper_ui.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
