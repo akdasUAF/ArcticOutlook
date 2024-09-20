@@ -39,7 +39,7 @@ class Scraper(object):
         self.function_writing = None
         self.live_mode = False
         self.webdriver = None
-        self.max_items = 5
+        self.max_items = 50
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
@@ -331,6 +331,7 @@ class Scraper(object):
                 # #ctl00_ContentPlaceHolder1_pnlContent > a:nth-child(3)
                 # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
                 # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
+                # iterator, parent_selector, tag
                 selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
                 try:
                     elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)

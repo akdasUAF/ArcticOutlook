@@ -149,7 +149,7 @@
                     </div>
                     <div class="col">
                         <label class="form-label" for="instruct_name"
-                        title="This is a name for this value for easier instruction reading. Example: Water System Table.">Instruction Name</label>
+                        title="This is a name for this value for easier instruction reading. Example: Water System Table. This needs to be unique!">Instruction Name</label>
                         <input name="instruct_name" type="text" class="form-control">
                     </div>
                     <div class="col">
@@ -272,6 +272,9 @@
 <script>
     function displayDetails(t) {
         // If a checkbox is clicked, we pass the index to flask to display the contents within the second div
+        $('input[type="checkbox"]').on('change', function() {
+            $('input[type="checkbox"]').not(this).prop('checked', false);
+        });
         if (t.is(':checked')) {
             var value = t.attr('value');
             $.ajax({

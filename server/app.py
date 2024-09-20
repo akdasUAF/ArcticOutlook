@@ -480,26 +480,28 @@ def dynamic_v2_add():
 
             instruct_name = request.form['instruct_name'].strip()
             if instruct_name == "":
-                instruct_name = str(ScraperInstructionType(int(i)))
+                #instruct_name = str(ScraperInstructionType(int(i)))
+                 instruct_name = "Step " + str(si.instruct_num)
             notes = request.form['notes']
 
             # TODO: Update Node logic / bring more in line with the query manager for ease-of-us/updating.
+            #TODO: If the instruction name is the same as something else, it removes all when delete occurrs!
             temp = Node(instruct_name, si.instruct_num)
             curr_node = si.nodes_list[-1]
-            if i[0] == '7':
-                si.num = math.floor(si.num + 1.0)
-                temp.nodes = []
-                curr_node.insert_node(temp)
-                si.nodes_list.append(temp)
-            elif i[0] == '8':
-                si.num = math.floor(si.num - 1.0)
-                curr_node.insert_node(temp)
-                si.nodes_list.pop()
-            else:
-                si.num = round(si.num + 0.1, 1)
-                curr_node.insert_node(temp)
+            # if i[0] == '7':
+            #     si.num = math.floor(si.num + 1.0)
+            #     temp.nodes = []
+            #     curr_node.insert_node(temp)
+            #     si.nodes_list.append(temp)
+            # elif i[0] == '8':
+            #     si.num = math.floor(si.num - 1.0)
+            #     curr_node.insert_node(temp)
+            #     si.nodes_list.pop()
+            # else:
+            si.num = round(si.num + 0.1, 1)
+            curr_node.insert_node(temp)
 
-            si.instructions.append((ScraperInstructionType(int(i)).name, params, si.num, instruct_name, notes))
+            si.instructions.append((ScraperInstructionType(int(i)).name, params, si.instruct_num, instruct_name, notes))
             si.instruct_list = si.head.convert_to_dict()["nodes"]
             
             return render_template('dynamic_scraper_v2.html',
@@ -593,21 +595,21 @@ def dynamic_delete_v2(key):
 
     # Option 2: If i[key] == click element, pop each instruction up + including 'go back previous page'
     # Update list to linked list
-    if i[0] == ScraperInstructionType(7).name:
-        new_instructs = instructs[0:key]
-        finished = False
-        l = len(instructs)
-        for x in range(key, l):
-            if finished:
-                new_instructs.append(instructs[x])
-            else:
-                name = instructs[x][0]
-                if name == ScraperInstructionType(8).name or finished:
-                    finished = True
-        si.instructions = new_instructs
+    # if i[0] == ScraperInstructionType(7).name:
+    #     new_instructs = instructs[0:key]
+    #     finished = False
+    #     l = len(instructs)
+    #     for x in range(key, l):
+    #         if finished:
+    #             new_instructs.append(instructs[x])
+    #         else:
+    #             name = instructs[x][0]
+    #             if name == ScraperInstructionType(8).name or finished:
+    #                 finished = True
+    #     si.instructions = new_instructs
     # Else, pop one instruction
-    else:
-        instructs.pop(key)
+    #else:
+    instructs.pop(key)
     
     # Call function to update tree
     si.head = node.delete_node(si.head, key+1)

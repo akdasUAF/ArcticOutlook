@@ -71,7 +71,7 @@ def main(url, instructs):
     #     data = crawler.crawl_and_scrape(scrappy)
     #else:
     data = scrappy.scrape()
-    sleep(50)
+    #sleep(50)
     driver.close()
 
     return data
