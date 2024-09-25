@@ -238,9 +238,13 @@ output.csv
 # Ignore template file updates
 server/template_info/*
 !server/template_info/templates.json
+!server/template_info/mongodb_settings.json
 
 # Ignore misc files in the files directory
 server/files/*
 !server/files/settings.json
 
+# Ignore WIP files
+scraper_ui.html
+scraper_instruction.js
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,visualstudiocode

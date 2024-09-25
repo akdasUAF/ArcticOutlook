@@ -98,8 +98,14 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                 <div class="form-text mb-3" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
                 {% endif %}
                 <div class="col input-group">
+                    <input type="checkbox" id="alt-db">Select Database from MongoDB Settings
                     <span class="input-group-text" for="Database">Database Name</span>
-                    <input name="Database" class="form-control" type="text" aria-describedby=" db_tip" value={{mongodb_info[1]}}>
+                    <input name="Database" id="database-text" class="form-control" type="text" aria-describedby=" db_tip" value={{mongodb_info[1]}}>
+                    <select class="form-control hidden-db" id="database-list" name="Database" disabled size="5" style="display: none;" aria-describedby=" db_tip">
+                        {% for db in names %}
+                        <option value="{{db}}" id="{{db}}">{{db}}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 {% if mongodb_info[1] %}
                 <div class="form-text mb-3" id="db_tip">Currently: {{mongodb_info[1]}}</div>
@@ -107,8 +113,17 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                 <div class="form-text mb-3" id="db_tip">Example: Outlook</div>
                 {% endif %}
                 <div class="col input-group">
+                    <input type="checkbox" id="alt-col">Select Collection from MongoDB Settings
                     <span class="input-group-text" for="Collection">Collection Name</span>
-                    <input name="Collection" class="form-control" type="text" aria-describedby=" coll_tip" value={{mongodb_info[2]}}>
+                    <input name="Collection" id="collection-text" class="form-control" type="text" aria-describedby=" coll_tip" value={{mongodb_info[2]}}>
+                    <select class="form-control hidden-col" id="collection-list" name="Collection" disabled size="5" style="display: none;" aria-describedby=" coll_tip">
+                        {% for db in names %}
+                        <optgroup label="{{db}}">
+                            {% for col in names[db] %}
+                                <option value="{{db}}: {{col}}" id="">{{col}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
                 </div>
                 {% if mongodb_info[2] %}
                 <div class="form-text mb-3" id="coll_tip">Currently: {{mongodb_info[2]}}</div>
@@ -619,5 +634,52 @@ $(document).ready( function() {
         });
     });
 });
+</script>
+<script>
+    var checkbox = document.querySelector("#alt-db");
+    var select = document.querySelector("#database-list");
+    var altSelect = document.querySelector("#database-text");
+
+    checkbox.addEventListener('change', function(event) {
+        select.classList.toggle('hidden-db');
+        select.disabled = !select.disabled;
+
+        altSelect.classList.toggle('hidden-db');
+        altSelect.disabled = !altSelect.disabled;
+
+        if (select.classList.contains('hidden-db')) {
+            altSelect.style.display = "inline";
+            select.style.display = "none";
+        }
+        else
+        {
+            select.style.display = "inline";
+            altSelect.style.display = "none";
+        }
+    });
+</script>
+<script>
+    var checkboxCol = document.querySelector("#alt-col");
+    var selectCol = document.querySelector("#collection-list");
+    var altSelectCol = document.querySelector("#collection-text");
+
+    checkboxCol.addEventListener('change', function(event) {
+
+        selectCol.classList.toggle('hidden-col');
+        selectCol.disabled = !selectCol.disabled;
+        
+        altSelectCol.classList.toggle('hidden-col');
+        altSelectCol.disabled = !altSelectCol.disabled;
+
+        if (selectCol.classList.contains('hidden-col')) {
+            altSelectCol.style.display = "inline";
+            selectCol.style.display = "none";
+        }
+        else
+        {
+            selectCol.style.display = "inline";
+            altSelectCol.style.display = "none";
+        }
+    });
 </script>
 {% endblock %}

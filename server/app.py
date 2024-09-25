@@ -162,8 +162,10 @@ def index():
                 return redirect("/upload_csv")
             elif request.form['SelectTask'] == 'query_manager':
                 return redirect("/query_manager")
+            elif request.form['SelectTask'] == 'mongodb_settings':
+                return redirect("/mongodbsettings")
             else:
-                return redirect("/dynamic")
+                return redirect("/")
         return render_template('index.html')   
     return render_template('index.html')   
 
@@ -423,6 +425,49 @@ def clean_files():
 clean_files()
 
 """
+Add known Databases / Collections
+"""
+@app.route("/mongodb-settings", methods=['POST', 'GET'])
+def mongodb_settings():
+    temp = get_mongodb_settings()
+
+    if request.method == 'POST':
+        if 'delete_database' in request.form:
+            db = request.form['database-list']
+            temp.pop(db)
+        
+        elif 'delete_collection' in request.form:
+            col = request.form['collection-list']
+            db, col = col.split(": ", 1)
+            if col in temp[db]:
+                temp[db].remove(col)
+
+        write_mongodb_settings(temp)
+    return render_template("mongodb_settings.html", names=temp)
+    
+def add_mongodb_settings(db, col):
+    temp = get_mongodb_settings()
+    
+    if db != "":
+        if db not in temp:
+            temp[db] = []
+        if col not in temp[db] and col != "":
+            temp[db].append(col)
+
+    write_mongodb_settings(temp)
+
+def get_mongodb_settings():
+    file_temp = os.path.join(app.config['TEMPLATE_FOLDER'], "mongodb_settings.json")
+    with open(file_temp, 'r') as f:
+        temp = json.load(f)
+    return temp
+
+def write_mongodb_settings(temp):
+    file_temp = os.path.join(app.config['TEMPLATE_FOLDER'], "mongodb_settings.json")
+    with open(file_temp, 'w') as f:
+        json.dump(temp, f, indent=4)
+
+"""
 Dynamic Scraper v2
 """
 @app.route("/dynamic_v2", methods=['POST', 'GET'])
@@ -530,6 +575,7 @@ def dynamic_v2_add():
 @app.route("/dynamic-v2-scrape", methods=['POST', 'GET'])
 def dynamic_v2_scrape():
     """Function that runs the dynamic scraper."""
+    names = get_mongodb_settings()
     if request.method =='POST':
         if 'url_submit' in request.form:
             return redirect("/dynamic-v2-add-item")
@@ -541,6 +587,8 @@ def dynamic_v2_scrape():
             uri = request.form['Connection']
             db = request.form['Database']
             col = request.form['Collection']
+            add_mongodb_settings(db, col)
+            names = get_mongodb_settings()
             if (uri == '' or db == '' or col == ''):
                 flash('MongoDB Connection details were not inputted. Please try again.', 'error')
             else:
@@ -573,7 +621,8 @@ def dynamic_v2_scrape():
         return render_template('dynamic_scraper_v2_output.html',
                             scrape=True,
                             output=final,
-                            default=default_values)
+                            default=default_values,
+                            names=names)
     
     file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
     with open(file) as f:
@@ -583,7 +632,8 @@ def dynamic_v2_scrape():
     return render_template('dynamic_scraper_v2_output.html',
                             scrape=True,
                             output=final,
-                            default=default_values)
+                            default=default_values,
+                            names=names)
 
 @app.route("/dynamic-v2-delete/<key>")
 def dynamic_delete_v2(key):
@@ -1019,6 +1069,7 @@ def csv_mongodb():
             file_upload.mongo_uri = request.form['Connection']
             file_upload.mongo_db = request.form['Database']
             file_upload.mongo_col = request.form['Collection']
+            add_mongodb_settings(file_upload.mongo_db, file_upload.mongo_col)
 
             # Setup MongoDB connection
             mongoClient = MongoClient(file_upload.mongo_uri)
@@ -1347,6 +1398,8 @@ def compare_csv():
         file_upload.mongo_uri = request.form['Connection']
         file_upload.mongo_db = request.form['Database']
         file_upload.mongo_col = request.form['Collection']
+        add_mongodb_settings(file_upload.mongo_db, file_upload.mongo_col)
+
         mongoClient = MongoClient(file_upload.mongo_uri)
         db = mongoClient[file_upload.mongo_db]
         col = db[file_upload.mongo_col]
@@ -1539,7 +1592,7 @@ def delete_query(query):
 @app.route("/query_manager", methods=['POST', 'GET'])
 def query_manager():
     """Webpage that handles the query_manager."""
-
+    names = get_mongodb_settings()
     # Get template information
     file_temp = os.path.join(app.config['TEMPLATE_FOLDER'], "templates.json")
     with open(file_temp) as f:
@@ -1581,11 +1634,17 @@ def query_manager():
     elif 'set_mongodb_info' in request.form:
         file_upload.mongo_uri = request.form['Connection']
         file_upload.mongo_db = request.form['Database']
-        file_upload.mongo_col = request.form['Collection']
+        mongo_col = request.form['Collection']
+        if ':' in mongo_col:
+            mongo_col = mongo_col.split(": ", 1)[1]
+        file_upload.mongo_col = mongo_col
+        add_mongodb_settings(file_upload.mongo_db, file_upload.mongo_col)
+        names = get_mongodb_settings()
+
         qm.set_mongodb(file_upload.mongo_db, file_upload.mongo_col, file_upload.mongo_uri)
 
     info = [file_upload.mongo_uri, file_upload.mongo_db , file_upload.mongo_col]
-    return render_template("query_manager.html", query_list=queries, commands=qm.queries, templates=temp, template_name=name, mongodb_info=info, compared=file_upload.compared)
+    return render_template("query_manager.html", query_list=queries, commands=qm.queries, templates=temp, template_name=name, mongodb_info=info, compared=file_upload.compared, names=names)
 
 @app.route('/query_manager/submit', methods=['GET', 'POST'])
 def submit_gui_query():

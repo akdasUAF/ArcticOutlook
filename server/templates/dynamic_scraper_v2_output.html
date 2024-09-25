@@ -47,23 +47,48 @@
                 </div>
             </div>
             <div id="upload_yes" style="display:none" class="row mb-4">
-                <div class="col-md-9">
-                    <label class="form-label" for="Connection">Connection String</label>
+                <div class="col md-9 input-group">
+                    <span class="input-group-text" for="Connection">Connection String</span>
                     <input name="Connection" class="form-control" type="text" value={{default[0]}} aria-describedby=" con_tip">
                 </div>
-                <div class="form-text" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
-
-                <div class="col-md-9">
-                    <label class="form-label" for="Database">Database Name</label>
-                    <input name="Database" class="form-control" type="text" value={{default[1]}} aria-describedby=" db_tip">
+                <div class="form-text mb-3" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
+                
+                <div class="col md-9">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="alt-db">
+                        <label class="form-check-label" for="alt-db">Select Database from MongoDB Settings</label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text" for="Database">Database Name</span>
+                        <input name="Database" id="database-text" class="form-control" type="text" aria-describedby=" db_tip" value={{default[1]}}>
+                        <select class="form-control hidden-db" id="database-list" name="Database" disabled size="5" style="display: none;" aria-describedby=" db_tip">
+                            {% for db in names %}
+                            <option value="{{db}}" id="{{db}}">{{db}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-text mb-3" id="db_tip">Example: Outlook</div>
                 </div>
-                <div class="form-text" id="db_tip">Example: Outlook</div>
 
-                <div class="col-md-9">
-                    <label class="form-label" for="Collection">Collection Name</label>
-                    <input name="Collection" class="form-control" type="text" value={{default[2]}} aria-describedby=" col_tip">
-                </div>
-                <div class="form-text" id="col_tip">Example: Data_Dump</div>
+                <div class="col md-9">           
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="alt-col">
+                        <label class="form-check-label" for="alt-col">Select Collection from MongoDB Settings</label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text" for="Collection">Collection Name</span>
+                        <input name="Collection" id="collection-text" class="form-control" type="text" aria-describedby=" coll_tip" value={{default[2]}}>
+                        <select class="form-control hidden-col" id="collection-list" name="Collection" disabled size="5" style="display: none;" aria-describedby=" coll_tip">
+                            {% for db in names %}
+                            <optgroup label="{{db}}">
+                                {% for col in names[db] %}
+                                    <option value="{{db}}: {{col}}" id="">{{col}}</option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-text mb-3" id="coll_tip">Example: Data_Dump</div>
+                </div>     
             </div>
             <script>
                 var showMore = function(option)
@@ -87,4 +112,51 @@
     </div>
 {% endif %}
 </div>
+<script>
+    var checkbox = document.querySelector("#alt-db");
+    var select = document.querySelector("#database-list");
+    var altSelect = document.querySelector("#database-text");
+
+    checkbox.addEventListener('change', function(event) {
+        select.classList.toggle('hidden-db');
+        select.disabled = !select.disabled;
+
+        altSelect.classList.toggle('hidden-db');
+        altSelect.disabled = !altSelect.disabled;
+
+        if (select.classList.contains('hidden-db')) {
+            altSelect.style.display = "inline";
+            select.style.display = "none";
+        }
+        else
+        {
+            select.style.display = "inline";
+            altSelect.style.display = "none";
+        }
+    });
+</script>
+<script>
+    var checkboxCol = document.querySelector("#alt-col");
+    var selectCol = document.querySelector("#collection-list");
+    var altSelectCol = document.querySelector("#collection-text");
+
+    checkboxCol.addEventListener('change', function(event) {
+
+        selectCol.classList.toggle('hidden-col');
+        selectCol.disabled = !selectCol.disabled;
+        
+        altSelectCol.classList.toggle('hidden-col');
+        altSelectCol.disabled = !altSelectCol.disabled;
+
+        if (selectCol.classList.contains('hidden-col')) {
+            altSelectCol.style.display = "inline";
+            selectCol.style.display = "none";
+        }
+        else
+        {
+            selectCol.style.display = "inline";
+            altSelectCol.style.display = "none";
+        }
+    });
+</script>
 {% endblock %}
