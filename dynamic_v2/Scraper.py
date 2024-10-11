@@ -10,7 +10,9 @@ from time import sleep
 import time
 from selenium.common import StaleElementReferenceException
 from selenium.common import ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support import expected_conditions as EC
@@ -221,6 +223,20 @@ class Scraper(object):
         instruction = [ScraperInstructionType.delay]
         self.handle_instruction(instruction)
 
+    def then_save_url(self, parameter):
+        # save url under name
+        instruction = [ScraperInstructionType.save_url, parameter]
+        self.handle_instruction(instruction)
+    
+    def then_check_for_text(self, parameter, value):
+        # parameter => specific text
+        instruction = [ScraperInstructionType.check_for_text, parameter, value]
+        self.handle_instruction(instruction)
+
+    def for_list():
+        # specific for-loop over a list
+        pass
+    
     # WIP: Instruction to scrape a table of links / perform action on subpages?
     def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
         return start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
@@ -252,6 +268,7 @@ class Scraper(object):
         for instr in instructions:
             self.__debug("Function " + name + " executing " + instr.__str__())
             self.execute_instruction(data, instr)
+        time.sleep(2)
 
     def execute_instruction(self, data, instruction):
         self.__debug("Running instruction: " + instruction.__str__())
@@ -296,7 +313,8 @@ class Scraper(object):
             self.back_to_beginning()
 
         if instruction[0] is ScraperInstructionType.goto_previous_page:
-            self.webdriver.back()
+            #self.webdriver.back()
+            self.webdriver.execute_script("window.history.go(-1)")
             self.back_to_beginning()
 
         if instruction[0] is ScraperInstructionType.scrape_table:
@@ -310,9 +328,12 @@ class Scraper(object):
             self.__debug(selector)
             elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
             objects = []
-            for elem in elements:
+            for index, val in enumerate(elements):
+                elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
+
+            #for elem in elements:
                 item = dict()
-                self.set_current_element(elem)
+                self.set_current_element(elements[index])
                 self.execute_function(instruction[4], item)
                 objects.append(item)
 
@@ -360,7 +381,11 @@ class Scraper(object):
                     WebDriverWait(self.webdriver, 15).until(EC.element_to_be_clickable(self.current_element))
                     select.select_by_value(instruction[4])
                 else:
-                    self.current_element.send_keys(instruction[4])
+                    if instruction[4] == 'Keys.BACKSPACE':
+                        self.current_element.send_keys(Keys.COMMAND + 'a')
+                        self.current_element.send_keys(Keys.BACKSPACE)
+                    else:
+                        self.current_element.send_keys(instruction[4])
 
         if instruction[0] is ScraperInstructionType.form_submit:
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
@@ -374,6 +399,19 @@ class Scraper(object):
         if instruction[0] is ScraperInstructionType.delay:
             # TODO: Allow user to set the delay 
             WebDriverWait(self.webdriver, 5)
+
+        if instruction[0] is ScraperInstructionType.save_url:
+            data[instruction[1]] = self.webdriver.current_url
+
+        if instruction[0] is ScraperInstructionType.check_for_text:
+            # temp hardcode so if text exists, save url
+            time.sleep(2)
+            if instruction[1] not in self.webdriver.page_source:
+                data[instruction[2]] = self.webdriver.current_url
+
+        if instruction[0] is ScraperInstructionType.for_list:
+            pass
+
         time_end = time.time()
         self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__())
 

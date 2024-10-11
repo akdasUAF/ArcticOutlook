@@ -23,3 +23,6 @@ class ScraperInstructionType(Enum):
     form_send_keys = 15
     form_submit = 16
     delay = 17
+    save_url = 18
+    check_for_text = 19
+    for_list = 20

@@ -1,10 +1,10 @@
-##### Scraper Instructions
 ##### skip_to_tag = 1
 This instruction will skip from the current scraper position to the next located [HTML Element](https://www.w3schools.com/TAGS/default.asp) provided by the user.  
 
 | Input Name | User Input     |
 | ---------- | -------------- |
 | Parameter  | A HTML element |
+|            |                |
 ###### Example
 Say there is a div with a span that contains text we need to save.
 ```html
@@ -12,12 +12,13 @@ Say there is a div with a span that contains text we need to save.
 	<span>Hello World</span>
 </div>
 ```
-Say I use:
+
+Say I use the instruction with the following input:
 
 | Input Name | User Input |
 | ---------- | ---------- |
 | Parameter  | span       |
-This will skip the scraper to the first *span* it finds *after* it's current location.
+This will move the scraper to the first *span* it finds *after* it's current location.
 ##### skip_to_class = 2
 This instruction will skip from the current scraper position to the next element with the class value specified by the user.
 
@@ -30,7 +31,8 @@ Say there is a div with a class called *test* located after where my scraper is 
 <div class="test">
 </div>
 ```
-Say I use:
+
+Say I use the instruction with the following input:
 
 | Input Name | User Input |
 | ---------- | ---------- |
@@ -45,10 +47,10 @@ This instruction will tell the scraper to scrape the current item and save it as
 ###### Example
 Say the scraper is currently looking at the element below.
 ```html
-<td>AK1234567</td>
+<td>AK2123456</td>
 ```
 
-If I use:
+Say I use the instruction with the following input:
 
 | Input Name | User Input        |
 | ---------- | ----------------- |
@@ -56,7 +58,7 @@ If I use:
 This will save the value into *WaterSystemNumber*, and I will receive the following json as output:
 ```json
 {
-	"WaterSystemNumber": "AK1234567"
+	"WaterSystemNumber": "AK2123456"
 }
 ```
 
@@ -103,7 +105,8 @@ Say there is a webpage that has something like this:
 	<table id="test-table">Google.com</a>
 </div>
 ```
-If I use skip_to_element_with_attribute with:
+
+If I use skip_to_element_with_attribute with the following input:
 
 | Input Name | User Input |
 | ---------- | ---------- |
@@ -117,8 +120,9 @@ This instruction will tell the scraper to click the element the scraper is curre
 - This instruction will always return the scraper to the top of the page!
 ##### goto_previous_page = 8
 This instruction will tell the scraper to return to the previous webpage.
+- This will also return the scraper to the top of the previous webpage.
 ##### scrape_table = 9
-This instruction will tell the scraper to scrape a table. The table contents will be saved as a 
+This instruction will tell the scraper to scrape a table.
 - The instruction expects that the scraper is looking at a table.
 - The instruction expects that the table is formatted as a regular table.
 	- Columns
@@ -132,7 +136,7 @@ This instruction will tell the scraper to scrape a table. The table contents wil
 | ---------- | -------------------------------- |
 | Parameter  | The user given name of the table |
 ###### Example
-Say that there is a table with the following contents:
+Say that there is a table with the following contents. Note that our scraper is currently looking at this table (if it is not, you will need to skip to it first):
 ```html
 <table id = "table-test">
 	<tr>
@@ -179,22 +183,68 @@ This instruction will run a user defined function. This function is defined prev
 | ---------- | ----------------------------------- |
 | Parameter  | The name of a user defined function |
 ##### for_each = 11
-TODO
+This instruction will loop over all items within a group. For each item found on the page that matches a html item with a specific tag value, this instruction will attempt to run a user defined function (see *create_function*).
 
+| Input Name    | Expected User Input                   |
+| ------------- | ------------------------------------- |
+| Tag           | A HTML Element                        |
+| Attribute     | A HTML Attribute                      |
+| Value         | The value of the given HTML Attribute |
+| Function Name | Name of a user defined function       |
+###### Example
+Say I have a list of items in a div on a webpage.
+```html
+<div id="operators">
+	<span><a href=".../john-doe" title="operator-name">John Doe</a></span>
+	<span><a href=".../jane-doe" title="operator-name">Jane Doe</a></span>
+</div>
+```
+
+For this example, say that I have defined a function named 'OperatorInfo'. This function will follow the link and pull some information off of the subsequent webpage. If I wanted to use this function on every link within this div, I could use the *for_each* instruction to create a list of each of these items. 
+
+| Input Name    | Expected User Input |
+| ------------- | ------------------- |
+| Tag           | span                |
+| Attribute     | title               |
+| Value         | operator-name       |
+| Function Name | OperatorInfo        |
+This would result in the scraper attempting to use this OperatorInfo function on each a element that has the title "operator-name".
 ##### create_function = 12
-This instruction will start the creation of a user defined function. This should be used primarily if a list of instructions should be repeated multiple times. All instructions given after *create_function* will be assumed as part of the function up until it reaches an *end_function* instruction. This function can be called with *run_function*.
+This instruction will start the creation of a user defined function. This should be used primarily if a list of instructions should be repeated multiple times. All instructions given after *create_function* will be assumed as part of the function up until it reaches an *end_function* instruction. This function can be called with *run_function*, or within a loop.
 
 | Input Name | Expected User Input                 |
 | ---------- | ----------------------------------- |
 | Parameter  | The name of a user defined function |
 ##### end_function = 13
 This instruction will end the creation of a user defined function. All instructions between this instruction and *create_function* will be assumed to be one function under the name specified in *create_function*.
-
 ##### special_for_each = 14
-TODO
+This instruction is very similar to *for_each*. This is used when you need to iterate over a list of items (HTML elements) that may have duplicates. (For example: the drinking water watch table provides the same url link and title for the PWSID and water system name links.)
+
+| Input Name    | Expected User Input                                                         |
+| ------------- | --------------------------------------------------------------------------- |
+| Parameter     | The part of the CSS Selector *before* the iteration.                        |
+| Tag           | The HTML Element that is being iterated                                     |
+| Attribute     | The part of the CSS Selector *after* the iteration (this can be left blank) |
+| Value         | The name of the list of saved values within the json file                   |
+| Function Name | Name of a user defined function                                             |
+###### Example
+Say we have a table that we want to scrape / interact with *only* the first column of each row. We have previously defined a function 'WaterSystems' that will scrape the relevant data. The CSS-Selectors for the first 2 rows are as follows (bolded is the iteration):
+
+.col-md-12 > table:nth-child(3) > tbody:nth-child(1) > **tr:nth-child(2)** > td:nth-child(1) > a:nth-child(1)
+.col-md-12 > table:nth-child(3) > tbody:nth-child(1) > **tr:nth-child(3)** > td:nth-child(1) > a:nth-child(1)
+
+We can use this information with this instruction with the following inputs to perform our loop:
+
+| Input Name    | Expected User Input                                  |
+| ------------- | ---------------------------------------------------- |
+| Parameter     | .col-md-12 > table:nth-child(3) > tbody:nth-child(1) |
+| Tag           | tr                                                   |
+| Attribute     | td:nth-child(1) > a:nth-child(1)                     |
+| Value         | Systems                                              |
+| Function Name | WaterSystems                                         |
 ##### form_send_keys = 15
 This instruction allows the user to interact with the webpage by providing user input.
-- *select* tags require a *value* attribute to ensure they can be selected
+- *select* tags require an option with a valid *value* attribute to ensure they can be selected
 - More form options can be implemented as needed.
 
 | Input Name | Expected User Input                   |
@@ -272,6 +322,6 @@ Say I have a webpage that looks something like this:
 | Tag        | input       |
 | Attribute  | id          |
 | Value      | submit-test |
-
+This will result in the form being submitted.
 ##### delay = 17
 This instruction will tell the scraper to delay for a certain amount of time. This is primarily used to ensure that the webpage has enough time to load before continuing a scrape.

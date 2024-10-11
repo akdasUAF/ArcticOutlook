@@ -163,7 +163,7 @@ def index():
             elif request.form['SelectTask'] == 'query_manager':
                 return redirect("/query_manager")
             elif request.form['SelectTask'] == 'mongodb_settings':
-                return redirect("/mongodbsettings")
+                return redirect("/mongodb_settings")
             else:
                 return redirect("/")
         return render_template('index.html')   
@@ -480,37 +480,128 @@ def run_dynamic_scraper_v2():
             if url == '':
                 return render_template('dynamic_scraper_v2.html',
                                         error="Please submit a valid url.",
-                                        url_needed=True)
+                                        url_needed=True,
+                                        pwsids=si.pwsids,
+                                        selected_pwsids = si.selected_pwsids)
             si.base_url = url
             return redirect("/dynamic-v2-add-item")
-        if 'add_item' or 'scrape' in request.form:
+
+        if 'add-all' in request.form:
+            multiselect = request.form.getlist('select-pwsid')
+            si.selected_pwsids = si.selected_pwsids + list(set(multiselect) - set(si.selected_pwsids)) 
+            return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+        
+        if "remove-pwsid" in request.form:
+            selected = request.form.getlist('selected')
+            si.selected_pwsids = [x for x in si.selected_pwsids if x not in selected]
+            return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+
+        if "upload-pwsid" in request.form:
+            if 'uploaded-file' not in request.files:
+                flash('No file uploaded', 'error')
+                return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+            
+            file = request.files['uploaded-file']
+            if file.filename == '':
+                flash('No selected file', 'error')
+                return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+            if file:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                if request.form.getlist('table-select'):
+                    if request.form['file-type'] == 'excel':
+                        df = pd.read_excel(filepath)
+                    elif request.form['file-type'] == 'csv':
+                        df = pd.read_csv(filepath)
+                    else:
+                        flash("No filetype selected.", 'error')
+                        return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+                    pwsid_col = request.form['pwsid-col']
+                    if pwsid_col == '':
+                        flash("No pwsid column name given.", 'error')
+                        return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+                    new_col = request.form['col-name']
+                    if new_col == '':
+                        flash("No new column name given.", 'error')
+                        return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+                    si.pwsids = df[pwsid_col].to_list()
+            return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+
+        if 'add_item' or 'scrape' or 'submit-pwsid' in request.form:
             return render_template('dynamic_scraper_v2.html',
                                         error="Please submit a valid url before trying to add/scrape items.",
                                         url_needed=True,
-                                        json_data = si.instruct_list)
+                                        json_data = si.instruct_list,
+                                        pwsids=si.pwsids,
+                                        selected_pwsids = si.selected_pwsids)
         
     # Otherwise, respond to the GET request by displaying the webpage.
     else:
         si.clear()
-        return render_template('dynamic_scraper_v2.html', url_needed=True, json_data = si.instruct_list)
+        return render_template('dynamic_scraper_v2.html',
+                                url_needed=True,
+                                json_data = si.instruct_list,
+                                pwsids=si.pwsids,
+                                selected_pwsids = si.selected_pwsids)
     
 @app.route("/dynamic-v2-add-item", methods=['POST', 'GET'])
 def dynamic_v2_add():
     """Function that adds an instruction to the instruction list."""
     if request.method == 'POST':
+        if "submit-pwsid" in request.form:
+            submit_pwsid_list(si.selected_pwsids)
+            return redirect("/dynamic-v2-scrape")
+
         if 'url_submit' in request.form:
             url = request.form['url'].strip()
             if url == '':
                 return render_template('dynamic_scraper_v2.html',
                                         error="Please submit a valid url.",
                                         url_needed=True,
-                                        json_data = si.instruct_list)
+                                        json_data = si.instruct_list,
+                                        pwsids=si.pwsids,
+                                        selected_pwsids = si.selected_pwsids)
             return render_template('dynamic_scraper_v2.html',
                                 items_submitted=True,
                                 url_needed=False,
                                 url=si.base_url,
                                 instructions=si.instructions,
-                                json_data = si.instruct_list)
+                                json_data = si.instruct_list,
+                                pwsids=si.pwsids,
+                                selected_pwsids = si.selected_pwsids)
         
         if 'add_item' in request.form:
             # Pull all items from the form
@@ -554,7 +645,9 @@ def dynamic_v2_add():
                                 url_needed=False,
                                 url=si.base_url,
                                 instructions=si.instructions,
-                                json_data = si.instruct_list)
+                                json_data = si.instruct_list,
+                                pwsids=si.pwsids,
+                                selected_pwsids = si.selected_pwsids)
         
         if 'scrape' in request.form:
             return redirect("/dynamic-v2-scrape")
@@ -570,7 +663,68 @@ def dynamic_v2_add():
                             url_needed=False,
                             url=si.base_url,
                             instructions=si.instructions,
-                            json_data = si.instruct_list)
+                            json_data = si.instruct_list,
+                            pwsids=si.pwsids,
+                            selected_pwsids = si.selected_pwsids)
+
+@app.route("/dynamic-reset")
+def reset_scraper():
+    si.clear()
+    return redirect("/dynamic-v2-add-item")
+
+def upload_pwsid_list():
+    pass
+
+def get_instruct_name():
+    instruct_name = "Step " + str(si.instruct_num)
+    temp = Node(instruct_name, si.instruct_num)
+    curr_node = si.nodes_list[-1]
+    si.num = round(si.num + 0.1, 1)
+    curr_node.insert_node(temp)
+    si.instruct_num = si.instruct_num + 1
+    return instruct_name
+
+def submit_pwsid_list(pwsids):
+    # Send Form Keys for PWSID
+    instruct_name = get_instruct_name()
+    params = ["pwsid", "select", "id", "searchSelect", ""]
+    si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+
+    # Submit Form
+    instruct_name = get_instruct_name()
+    params = ["", "input", "type", "submit", ""]
+    si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
+
+    for item in pwsids:
+        # clear
+        instruct_name = get_instruct_name()
+        params = ["Keys.BACKSPACE", "input", "id", "PWSID", ""]
+        si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+
+        # type pwsid
+        instruct_name = get_instruct_name()
+        params = [item, "input", "id", "PWSID", ""]
+        si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+
+        # Submit Form
+        instruct_name = get_instruct_name()
+        params = ["", "input", "type", "submit", ""]
+        si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
+
+        # Delay
+        instruct_name = get_instruct_name()
+        params = ["", "", "", "", ""]
+        si.instructions.append((ScraperInstructionType(17).name, params, si.instruct_num, instruct_name, ""))
+
+        # check for text -> save url
+        instruct_name = get_instruct_name()
+        params = ["No data available in table", "", "", item, ""]
+        si.instructions.append((ScraperInstructionType(19).name, params, si.instruct_num, instruct_name, ""))
+
+        # back to beginning of page
+        instruct_name = get_instruct_name()
+        params = ["", "", "", "", ""]
+        si.instructions.append((ScraperInstructionType(5).name, params, si.instruct_num, instruct_name, ""))
 
 @app.route("/dynamic-v2-scrape", methods=['POST', 'GET'])
 def dynamic_v2_scrape():
@@ -579,7 +733,6 @@ def dynamic_v2_scrape():
     if request.method =='POST':
         if 'url_submit' in request.form:
             return redirect("/dynamic-v2-add-item")
-        
         if 'download' in request.form:
             return redirect("/dynamic/download")
         
@@ -602,7 +755,7 @@ def dynamic_v2_scrape():
             try:
                 result = dynamic_v2(si.base_url, si.instructions)
             except Exception as e:
-                flash('An error occurred while attempting to run the dynamic scraper. Currently there is a webdriver issue preventing selenium from running on the server.\n'+str(e), 'error')
+                flash('An error occurred while attempting to run the dynamic scraper.\n'+str(e), 'error')
                 return redirect("/dynamic-v2-add-item")
             if isinstance(result, str):
                     si.scraped = True
@@ -615,7 +768,7 @@ def dynamic_v2_scrape():
         output = open(file, "w") 
         json.dump(result, output, indent=2)
         output.close()
-        si.clear()
+        
         default_values = display_text_input("Dynamic_Scraper_Upload")
 
         return render_template('dynamic_scraper_v2_output.html',

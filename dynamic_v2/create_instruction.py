@@ -42,6 +42,12 @@ def setup_scraper(scraper, instructions):
                 scraper.then_form_submit(params[1], params[2], params[3])
             case "delay":
                 scraper.then_delay()
+            case "save_url":
+                scraper.then_save_url(params[0])
+            case "check_for_text":
+                scraper.then_check_for_text(params[0], params[3])
+            case "for_list":
+                scraper.then_for_list()
             case _:
                 print("Invalid Instruction")
 
