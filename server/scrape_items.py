@@ -12,8 +12,13 @@ class ScrapeItems():
         self.num = 1.0
         self.auto = False
         self.scraped = False
+
+        self.pwsid_col = ""
+        self.new_col = ""
+        self.pwsid_df = ""
         self.pwsids = []
         self.selected_pwsids = []
+        self.result = ""
 
         self.instruct_list = []
         self.head = Node("Head Node", -55)
@@ -33,5 +38,10 @@ class ScrapeItems():
         self.instruct_num = 0
         self.head = Node("Head Node", -55)
         self.nodes_list = [self.head]
+        self.pwsid_col = ""
+        self.new_col = ""
+        self.pwsid_df = ""
         self.pwsids = []
         self.selected_pwsids = []
+        self.result = ""
+        self.scraped = False

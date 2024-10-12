@@ -340,6 +340,16 @@ def dynamic_download():
             as_attachment=True
         )
 
+@app.route("/dynamic/download-csv")
+def dynamic_download_csv():
+    file = os.path.join(app.config['UPLOAD_FOLDER'], "output.csv")
+    return send_file(
+            file,
+            mimetype='text/csv',
+            download_name='output.csv',
+            as_attachment=True
+        )
+
 @app.route("/dynamic/upload")
 def dynamic_upload(mongo_uri, mongo_db, mongo_col):
     # Upload file to MongoDB
@@ -478,33 +488,23 @@ def run_dynamic_scraper_v2():
         if 'url_submit' in request.form:
             url = request.form['url'].strip()
             if url == '':
+                flash("Please enter a valid url.", 'error')
                 return render_template('dynamic_scraper_v2.html',
-                                        error="Please submit a valid url.",
                                         url_needed=True,
                                         pwsids=si.pwsids,
                                         selected_pwsids = si.selected_pwsids)
             si.base_url = url
             return redirect("/dynamic-v2-add-item")
 
-        if 'add-all' in request.form:
+        elif 'add-all' in request.form:
             multiselect = request.form.getlist('select-pwsid')
             si.selected_pwsids = si.selected_pwsids + list(set(multiselect) - set(si.selected_pwsids)) 
-            return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
         
-        if "remove-pwsid" in request.form:
+        elif "remove-pwsid" in request.form:
             selected = request.form.getlist('selected')
             si.selected_pwsids = [x for x in si.selected_pwsids if x not in selected]
-            return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
 
-        if "upload-pwsid" in request.form:
+        elif "upload-pwsid" in request.form:
             if 'uploaded-file' not in request.files:
                 flash('No file uploaded', 'error')
                 return render_template('dynamic_scraper_v2.html',
@@ -512,61 +512,16 @@ def run_dynamic_scraper_v2():
                                     json_data = si.instruct_list,
                                     pwsids=si.pwsids,
                                     selected_pwsids = si.selected_pwsids)
-            
-            file = request.files['uploaded-file']
-            if file.filename == '':
-                flash('No selected file', 'error')
-                return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
-            if file:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                if request.form.getlist('table-select'):
-                    if request.form['file-type'] == 'excel':
-                        df = pd.read_excel(filepath)
-                    elif request.form['file-type'] == 'csv':
-                        df = pd.read_csv(filepath)
-                    else:
-                        flash("No filetype selected.", 'error')
-                        return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
-                    pwsid_col = request.form['pwsid-col']
-                    if pwsid_col == '':
-                        flash("No pwsid column name given.", 'error')
-                        return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
-                    new_col = request.form['col-name']
-                    if new_col == '':
-                        flash("No new column name given.", 'error')
-                        return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
-                    si.pwsids = df[pwsid_col].to_list()
-            return render_template('dynamic_scraper_v2.html',
-                                    url_needed=True,
-                                    json_data = si.instruct_list,
-                                    pwsids=si.pwsids,
-                                    selected_pwsids = si.selected_pwsids)
+            upload_pwsid(request.files['uploaded-file'], request.form['pwsid-col'], request.form['col-name'])
 
-        if 'add_item' or 'scrape' or 'submit-pwsid' in request.form:
-            return render_template('dynamic_scraper_v2.html',
-                                        error="Please submit a valid url before trying to add/scrape items.",
-                                        url_needed=True,
-                                        json_data = si.instruct_list,
-                                        pwsids=si.pwsids,
-                                        selected_pwsids = si.selected_pwsids)
+        elif 'add_item' or 'scrape' or 'submit-pwsid' in request.form:
+            flash("Please submit a valid url before trying to add/scrape items.", 'error')
+
+        return render_template('dynamic_scraper_v2.html',
+                                url_needed=True,
+                                json_data = si.instruct_list,
+                                pwsids=si.pwsids,
+                                selected_pwsids = si.selected_pwsids)
         
     # Otherwise, respond to the GET request by displaying the webpage.
     else:
@@ -581,15 +536,34 @@ def run_dynamic_scraper_v2():
 def dynamic_v2_add():
     """Function that adds an instruction to the instruction list."""
     if request.method == 'POST':
+        if 'add-all' in request.form:
+            multiselect = request.form.getlist('select-pwsid')
+            si.selected_pwsids = si.selected_pwsids + list(set(multiselect) - set(si.selected_pwsids)) 
+        
+        if "remove-pwsid" in request.form:
+            selected = request.form.getlist('selected')
+            si.selected_pwsids = [x for x in si.selected_pwsids if x not in selected]
+
+        if "upload-pwsid" in request.form:
+            if 'uploaded-file' not in request.files:
+                flash('No file uploaded', 'error')
+                return render_template('dynamic_scraper_v2.html',
+                                    url_needed=True,
+                                    json_data = si.instruct_list,
+                                    pwsids=si.pwsids,
+                                    selected_pwsids = si.selected_pwsids)
+            upload_pwsid(request.files['uploaded-file'], request.form['pwsid-col'], request.form['col-name'])
+        
         if "submit-pwsid" in request.form:
             submit_pwsid_list(si.selected_pwsids)
+            scrape_pwsid_list()
             return redirect("/dynamic-v2-scrape")
 
         if 'url_submit' in request.form:
             url = request.form['url'].strip()
             if url == '':
+                flash("Please submit a valid url.", 'error')
                 return render_template('dynamic_scraper_v2.html',
-                                        error="Please submit a valid url.",
                                         url_needed=True,
                                         json_data = si.instruct_list,
                                         pwsids=si.pwsids,
@@ -672,9 +646,6 @@ def reset_scraper():
     si.clear()
     return redirect("/dynamic-v2-add-item")
 
-def upload_pwsid_list():
-    pass
-
 def get_instruct_name():
     instruct_name = "Step " + str(si.instruct_num)
     temp = Node(instruct_name, si.instruct_num)
@@ -683,6 +654,33 @@ def get_instruct_name():
     curr_node.insert_node(temp)
     si.instruct_num = si.instruct_num + 1
     return instruct_name
+
+def upload_pwsid(file, pwsid_col, new_col):
+    if file.filename == '':
+        flash('No selected file', 'error')
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        if request.form.getlist('table-select'):
+
+            if request.form['file-type'] == 'excel':
+                si.pwsid_df = pd.read_excel(filepath)
+            elif request.form['file-type'] == 'csv':
+                si.pwsid_df = pd.read_csv(filepath)
+            else:
+                flash("No filetype selected.", 'error')
+
+            si.pwsid_col = pwsid_col
+            if si.pwsid_col == '':
+                flash("No pwsid column name given.", 'error')
+
+            si.new_col = new_col
+            if si.new_col == '':
+                flash("No new column name given.", 'error')
+
+            if si.new_col and si.pwsid_col and isinstance(si.pwsid_df, pd.DataFrame):
+                si.pwsids = si.pwsid_df[si.pwsid_col].to_list()
 
 def submit_pwsid_list(pwsids):
     # Send Form Keys for PWSID
@@ -726,15 +724,62 @@ def submit_pwsid_list(pwsids):
         params = ["", "", "", "", ""]
         si.instructions.append((ScraperInstructionType(5).name, params, si.instruct_num, instruct_name, ""))
 
+def scrape_pwsid_list():
+    si.result = scrape()
+    si.scraped = True
+    si.pwsid_df = si.pwsid_df.astype(str)
+
+    si.pwsid_df[si.new_col] = si.pwsid_df[si.pwsid_col].map(si.result, na_action='ignore')
+    #si.pwsid_df[si.new_col] = si.pwsid_df[si.pwsid_col].apply(lambda x: si.result.get(x))
+    return redirect("/dynamic-v2-scrape")
+
+def scrape():
+    if not si.scraped:
+        try:
+            result = dynamic_v2(si.base_url, si.instructions)
+        except Exception as e:
+            flash('An error occurred while attempting to run the dynamic scraper.\n'+str(e), 'error')
+            return redirect("/dynamic-v2-add-item")
+        # if isinstance(si.result, str):
+        #         si.scraped = True
+        #         flash('Error encountered during scrape: ' + result, 'error')
+        #         return redirect("/dynamic-v2-add-item")
+    
+        file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+        output = open(file, "w") 
+        json.dump(result, output, indent=2)
+        output.close()
+        return result
+    return None
+
 @app.route("/dynamic-v2-scrape", methods=['POST', 'GET'])
 def dynamic_v2_scrape():
     """Function that runs the dynamic scraper."""
     names = get_mongodb_settings()
+    default_values = display_text_input("Dynamic_Scraper_Upload")
     if request.method =='POST':
-        if 'url_submit' in request.form:
-            return redirect("/dynamic-v2-add-item")
         if 'download' in request.form:
-            return redirect("/dynamic/download")
+            file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+            if os.path.isfile(file):
+                return redirect("/dynamic/download")
+            else:
+                flash("Results file does not exist. Please try scraping again.", 'error')
+
+        if 'download-csv' in request.form:
+            file = os.path.join(app.config['UPLOAD_FOLDER'], "output.csv")
+            si.pwsid_df.to_csv(file, index=False)
+            return redirect("/dynamic/download-csv")
+
+        if 'view-as-table' in request.form:
+            # Style table based on user input
+            if isinstance(si.pwsid_df, pd.DataFrame):
+                return render_template('dynamic_scraper_v2_output.html',
+                                    output=json.dumps(si.result, indent=2),
+                                    default=default_values,
+                                    names=names,
+                                    tables=[si.pwsid_df.to_html(classes='table table-bordered', header="true", table_id="pwsid")])
+            else:
+                flash("Scraper was not used with a list of PWSIDs.", 'error')
         
         if 'upload' in request.form:
             uri = request.form['Connection']
@@ -749,44 +794,21 @@ def dynamic_v2_scrape():
                     return dynamic_upload(uri, db, col)
                 except:
                     flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
-    # Replace False with si.auto once implemented
-    else:
-        if not si.scraped:
-            try:
-                result = dynamic_v2(si.base_url, si.instructions)
-            except Exception as e:
-                flash('An error occurred while attempting to run the dynamic scraper.\n'+str(e), 'error')
-                return redirect("/dynamic-v2-add-item")
-            if isinstance(result, str):
-                    si.scraped = True
-                    return render_template('dynamic_scraper.html',
-                                    error="Error encountered during scrape: " + result,
-                                    url_needed=True)
-        
-        file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
-        final = json.dumps(result, indent=2)
-        output = open(file, "w") 
-        json.dump(result, output, indent=2)
-        output.close()
-        
-        default_values = display_text_input("Dynamic_Scraper_Upload")
 
-        return render_template('dynamic_scraper_v2_output.html',
-                            scrape=True,
-                            output=final,
-                            default=default_values,
-                            names=names)
-    
-    file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
-    with open(file) as f:
-        result = json.load(f)
-    final = json.dumps(result, indent=2)
-    default_values = display_text_input("Dynamic_Scraper_Upload")
+    else:
+        if si.base_url and si.instructions:
+            if not si.scraped:
+                si.result = scrape()
+
+        else:
+            file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+            if not os.path.isfile(file):
+                flash("Results file does not exist. Please reset the scraper and try again.", 'error')
+
     return render_template('dynamic_scraper_v2_output.html',
-                            scrape=True,
-                            output=final,
-                            default=default_values,
-                            names=names)
+                                    output=json.dumps(si.result, indent=2),
+                                    default=default_values,
+                                    names=names)
 
 @app.route("/dynamic-v2-delete/<key>")
 def dynamic_delete_v2(key):
