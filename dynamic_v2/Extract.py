@@ -22,7 +22,7 @@ import dynamic_v2.Debug as Debug
 #import ScraperDefinitions.WaterSystem
 import dynamic_v2.create_instruction as create_instruction
 
-def main(url, instructs):
+def main(url, instructs, pwsids):
     # TEMPORARY FOR TESTING
 
     crawler = Crawler.Crawler()
@@ -32,7 +32,7 @@ def main(url, instructs):
     scrappy = Scraper.Scraper()
     #ScraperDefinitions.WaterSystem.setup_scraper(scrappy)
 
-    create_instruction.setup_scraper(scrappy, instructs)
+    create_instruction.setup_scraper(scrappy, instructs, pwsids)
 
     gecko_path = "/snap/bin/geckodriver"
     service = webdriver.FirefoxService(executable_path=gecko_path)

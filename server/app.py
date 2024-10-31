@@ -554,10 +554,10 @@ def dynamic_v2_add():
                                     selected_pwsids = si.selected_pwsids)
             upload_pwsid(request.files['uploaded-file'], request.form['pwsid-col'], request.form['col-name'])
         
-        if "submit-pwsid" in request.form:
-            submit_pwsid_list(si.selected_pwsids)
-            scrape_pwsid_list()
-            return redirect("/dynamic-v2-scrape")
+        # if "submit-pwsid" in request.form:
+        #     submit_pwsid_list(si.selected_pwsids)
+        #     scrape_pwsid_list()
+        #     return redirect("/dynamic-v2-scrape")
 
         if 'url_submit' in request.form:
             url = request.form['url'].strip()
@@ -682,47 +682,47 @@ def upload_pwsid(file, pwsid_col, new_col):
             if si.new_col and si.pwsid_col and isinstance(si.pwsid_df, pd.DataFrame):
                 si.pwsids = si.pwsid_df[si.pwsid_col].to_list()
 
-def submit_pwsid_list(pwsids):
-    # Send Form Keys for PWSID
-    instruct_name = get_instruct_name()
-    params = ["pwsid", "select", "id", "searchSelect", ""]
-    si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+# def submit_pwsid_list(pwsids):
+#     # Send Form Keys for PWSID
+#     instruct_name = get_instruct_name()
+#     params = ["pwsid", "select", "id", "searchSelect", ""]
+#     si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
 
-    # Submit Form
-    instruct_name = get_instruct_name()
-    params = ["", "input", "type", "submit", ""]
-    si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
+#     # Submit Form
+#     instruct_name = get_instruct_name()
+#     params = ["", "input", "type", "submit", ""]
+#     si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
 
-    for item in pwsids:
-        # clear
-        instruct_name = get_instruct_name()
-        params = ["Keys.BACKSPACE", "input", "id", "PWSID", ""]
-        si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+#     for item in pwsids:
+#         # clear
+#         instruct_name = get_instruct_name()
+#         params = ["Keys.BACKSPACE", "input", "id", "PWSID", ""]
+#         si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
 
-        # type pwsid
-        instruct_name = get_instruct_name()
-        params = [item, "input", "id", "PWSID", ""]
-        si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
+#         # type pwsid
+#         instruct_name = get_instruct_name()
+#         params = [item, "input", "id", "PWSID", ""]
+#         si.instructions.append((ScraperInstructionType(15).name, params, si.instruct_num, instruct_name, ""))
 
-        # Submit Form
-        instruct_name = get_instruct_name()
-        params = ["", "input", "type", "submit", ""]
-        si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
+#         # Submit Form
+#         instruct_name = get_instruct_name()
+#         params = ["", "input", "type", "submit", ""]
+#         si.instructions.append((ScraperInstructionType(16).name, params, si.instruct_num, instruct_name, ""))
 
-        # Delay
-        instruct_name = get_instruct_name()
-        params = ["", "", "", "", ""]
-        si.instructions.append((ScraperInstructionType(17).name, params, si.instruct_num, instruct_name, ""))
+#         # Delay
+#         instruct_name = get_instruct_name()
+#         params = ["", "", "", "", ""]
+#         si.instructions.append((ScraperInstructionType(17).name, params, si.instruct_num, instruct_name, ""))
 
-        # check for text -> save url
-        instruct_name = get_instruct_name()
-        params = ["No data available in table", "", "", item, ""]
-        si.instructions.append((ScraperInstructionType(19).name, params, si.instruct_num, instruct_name, ""))
+#         # check for text -> save url
+#         instruct_name = get_instruct_name()
+#         params = ["No data available in table", "", "", item, ""]
+#         si.instructions.append((ScraperInstructionType(19).name, params, si.instruct_num, instruct_name, ""))
 
-        # back to beginning of page
-        instruct_name = get_instruct_name()
-        params = ["", "", "", "", ""]
-        si.instructions.append((ScraperInstructionType(5).name, params, si.instruct_num, instruct_name, ""))
+#         # back to beginning of page
+#         instruct_name = get_instruct_name()
+#         params = ["", "", "", "", ""]
+#         si.instructions.append((ScraperInstructionType(5).name, params, si.instruct_num, instruct_name, ""))
 
 def scrape_pwsid_list():
     si.result = scrape()
@@ -736,7 +736,7 @@ def scrape_pwsid_list():
 def scrape():
     if not si.scraped:
         try:
-            result = dynamic_v2(si.base_url, si.instructions)
+            result = dynamic_v2(si.base_url, si.instructions, si.selected_pwsids)
         except Exception as e:
             flash('An error occurred while attempting to run the dynamic scraper.\n'+str(e), 'error')
             return redirect("/dynamic-v2-add-item")
@@ -805,8 +805,12 @@ def dynamic_v2_scrape():
             if not os.path.isfile(file):
                 flash("Results file does not exist. Please reset the scraper and try again.", 'error')
 
+    try:
+        output = json.dumps(si.result, indent=2)
+    except:
+        output = si.result
     return render_template('dynamic_scraper_v2_output.html',
-                                    output=json.dumps(si.result, indent=2),
+                                    output=output,
                                     default=default_values,
                                     names=names)
 

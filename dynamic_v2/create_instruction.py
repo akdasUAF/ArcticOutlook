@@ -1,6 +1,6 @@
 from dynamic_v2.ScraperInstructionType import ScraperInstructionType
 
-def setup_scraper(scraper, instructions):
+def setup_scraper(scraper, instructions, pwsids):
     for i in instructions:
         name = i[0]
         params = i[1]
@@ -45,9 +45,9 @@ def setup_scraper(scraper, instructions):
             case "save_url":
                 scraper.then_save_url(params[0])
             case "check_for_text":
-                scraper.then_check_for_text(params[0], params[3])
+                scraper.then_check_for_text(params[3])
             case "for_list":
-                scraper.then_for_list()
+                scraper.then_for_list(pwsids, params[4])
             case _:
                 print("Invalid Instruction")
 

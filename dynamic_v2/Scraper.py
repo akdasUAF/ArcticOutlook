@@ -42,6 +42,8 @@ class Scraper(object):
         self.live_mode = False
         self.webdriver = None
         self.max_items = 50
+        self.loop_list = False
+        self.curr_list_item = None
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
@@ -143,6 +145,10 @@ class Scraper(object):
         instruction = [ScraperInstructionType.for_each, tag, attribute, value, function_name]
         self.handle_instruction(instruction)
 
+    def then_for_list(self, parameter, function_name):
+        instruction = [ScraperInstructionType.for_list, parameter, function_name]
+        self.handle_instruction(instruction)
+
     def then_run_function(self, param):
         instruction = [ScraperInstructionType.run_function, param]
         self.handle_instruction(instruction)
@@ -228,14 +234,10 @@ class Scraper(object):
         instruction = [ScraperInstructionType.save_url, parameter]
         self.handle_instruction(instruction)
     
-    def then_check_for_text(self, parameter, value):
+    def then_check_for_text(self, value):
         # parameter => specific text
-        instruction = [ScraperInstructionType.check_for_text, parameter, value]
+        instruction = [ScraperInstructionType.check_for_text, value]
         self.handle_instruction(instruction)
-
-    def for_list():
-        # specific for-loop over a list
-        pass
     
     # WIP: Instruction to scrape a table of links / perform action on subpages?
     def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
@@ -270,10 +272,24 @@ class Scraper(object):
             self.execute_instruction(data, instr)
         time.sleep(2)
 
+    def check_if_list(self, instruction):
+        self.__debug("Checking for $list...")
+        instr = instruction
+        for x, i in enumerate(instruction):
+            if i == "$list":
+                instr = list(instruction)
+                self.__debug("$list replaced with " + self.curr_list_item)
+                instr[x] = self.curr_list_item
+        self.__debug(instr)
+        return instr
+
     def execute_instruction(self, data, instruction):
         self.__debug("Running instruction: " + instruction.__str__())
         
         time_start = time.time()
+
+        if self.loop_list:
+            instruction = self.check_if_list(instruction)
 
         if instruction[0] is ScraperInstructionType.skip_to_class:
             self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.CLASS_NAME, instruction[1])))
@@ -410,7 +426,17 @@ class Scraper(object):
                 data[instruction[2]] = self.webdriver.current_url
 
         if instruction[0] is ScraperInstructionType.for_list:
-            pass
+            objects = []
+            self.loop_list = True
+            for pwsid in instruction[1]:
+                self.__debug("Executing function with item: " + pwsid)
+                item = dict()
+                self.curr_list_item = pwsid
+                self.execute_function(instruction[2], item)
+                objects.append(item)
+
+            data[instruction[2]] = objects
+            self.loop_list = False
 
         time_end = time.time()
         self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__())
