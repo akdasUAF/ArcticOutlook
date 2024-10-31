@@ -234,9 +234,9 @@ class Scraper(object):
         instruction = [ScraperInstructionType.save_url, parameter]
         self.handle_instruction(instruction)
     
-    def then_check_for_text(self, value):
+    def then_check_for_text(self, parameter, value):
         # parameter => specific text
-        instruction = [ScraperInstructionType.check_for_text, value]
+        instruction = [ScraperInstructionType.check_for_text, parameter, value]
         self.handle_instruction(instruction)
     
     # WIP: Instruction to scrape a table of links / perform action on subpages?

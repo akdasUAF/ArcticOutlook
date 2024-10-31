@@ -45,7 +45,7 @@ def setup_scraper(scraper, instructions, pwsids):
             case "save_url":
                 scraper.then_save_url(params[0])
             case "check_for_text":
-                scraper.then_check_for_text(params[3])
+                scraper.then_check_for_text(params[0], params[3])
             case "for_list":
                 scraper.then_for_list(pwsids, params[4])
             case _:
