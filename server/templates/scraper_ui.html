@@ -1,0 +1,673 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">    
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/scraper.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<!-- jsDelivr :: Sortable :: Latest (https://www.jsdelivr.com/package/npm/sortablejs) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+<script src="{{ url_for('static', filename='js/scraper_instruction.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+<title>Updated Scraper UI</title>
+{% endblock %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light mb-3" id="upload-nav">
+    <div class="container-fluid">
+        <a class="navbar-brand disabled" href="#">Dynamic Scraper</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item px-1">
+                    <a id="home" class="nav-link border border" href="{{ url_for('index') }}">Home</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="reset" class="nav-link border border" href="{{ url_for('reset_scraper') }}">Reset Scraper</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div id="main" class="row">
+    <div class="row mb-3" id="scraperInfo"></div>
+    <ul class="nav nav-pills mb-3" id="scraperTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="scraper-tab" data-bs-toggle="pill" data-bs-target="#scraper-instruction-list" type="button" role="tab" aria-controls="scraper-instruction-list" aria-selected="true">Instruction List</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="function-tab" data-bs-toggle="pill" data-bs-target="#function-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">Function List</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pwsid-tab" data-bs-toggle="pill" data-bs-target="#pwsid-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">PWSID List</button>
+          </li>
+    </ul>
+    <div class="row mb-3" id="scraperInfo"></div>
+    <div class="mb-3 row flex-nowrap" id="create-gui">
+        <div class="col-auto col-md-3 col-xl-3 px-sm-2 px-0 bg-secondary bg-gradient" id="gui-nav">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li>
+                        <button class="btn btn-success" name="run_scraper" id="run_scraper">Run Scraper</button>
+                    </li>
+                    <li>
+                        <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="instruct_menu">
+                            <span class="fs-5 d-none d-sm-inline text-light">Instructions </span><i class="fa-solid fa-chevron-down"></i></a>
+                        <ul class="collapse show nav flex-column ms-1" id="submenu1" data-bs-parent="#menu">
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="skip_to_tag_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="skip_to_tag">Skip to Tag</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="skip_to_class_info"><i class="fa-solid fa-circle-info" disabled></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="skip_to_class">Skip To Class</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="save_value_as_property_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="save_value_as_property">Save Value</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="save_attribute_as_property_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="save_attribute_as_property">Save Attribute as Property</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="back_to_beginning_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="back_to_beginning">Back to Beginning</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="skip_to_element_with_attribute_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="skip_to_element_with_attribute">Skip to Element with Attribute</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="click_element_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="click_element">Click Element</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="goto_previous_page_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="goto_previous_page">Go to Previous Page</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="scrape_table_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="scrape_table">Scrape Table</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="run_function_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="run_function">Run Function</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="for_each_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="for_each">For Each</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="create_function_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="create_function">Create Function</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="end_function_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="end_function">End Function</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="special_for_each_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="special_for_each">Special For Each</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="form_send_keys_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="form_send_keys">Send Form Keys</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="form_submit_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="form_submit">Submit Form</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="delay_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="delay">Delay</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="save_url_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="save_url">Save URL</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="check_for_text_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="check_for_text">Check for Text</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="for_list_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="for_list">Loop through List</button>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <hr>
+            </div>
+        </div>
+        <div class="tab-content col py-3 border border-secondary border-start-0 bg-light bg-gradient" id="instruction-tabs">
+            <div class="tab-pane fade show active" id="scraper-instruction-list" role="tabpanel" aria-labelledby="scraper-tab">
+                <div class="row mb-3">
+                    <div class="col">
+                        <button id="save-list" class="btn btn-success">Save List</button>
+                        <button id="import-list" class="btn btn-primary float-end">Import List</button>
+                    </div>
+                    <div class="col">
+                        <button id="export-list" class="btn btn-primary">Export List</button>
+                        <button id="discard-list" class="btn btn-danger float-end">Discard List</button>
+                    </div>
+                </div>
+                <p class="h3 text-center">Scraper Instruction List</p>
+                </p>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="instruction_select">
+                        <option selected disabled>Select Instruction List</option>
+                        {% for instr in instructs %}
+                            <option value="{{instr}}">{{instr}}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="load_instruct">Load Instruction</button>
+                </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="scraper_name">Scraper Instruction List Name</label>
+                    <input type="text" class="form-control" name="scraper_name" id="scraper_name">
+                </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="url">Starting URL</label>
+                    <input type="text" class="form-control" name="url" id="url">
+                </div>
+                <div class="list-group">
+                    <div id="instructions" class="list-group nested-sortable" data-nest="1">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="function-list" role="tabpanel" aria-labelledby="function-tab">
+                <div class="row mb-3">
+                    <div class="col">
+                        <button id="save-function" class="btn btn-success">Save Function</button>
+                        <button id="import-function" class="btn btn-primary float-end">Import Function</button>
+                    </div>
+                    <div class="col">
+                        <button id="export-function" class="btn btn-primary">Export Function</button>
+                        <button id="discard-function" class="btn btn-danger float-end">Discard Function</button>
+                    </div>
+                </div>
+                <p class="h3 text-center">Function Editor</p>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="function_select">
+                        <option selected disabled>Select Function</option>
+                        {% for key in keys %}
+                            <option value="{{key}}">{{key}}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="load_func">Load Function</button>
+                </div>
+                </p> 
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="func_name">Function Name</label>
+                    <input type="text" class="form-control" name="func_name" id="func_name">
+                </div>
+                <div class="list-group">
+                    <div id="functions" class="list-group nested-sortable" data-nest="1">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pwsid-list" role="tabpanel" aria-labelledby="pwsid-tab">
+                <div class="row mb-3 gx-5 px-4">
+                    <form class="col" id="upload-form-pwsid" method="POST" enctype="multipart/form-data">
+                        <h4>Upload PWSID LIST or TABLE</h4>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" name="uploaded-file" id="uploaded-file">
+                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="checkbox" value="" name="table-select" id="table-select" aria-label="Checkbox for following text input">
+                            </div>
+                            <label class="input-group-text" for="file-type">File uploaded is a table.</label>
+                            <select class="form-select" id="file-type" name="file-type" aria-label="Example select with button addon">
+                                <option selected>Select File Type</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>      
+                        </div> 
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">PWSID Column Name</span>
+                            <input type="text" class="form-control" id="pwsid-col" name="pwsid-col">
+                        </div> 
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">New Column Name</span>
+                            <input type="text" class="form-control" id="col-name" name="col-name">
+                        </div>   
+                        <input type="submit" id="upload-pwsid" name="upload-pwsid" class="btn btn-primary" value="Upload PWSID">
+                    </form>
+                </div>
+                <hr>
+                <div class="row mb-3 gx-5 px-4">
+                    <div class="col">
+                        <h4>Full PWSID List</h4>
+                        <button id="select-all" class="btn btn-primary mb-3">Select All</button>
+                        <button id="clear-all" class="btn btn-primary mb-3">Clear Selection</button>
+                        <form id="pwsid-list" method="POST">
+                            <select class="form-select mb-3" id="select-pwsid" name="select-pwsid" size="5" multiple>
+                                {% for pwsid in pwsids %}
+                                <option value="{{pwsid}}">{{pwsid}}</option>
+                                {% endfor %}
+                            </select>   
+                            <input type="submit" id="add-all" name="add-all" class="btn btn-primary" value="Add Selection">     
+                        </form>
+                    </div>
+                    <div class="col">
+                        <h4>Selected PWSIDs</h4>
+                        <form id="pwsid" method="POST">
+                            <select class="form-select mb-3" id="selected" name="selected" size="5" multiple>
+                                {% for pwsid in selected_pwsids %}
+                                <option value="{{pwsid}}">{{pwsid}}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="submit" id="remove-pwsid" name="remove-pwsid" class="btn btn-primary" value="Remove Selection">
+                            <!-- <input type="submit" id="submit-pwsid" name="submit-pwsid" class="btn btn-primary" value="Submit Selection">         -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Delete a step from gui
+    $("body").on("click", "#delete_step", function () {
+        $(this).parent('.input-group-btn').parent('.input-group').parent('.scraper-contents').parent(".scraper-step").remove();
+    })
+
+    // This jquery shows/collapses query contents for the user.
+    $("body").on("click", "#show-step", function () {
+        var btn = $(this);
+        $(this).parent('.input-group').parent(".scraper-step").children(".scraper-contents").slideToggle(500, function(){
+            if ($(this).is(':visible'))
+            {
+                btn.text('Hide'); 
+            }
+            else
+            {
+                btn.text('Show');
+            }
+        });
+    })
+</script>
+<script>
+    // Delete instruction list
+    $("body").on("click", "#discard-list", function () {
+        $("#instructions").empty();
+    })
+
+    // Delete function list
+    $("body").on("click", "#discard-function", function () {
+        $("#functions").empty();
+    })
+</script>
+
+<script>
+    // Save instruction list
+    // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
+    // Ask Noah how he would prefer to save / export / import list (format)
+    $("body").on("click", "#save-list", function () {
+        var instruction_result = serialize( $('#instructions')[0] );
+        console.log(instruction_result);
+    })
+
+    // Save function list
+    $("body").on("click", "#save-function", function () {
+        var function_result = serialize( $('#functions')[0] );
+        console.log(function_result);
+    })
+</script>
+
+<script>
+    // Export
+    // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
+    $("body").on("click", "#export-list", function () {
+        var instruction_result = serialize( $('#instructions')[0] );
+        console.log(instruction_result);
+    })
+
+    // Save function list
+    $("body").on("click", "#export-function", function () {
+        var function_result = serialize( $('#functions')[0] );
+        console.log(function_result);
+    })
+</script>
+<script>
+    // Disable buttons on page load
+    if ($("#scraper-tab").hasClass('active'))
+    {
+        $('#submenu1 *').prop('disabled', false);
+        $('#submenu2 *').prop('disabled', true);
+    }
+    
+    $("body").on("click", "#pwsid-tab", function () {
+        // Make all disabled
+        $('#submenu1 *').prop('disabled', true);
+        $('#submenu2 *').prop('disabled', true);
+    })
+
+    $("body").on("click", "#scraper-tab", function () {
+        // Make instructions active, functions disabled
+        $('#submenu1 *').prop('disabled', false);
+        $('#submenu2 *').prop('disabled', true);
+
+    })
+    $("body").on("click", "#function-tab", function () {
+        // Make all active
+        $('#submenu1 *').prop('disabled', false);
+        $('#submenu2 *').prop('disabled', false);
+    })
+    // If pwsid-tab is active, disable instructions / functions
+    // If instructions-tab is active, disable functions
+</script>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/scraper_instruction.js') }}">
+    // initialize all cmdBtns to have same event listener
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', addLi);
+    }
+</script>
+<script>
+    // Delete a step from gui
+    $("body").on("click", "#delete-step", function () {
+        $(this).parent('.input-group').parent(".scraper-step").remove();
+    })
+
+    // This jquery shows/collapses query contents for the user.
+    $("body").on("click", "#show-step", function () {
+        var btn = $(this);
+        $(this).parent('.input-group').parent(".scraper-step").children(".scraper-contents").slideToggle(500, function(){
+            if ($(this).is(':visible'))
+            {
+                btn.text('Hide'); 
+            }
+            else
+            {
+                btn.text('Show');
+            }
+        });
+    })
+</script>
+
+<script>
+$(document).ready( function() {
+    $('#run_scraper').click(function() {
+        // Retrieve main instruction list
+        var result = serialize( $('#instructions')[0] );
+        var scraper_name = document.getElementById("scraper_name").value;
+        var url = document.getElementById("url").value;
+        result.push({scraper_name: scraper_name});
+        result.push({url: url});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        //var html = document.querySelector('#instructions').innerHTML;
+        //console.log(html);
+        data.push(formdata);
+        //data.push(html);
+
+        // Retrieve function lists
+        var function_result = serialize( $('#functions')[0] );
+        var formdata2 = JSON.stringify(function_result);
+        data.push(formdata2);
+
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('get_scraper_input') }}",
+            success: function (response) {
+                console.log(response);
+                if (response.redirect)
+                {
+                    window.location.replace(response.redirect);
+                }
+
+                else 
+                {
+                    var div = document.createElement('div');
+                    div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                    div.setAttribute('role', 'alert');
+
+                    var h4 = document.createElement('h4');
+                    h4.setAttribute('class', 'alert-heading');
+                    h4.innerText = "Scraper Status";
+
+                    var p = document.createElement('p');
+                    p.setAttribute('id', 'q_info');
+                    console.log(response.message);
+                    p.innerText = response.message;
+
+                    var btn = document.createElement('button');
+                    btn.setAttribute('class', 'btn-close');
+                    btn.setAttribute('data-bs-dismiss', 'alert');
+                    btn.setAttribute('aria-label', 'Close');
+
+                    div.appendChild(h4);
+                    div.appendChild(p);
+                    div.append(btn);
+                    $("#scraperInfo").append(div);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = error.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#scraperInfo").append(div);
+            }
+        });
+    });
+});
+</script>
+
+<script>
+    // nested sortable serializer
+    function serialize( sortable ){
+        var result = [];
+        var subs = [].slice.call(sortable.children);
+        for (var i in subs) {
+            var nested = subs[i].querySelector('.nested-sortable');
+            var name = subs[i].querySelector('.input-group > .form-control').value;
+            var qc = subs[i].querySelectorAll('div.scraper-contents > div.input-group > .form-control');
+            var queryContents = [];
+            for (var j = 0; j < qc.length; j++)
+            {
+                var name2 = qc[j].name;
+                var contents = qc[j].value;
+                queryContents.push({"name": name2,"contents": contents});
+            }
+            result.push({
+                id: subs[i].dataset.id,
+                name: name,
+                contents: queryContents,
+                subs: nested ? serialize(nested) : []
+            });
+        }
+        return result;
+    }
+</script>
+<script>
+    // Save function to list
+    $(document).ready( function() {
+        $('#save-function').click(function() {
+        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
+        var result = serialize( $('#functions')[0] );
+        var main_name = document.getElementById("func_name").value;
+        result.push({func_name: main_name});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#functions').innerHTML;
+        console.log(formdata);
+        data.push(formdata);
+        data.push(html);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('save_scraper_function') }}",
+            success: function (response) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+
+                var func_select = document.getElementById("function_select");
+                var i, L = func_select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                    func_select.remove(i);
+                }
+                response.data.forEach((item) => {
+                    let newOption = new Option(item, item);
+                    func_select.add(newOption, undefined);
+                });
+            }
+        });
+    });
+});
+</script>
+<script>
+    // Load button script: load the query into the query manager
+    var load = document.getElementById("load_func");
+    load.addEventListener('click', function(){
+        var select = document.getElementById("function_select");
+        var value = select.options[select.selectedIndex].value;
+        $.ajax({
+                url: "{{ url_for('get_func_jsarray', func_name='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    populateFuncJS(data); // populate the JS
+                },
+            });
+        })
+</script>
+<script>
+    // function to save instruction list
+    $(document).ready( function() {
+        $('#save-list').click(function() {
+            console.log("Testing");
+        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
+        var result = serialize( $('#instructions')[0] );
+        var main_name = document.getElementById("scraper_name").value;
+        var main_url = document.getElementById("url").value;
+        result.push({instr_name: main_name});
+        result.push({url: main_url});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#instructions').innerHTML;
+        console.log(formdata);
+        data.push(formdata);
+        data.push(html);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('save_instruct_list') }}",
+            success: function (response) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Scraper Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+
+                var func_select = document.getElementById("instruction_select");
+                var i, L = func_select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                    func_select.remove(i);
+                }
+                response.data.forEach((item) => {
+                    let newOption = new Option(item, item);
+                    func_select.add(newOption, undefined);
+                });
+            }
+        });
+    });
+});
+</script>
+<script>
+    // Function to load a scraper list
+    var load = document.getElementById("load_instruct");
+    load.addEventListener('click', function(){
+        var select = document.getElementById("instruction_select");
+        var value = select.options[select.selectedIndex].value;
+        $.ajax({
+                url: "{{ url_for('get_instr_jsarray', instr_name='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    populateInstrJS(data); // populate the JS
+                },
+            });
+        })
+</script>
+{% endblock %}

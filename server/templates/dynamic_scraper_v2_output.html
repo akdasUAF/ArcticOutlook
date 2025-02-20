@@ -14,7 +14,7 @@
 <nav class="nav">
     <a id="return" class="nav-link" href="{{ url_for('index') }}">Return to Main Page</a>
     <a id="reset" class="nav-link" href="{{ url_for('reset_scraper') }}">Reset Scraper</a>
-    <a id="return" class="nav-link" href="{{ url_for('dynamic_v2_add') }}">Return to Scraper Instruction List</a>
+    <a id="return" class="nav-link" href="{{ url_for('scraper_ui') }}">Return to Scraper Instruction List</a>
 </nav>
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}

@@ -1,4 +1,4 @@
-import subprocess, os, json, zipfile, math, re
+import subprocess, os, json, zipfile, math, re, csv
 import pandas as pd
 import numpy as np
 from flask import Flask, render_template, request, redirect, send_file, flash, url_for, jsonify
@@ -9,6 +9,7 @@ from scripts.initial_scrape import main as init_scrape
 from dynamic_v2.Extract import main as dynamic_v2
 from dynamic_v2.view_instruction import main as get_url
 from dynamic_v2.ScraperInstructionType import ScraperInstructionType
+from dynamic_v2.create_instruction import generate_list
 from server.node import Node
 import server.node as node
 from server.query_manager import QueryManager
@@ -163,7 +164,7 @@ def index():
             elif request.form['SelectTask'] == 'query_manager':
                 return redirect("/query_manager")
             elif request.form['SelectTask'] == 'mongodb_settings':
-                return redirect("/mongodb_settings")
+                return redirect("/mongodb-settings")
             else:
                 return redirect("/")
         return render_template('index.html')   
@@ -423,8 +424,9 @@ def static_download_cc(uri, db, comm, con):
 def clean_files():
     """A simple function that removes all files found in the upload folder except for settings.json."""
     try:
+        allowed_files = ['settings.json', 'functions.json', 'instruction_lists.json']
         for file in os.listdir(app.config['UPLOAD_FOLDER']):
-            if file != 'settings.json':
+            if file not in allowed_files:
                 path = os.path.join(app.config['UPLOAD_FOLDER'], file)
                 print("Removing: ", path)
                 os.remove(os.path.join(path)) 
@@ -532,6 +534,20 @@ def run_dynamic_scraper_v2():
                                 pwsids=si.pwsids,
                                 selected_pwsids = si.selected_pwsids)
     
+@app.route("/import-instruction-list", methods=['POST', 'GET'])
+def import_instruction_list():
+    """Allows a user to upload a csv file to import an instruction list for the dynamic scraper."""
+    if request.method == 'POST':
+        file = request.files['instruction-list']
+        if file.filename == '':
+            flash('No selected file', 'error')
+        if file:
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            return redirect("/dynamic-v2-add-item")
+    return render_template('import_instruction_list.html')
+
 @app.route("/dynamic-v2-add-item", methods=['POST', 'GET'])
 def dynamic_v2_add():
     """Function that adds an instruction to the instruction list."""
@@ -644,7 +660,7 @@ def dynamic_v2_add():
 @app.route("/dynamic-reset")
 def reset_scraper():
     si.clear()
-    return redirect("/dynamic-v2-add-item")
+    return redirect("/scraper_ui")
 
 def get_instruct_name():
     instruct_name = "Step " + str(si.instruct_num)
@@ -1870,9 +1886,97 @@ def csv_download():
             download_name='output_table.json',
             as_attachment=True
         )
-@app.route("/scraper_ui")
+
+@app.route('/scraper_ui/submit', methods=['GET', 'POST'])
+def get_scraper_input():
+    if request.method == 'POST':
+        result = request.json
+        if result:
+            si.instructions, name, si.base_url = generate_list(result[0], result[1])
+            try:
+                si.result = dynamic_v2(si.base_url, si.instructions, si.selected_pwsids)
+                si.scraped = True
+            except Exception as e:
+                #flash('An error occurred while attempting to run the dynamic scraper.\n'+str(e), 'error')
+                return jsonify(redirect= None, message= f"An error occurred while attempting to run the dynamic scraper.\n'+{str(e)}", status=500, mimetype='application/json')
+        
+            file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+            output = open(file, "w") 
+            json.dump(si.result, output, indent=2)
+            output.close()
+            return jsonify(redirect = "/dynamic-v2-scrape", message = "Scrape successful.", status=200, mimetype='application/json')
+        msg = "No result."
+        return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
+    return jsonify(redirect="/dynamic-v2-scrape", message= msg, status=200, mimetype='application/json')
+
+@app.route("/scraper_ui", methods=['GET', 'POST'])
 def scraper_ui():
-    return render_template("scraper_ui.html")
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    keys = list(temp.keys())
+
+    file_temp_2 = os.path.join(app.config['UPLOAD_FOLDER'], "instruction_lists.json")
+    with open(file_temp_2) as f:
+        temp = json.load(f)
+    instructs = list(temp.keys())
+
+    return render_template("scraper_ui.html", keys=keys, instructs=instructs)
+
+@app.route("/scraper_ui/save_function", methods=['GET', 'POST'])
+def save_scraper_function():
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    result = request.json
+
+    func_instr = json.loads(result[0])
+    func_name = json.loads(result[0])[-1]['func_name']
+    func_array = result[1]
+
+    temp[func_name] = {"Instructions": func_instr, "JSArray": func_array}
+    with open(file_temp, 'w') as f:
+        json.dump(temp, f, indent=4)
+    keys = list(temp.keys())
+    return jsonify(message="Function saved.", data=keys, status=200, mimetype='application/json')
+
+@app.route("/scraper_ui/save_instruction", methods=['GET', 'POST'])
+def save_instruct_list():
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "instruction_lists.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    result = request.json
+
+    instr = json.loads(result[0])
+    instr_name = json.loads(result[0])[-2]['instr_name']
+    instr_url = json.loads(result[0])[-1]['url']
+    instr_array = result[1]
+
+    temp[instr_name] = {"URL": instr_url, "Instructions": instr, "JSArray": instr_array}
+    with open(file_temp, 'w') as f:
+        json.dump(temp, f, indent=4)
+    keys = list(temp.keys())
+    return jsonify(message="Function saved.", data=keys, status=200, mimetype='application/json')
+
+@app.route("/scraper_ui/query_func_jsarray/<func_name>",  methods=['POST'])
+def get_func_jsarray(func_name):
+    """Function that returns the html information/jsarray saved to a specific query."""
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    return [func_name, temp[func_name]["Instructions"], temp[func_name]["JSArray"]]
+
+@app.route("/scraper_ui/query_instr_jsarray/<instr_name>",  methods=['POST'])
+def get_instr_jsarray(instr_name):
+    # """Function that returns the html information/jsarray saved to a specific query."""
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "instruction_lists.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    return [instr_name, temp[instr_name]["Instructions"], temp[instr_name]["JSArray"], temp[instr_name]["URL"]]
+
+@app.route("/documentation_home")
+def documentation_home():
+    return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)

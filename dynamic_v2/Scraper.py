@@ -243,8 +243,8 @@ class Scraper(object):
     def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
         return start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
 
-    def special_for_each(self, param, tag, attribute, value, function_name):
-        instruction = [ScraperInstructionType.special_for_each, param, tag, attribute, value, function_name]
+    def special_for_each(self, param, tag, attribute, value, function_name, r):
+        instruction = [ScraperInstructionType.special_for_each, param, tag, attribute, value, function_name, r]
         self.handle_instruction(instruction)
 
     def scroll_to_current_element(self):
@@ -363,13 +363,31 @@ class Scraper(object):
             self.__debug(selector)
             # elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
             objects = []
-            for i in range(self.max_items):
+            if instruction[6]:
+                split_range = instruction[6].split(':')
+                min_range = int(split_range[0])
+                max_range = int(split_range[1])
+                if not min_range:
+                    min_range = 0
+                if not max_range:
+                    max_range = self.max_items
+
+            else:
+                max_range = self.max_items
+                min_range = 0
+                
+            for i in range(min_range, max_range):
+                #print("Loop")
+                #print(f"{i}, {instruction[1]}, {instruction[2]}, {instruction[3]}, {instruction[4]}, {instruction[5]}, {instruction[6]} ")
                 # table tr:nth-of-type(0) a
                 # #ctl00_ContentPlaceHolder1_pnlContent > a:nth-child(3)
                 # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
                 # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
                 # iterator, parent_selector, tag
                 selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
+                # - .col-md-12 > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
+                # .col-md-12 > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
+                #print(selector)
                 try:
                     elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
                     item = dict()

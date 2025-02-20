@@ -245,6 +245,6 @@ server/files/*
 !server/files/settings.json
 
 # Ignore WIP files
-scraper_ui.html
-scraper_instruction.js
+Dockerfile
+requirements.txt
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,visualstudiocode
