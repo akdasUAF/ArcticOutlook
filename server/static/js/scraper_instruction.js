@@ -554,9 +554,10 @@ function addLi() {
         default:
             break
     }
+    mainDiv.appendChild(addCommentField());
+    //mainDiv.appendChild(addTempUl());
     newLi.appendChild(mainDiv);
-    newLi.appendChild(addCommentField());
-
+    //newLi.appendChild(addCommentField());
     newLi.appendChild(addTempUl());
     tab.appendChild(newLi);
 

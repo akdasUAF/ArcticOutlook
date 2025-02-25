@@ -289,27 +289,6 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     </div>
 </div>
 <script>
-    // Delete a step from gui
-    $("body").on("click", "#delete_step", function () {
-        $(this).parent('.input-group-btn').parent('.input-group').parent('.scraper-contents').parent(".scraper-step").remove();
-    })
-
-    // This jquery shows/collapses query contents for the user.
-    $("body").on("click", "#show-step", function () {
-        var btn = $(this);
-        $(this).parent('.input-group').parent(".scraper-step").children(".scraper-contents").slideToggle(500, function(){
-            if ($(this).is(':visible'))
-            {
-                btn.text('Hide'); 
-            }
-            else
-            {
-                btn.text('Show');
-            }
-        });
-    })
-</script>
-<script>
     // Delete instruction list
     $("body").on("click", "#discard-list", function () {
         $("#instructions").empty();
