@@ -184,12 +184,46 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                 </div>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="scraper_name">Scraper Instruction List Name</label>
-                    <input type="text" class="form-control" name="scraper_name" id="scraper_name">
+                    <input type="text" class="form-control" name="scraper_name" id="scraper_name" required>
                 </div>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="url">Starting URL</label>
-                    <input type="text" class="form-control" name="url" id="url">
+                    <input type="text" class="form-control" name="url" id="url" required>
                 </div>
+                <div class="search-select">
+                    <button id="dropdownBtn" type="button" data-bs-toggle="dropdown" class="btn btn-success dropdown-toggle">
+                        <span>Select Function</span>
+                        <i class="bi bi-caret-down-fill"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <input autofocus class="form-control" type="text" placeholder="Search..." onkeyup="filterData(this.value)" />
+                        </li>
+                        <div id="search-select-filtered-options">
+            
+                        </div>            
+                    </ul>
+                </div>
+                <!-- <div class="dropdown"> 
+                    <button class="btn btn-success dropdown-toggle"
+                            type="button" 
+                            id="multiSelectDropdown"
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Functions
+                    </button> 
+                    <ul class="dropdown-menu" aria-labelledby="multiSelectDropdown"> 
+                        <li> 
+                          <label><input type="checkbox" value="Test">Test</label> 
+                        </li> 
+                        <li> 
+                          <label><input type="checkbox" value="Test 2">Test 2</label> 
+                        </li> 
+                        <li> 
+                          <label><input type="checkbox" value="Test 3">Test 3</label> 
+                        </li> 
+                    </ul> 
+                </div>  -->
                 <div class="list-group">
                     <div id="instructions" class="list-group nested-sortable" data-nest="1">
                     </div>
@@ -287,6 +321,7 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
             </div>
         </div>
     </div>
+    <input id="my-data" data-name="{{keys}}" data-other="{{keys}}" value="{{keys}}" hidden>
 </div>
 <script>
     // Delete instruction list
@@ -306,13 +341,13 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     // Ask Noah how he would prefer to save / export / import list (format)
     $("body").on("click", "#save-list", function () {
         var instruction_result = serialize( $('#instructions')[0] );
-        console.log(instruction_result);
+        //console.log(instruction_result);
     })
 
     // Save function list
     $("body").on("click", "#save-function", function () {
         var function_result = serialize( $('#functions')[0] );
-        console.log(function_result);
+        //console.log(function_result);
     })
 </script>
 
@@ -321,16 +356,16 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
     $("body").on("click", "#export-list", function () {
         var instruction_result = serialize( $('#instructions')[0] );
-        console.log(instruction_result);
+        //console.log(instruction_result);
     })
 
     // Save function list
     $("body").on("click", "#export-function", function () {
         var function_result = serialize( $('#functions')[0] );
-        console.log(function_result);
+        //console.log(function_result);
     })
 </script>
-<script>
+<!-- <script>
     // Disable buttons on page load
     if ($("#scraper-tab").hasClass('active'))
     {
@@ -357,7 +392,7 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     })
     // If pwsid-tab is active, disable instructions / functions
     // If instructions-tab is active, disable functions
-</script>
+</script> -->
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/scraper_instruction.js') }}">
     // initialize all cmdBtns to have same event listener
@@ -388,34 +423,58 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
 </script>
 
 <script>
+    // If user presses 'submit instructions', check all inputs
+    // set background colors to be 
+    //function isInputEmpty()
+    // {
+    //     // input type text that is child of scraper-contents
+    //     var elems = document.getElementsByClass("scraper-contents").children("input").attr("type");
+    //     var emptyInputs = []
+    //     for (x = 0; x < elems.length; x++) {
+    //         if (elems[x].value === '') {
+    //             emptyInputs.append(elems[x]);
+    //         }
+    //     }
+    //     if (emptyInputs.length > 0) {
+    //         console.log(emptyInputs);
+    //         return emptyInputs;
+    //     }
+    //     conole.log(emptyInputs);
+    //     return true;
+    // }
+
 $(document).ready( function() {
     $('#run_scraper').click(function() {
-        // Retrieve main instruction list
-        var result = serialize( $('#instructions')[0] );
-        var scraper_name = document.getElementById("scraper_name").value;
-        var url = document.getElementById("url").value;
-        result.push({scraper_name: scraper_name});
-        result.push({url: url});
-        var formdata = JSON.stringify(result);
-        var data = [];
-        //var html = document.querySelector('#instructions').innerHTML;
-        //console.log(html);
-        data.push(formdata);
-        //data.push(html);
+        // if user has filled all scraper inputs, return true and continue
+        //if (isInputEmpty()) {
+            // Retrieve main instruction list
+            var result = serialize( $('#instructions')[0] );
+            var scraper_name = document.getElementById("scraper_name").value;
+            var url = document.getElementById("url").value;
+            result.push({scraper_name: scraper_name});
+            result.push({url: url});
+            var formdata = JSON.stringify(result);
+            var data = [];
+            //var html = document.querySelector('#instructions').innerHTML;
+            //console.log(html);
+            data.push(formdata);
+            //data.push(html);
 
-        // Retrieve function lists
-        var function_result = serialize( $('#functions')[0] );
-        var formdata2 = JSON.stringify(function_result);
-        data.push(formdata2);
+            // Retrieve function lists
+            // var function_result = serialize( $('#functions')[0] );
+            // var formdata2 = JSON.stringify(function_result);
+            var formdata2 = document.getElementById('dropdownBtn').children[0].textContent;
+            //formdata2 = funcs.replace(" ", ", ");
+            data.push(formdata2);
 
-        $.ajax({
+            $.ajax({
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data),
             dataType: 'json',
             url: "{{ url_for('get_scraper_input') }}",
             success: function (response) {
-                console.log(response);
+                //console.log(response);
                 if (response.redirect)
                 {
                     window.location.replace(response.redirect);
@@ -433,7 +492,7 @@ $(document).ready( function() {
 
                     var p = document.createElement('p');
                     p.setAttribute('id', 'q_info');
-                    console.log(response.message);
+                    //console.log(response.message);
                     p.innerText = response.message;
 
                     var btn = document.createElement('button');
@@ -448,7 +507,7 @@ $(document).ready( function() {
                 }
             },
             error: function(error) {
-                console.log(error);
+                //console.log(error);
                 var div = document.createElement('div');
                 div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
                 div.setAttribute('role', 'alert');
@@ -472,6 +531,12 @@ $(document).ready( function() {
                 $("#scraperInfo").append(div);
             }
         });
+        //}
+        // else {
+        //     // here we develop a prompt at the top that somehow labels all inputs that are incorrect
+        //     // function returns a list of strings?
+        //     console.log("error");
+        // }
     });
 });
 </script>
@@ -513,7 +578,7 @@ $(document).ready( function() {
         var formdata = JSON.stringify(result);
         var data = [];
         var html = document.querySelector('#functions').innerHTML;
-        console.log(formdata);
+        //console.log(formdata);
         data.push(formdata);
         data.push(html);
         $.ajax({
@@ -554,6 +619,7 @@ $(document).ready( function() {
                     let newOption = new Option(item, item);
                     func_select.add(newOption, undefined);
                 });
+                setSelectOptions(response.data);
             }
         });
     });
@@ -588,9 +654,10 @@ $(document).ready( function() {
         var formdata = JSON.stringify(result);
         var data = [];
         var html = document.querySelector('#instructions').innerHTML;
-        console.log(formdata);
+        var funcs = document.getElementById('dropdownBtn').children[0].textContent;
         data.push(formdata);
         data.push(html);
+        data.push(funcs);
         $.ajax({
             type: 'POST',
             contentType: 'application/json',
@@ -644,9 +711,91 @@ $(document).ready( function() {
                 url: "{{ url_for('get_instr_jsarray', instr_name='')}}" + value,
                 method: "POST",
                 success: function(data) {
+                    document.getElementById('dropdownBtn').children[0].textContent = data[data.length - 1];
+                    data.pop();
                     populateInstrJS(data); // populate the JS
                 },
             });
         })
+</script>
+
+<script>
+    const chBoxes = 
+            document.querySelectorAll('.dropdown-menu input[type="checkbox"]'); 
+        const dpBtn =  
+            document.getElementById('multiSelectDropdown'); 
+        let mySelectedListItems = []; 
+  
+        function handleCB() { 
+            mySelectedListItems = []; 
+            let mySelectedListItemsText = ''; 
+  
+            chBoxes.forEach((checkbox) => { 
+                if (checkbox.checked) { 
+                    mySelectedListItems.push(checkbox.value); 
+                    mySelectedListItemsText += checkbox.value + ', '; 
+                } 
+            }); 
+  
+            dpBtn.innerText = 
+                mySelectedListItems.length > 0 
+                    ? mySelectedListItemsText.slice(0, -2) : 'Select'; 
+        } 
+  
+        chBoxes.forEach((checkbox) => { 
+            checkbox.addEventListener('change', handleCB); 
+        }); 
+</script>
+<script type="text/javascript">
+    // search-select
+    // https://github.com/akshat-y/searchable-select
+    var d = document.getElementById('my-data').value;
+    d = d.replace(/'/g, '"');
+    d = JSON.parse(d);
+    function setSelectOptions(data = d){
+        const selectOptions = document.getElementById('search-select-filtered-options')
+        selectOptions.textContent = ''
+        
+        if(data.length < 1){
+            let option = document.createElement('li')        
+            option.innerHTML = `<a class="dropdown-item disabled" href="#">No match</a>`
+            selectOptions.appendChild(option)        
+        }
+
+        for(let i = 0; i < data.length; i++){    
+            let option = document.createElement('li')    
+            option.innerHTML = `<a class="dropdown-item" onclick="selectFunc('${data[i]}')" href="#">${data[i]}</a>`
+            selectOptions.appendChild(option)
+        }
+    }
+    function filterData(value){
+        var filtered = d.filter( func => func.toLowerCase().includes(value.toLowerCase()) );
+        setSelectOptions(filtered)
+    }
+    function selectFunc(func){
+        var str = document.getElementById('dropdownBtn').children[0].textContent;
+        // when exporting list, we replace " " with ", " and then split
+        if (str === 'Select Function')
+        {
+            str = '';
+        }
+        if (str.includes(func))
+        {
+            s = func + ", ";
+            str = str.replace(s, "");
+            if (str === '')
+            {
+                str = 'Select Function';
+            }
+        }
+        else
+        {
+            str += func + ", ";
+        }  
+
+        document.getElementById('dropdownBtn').children[0].textContent = str;
+    }
+
+    setSelectOptions();
 </script>
 {% endblock %}

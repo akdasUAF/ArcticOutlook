@@ -243,6 +243,8 @@ server/template_info/*
 # Ignore misc files in the files directory
 server/files/*
 !server/files/settings.json
+!server/files/functions.json
+!server/files/instruction_lists.json
 
 # Ignore WIP files
 Dockerfile

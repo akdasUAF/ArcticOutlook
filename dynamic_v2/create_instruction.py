@@ -5,7 +5,7 @@ from dynamic_v2.ScraperInstructionType import ScraperInstructionType
 # params = [param, tag, attribute, value, function_name]
 def generate_list(instructions=None, functions=None):
     instr = json.loads(instructions)
-    func = json.loads(functions)
+    #func = json.loads(functions)
     instructs = []
     
     # get the scraper name + remove last item in list (scraper name)
@@ -14,11 +14,15 @@ def generate_list(instructions=None, functions=None):
     name = instr[-1]['scraper_name']
     instr.pop()
     num = 0
-    # remove last item of function list
-    if func:
-        func.pop()
-        f, num = instruct_pipeline(func, num)
+    for funcs in functions:
+        funcs.pop()
+        f, num = instruct_pipeline(funcs, num)
         instructs.extend(f)
+    # remove last item of function list
+    # if func:
+    #     func.pop()
+    #     f, num = instruct_pipeline(func, num)
+    #     instructs.extend(f)
 
     # add functions to pipeline first, then add main scrape
     i, num = instruct_pipeline(instr, num)

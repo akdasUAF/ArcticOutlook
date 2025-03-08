@@ -1,0 +1,388 @@
+{
+    "SysLoop": {
+        "Instructions": [
+            {
+                "id": "step-2-create_function",
+                "name": "Testing Function List",
+                "contents": [
+                    {
+                        "name": "create_function_parameter",
+                        "contents": "SysLoop"
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-3-save_value_as_property",
+                "name": "Save PWSID",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "PWSID"
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-4-save_attribute_as_property",
+                "name": "Save url",
+                "contents": [
+                    {
+                        "name": "save_attribute_as_property_parameter",
+                        "contents": "url"
+                    },
+                    {
+                        "name": "save_attribute_as_property_tag",
+                        "contents": "href"
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-5-click_element",
+                "name": "Enter Link",
+                "contents": [
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-6-skip_to_tag",
+                "name": "Skip to Table",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "table"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-7-skip_to_tag",
+                "name": "Skip PWSID",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-8-skip_to_tag",
+                "name": "Skip Blank",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-9-skip_to_tag",
+                "name": "Skip to WSN",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-10-save_value_as_property",
+                "name": "Save WSN",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "water_system_name"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-11-skip_to_tag",
+                "name": "Skip to FT",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-12-save_value_as_property",
+                "name": "Save FT",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "federal_type"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-13-skip_to_tag",
+                "name": "Skip to PCS",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-14-save_value_as_property",
+                "name": "Save PCS",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "principal_county_served"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-15-skip_to_tag",
+                "name": "Skip to PS",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-16-save_value_as_property",
+                "name": "Save PS",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "primary_source"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-17-skip_to_tag",
+                "name": "Skip to Status",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-18-save_value_as_property",
+                "name": "Save Status",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "status"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-19-skip_to_tag",
+                "name": "Skip to AD",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-20-save_value_as_property",
+                "name": "Save AD",
+                "contents": [
+                    {
+                        "name": "save_value_as_property_parameter",
+                        "contents": "activity_date"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-21-skip_to_tag",
+                "name": "Skip to POC",
+                "contents": [
+                    {
+                        "name": "skip_to_tag_parameter",
+                        "contents": "table"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-22-scrape_table",
+                "name": "Save POC",
+                "contents": [
+                    {
+                        "name": "scrape_table_parameter",
+                        "contents": "points_of_contact"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-23-back_to_beginning",
+                "name": "Start of Page",
+                "contents": [
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-24-skip_to_element_with_attribute",
+                "name": "Skip to CMS",
+                "contents": [
+                    {
+                        "name": "skip_to_element_with_attribute_tag",
+                        "contents": "a"
+                    },
+                    {
+                        "name": "skip_to_element_with_attribute_attribute",
+                        "contents": "title"
+                    },
+                    {
+                        "name": "skip_to_element_with_attribute_value",
+                        "contents": "Current Monitoring Summary"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-25-save_attribute_as_property",
+                "name": "Save CMS",
+                "contents": [
+                    {
+                        "name": "save_attribute_as_property_parameter",
+                        "contents": "current_monitoring_summary"
+                    },
+                    {
+                        "name": "save_attribute_as_property_tag",
+                        "contents": "href"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-26-goto_previous_page",
+                "name": "Back to Prev Page",
+                "contents": [
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step-27-end_function",
+                "name": "End SysLoop",
+                "contents": [
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "func_name": "SysLoop"
+            }
+        ],
+        "JSArray": "\n                    <div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-2-create_function\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Create Function<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"create_function\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"create_function_parameter\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-3-save_value_as_property\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-4-save_attribute_as_property\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Attribute as Property<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_attribute_as_property\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_attribute_as_property_parameter\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Tag</span><input class=\"form-control user-text\" type=\"text\" name=\"save_attribute_as_property_tag\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-5-click_element\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Click Element<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"click_element\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-6-skip_to_tag\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-7-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-8-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-9-skip_to_tag\" style=\"\" draggable=\"false\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-10-save_value_as_property\" style=\"\" draggable=\"false\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-11-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-12-save_value_as_property\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-13-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-14-save_value_as_property\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-15-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-16-save_value_as_property\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-17-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-18-save_value_as_property\" style=\"\" draggable=\"false\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-19-skip_to_tag\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-20-save_value_as_property\" style=\"\" draggable=\"false\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-21-skip_to_tag\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-22-scrape_table\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Scrape Table<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"scrape_table\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"scrape_table_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-23-back_to_beginning\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Back to Beginning<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"back_to_beginning\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-24-skip_to_element_with_attribute\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Element with Attribute<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_element_with_attribute\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Tag</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_element_with_attribute_tag\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Attribute</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_element_with_attribute_attribute\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Value</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_element_with_attribute_value\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-25-save_attribute_as_property\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Attribute as Property<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_attribute_as_property\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_attribute_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Tag</span><input class=\"form-control user-text\" type=\"text\" name=\"save_attribute_as_property_tag\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-26-goto_previous_page\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Go to Previous Page<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"goto_previous_page\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step-27-end_function\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> End Function<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"end_function\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>"
+    }
+}

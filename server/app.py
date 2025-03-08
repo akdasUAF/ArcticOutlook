@@ -357,11 +357,12 @@ def dynamic_upload(mongo_uri, mongo_db, mongo_col):
     mongoClient = MongoClient(mongo_uri)
     db = mongoClient[mongo_db]
     col = db[mongo_col]
+    print(col)
     file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
     with open(file) as f:
         data = json.load(f)
     col.insert_many(data)
-    return redirect("dynamic_v2")
+    return redirect("/dynamic-v2-scrape")
 
 def static_download_op(uri, db, col):
     # Create file paths.
@@ -803,13 +804,24 @@ def dynamic_v2_scrape():
             col = request.form['Collection']
             add_mongodb_settings(db, col)
             names = get_mongodb_settings()
+            print(uri)
+            print(db)
+            print(col)
             if (uri == '' or db == '' or col == ''):
                 flash('MongoDB Connection details were not inputted. Please try again.', 'error')
             else:
-                try:
-                    return dynamic_upload(uri, db, col)
-                except:
-                    flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
+                #try:
+                mongoClient = MongoClient(uri)
+                db = mongoClient[db]
+                col = db[col]
+                file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+                with open(file) as f:
+                    data = json.load(f)
+                # if not isinstance(data, list):
+                #     data = list(data)
+                col.insert_many(data)
+                # except:
+                #     flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
 
     else:
         if si.base_url and si.instructions:
@@ -1887,12 +1899,29 @@ def csv_download():
             as_attachment=True
         )
 
+def get_funcs(funcs):
+    func_instructs = []
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    for f in funcs:
+        func_instructs.append(temp[f]["Instructions"])
+    #print(func_instructs)
+    return func_instructs
+
 @app.route('/scraper_ui/submit', methods=['GET', 'POST'])
 def get_scraper_input():
     if request.method == 'POST':
         result = request.json
         if result:
-            si.instructions, name, si.base_url = generate_list(result[0], result[1])
+            funcs = result[1]
+            if funcs == 'Select Function':
+                funcs = []
+            else:
+                funcs = funcs.split(",")
+                funcs.pop()
+                funcs = get_funcs(funcs)
+            si.instructions, name, si.base_url = generate_list(result[0], funcs)
             try:
                 si.result = dynamic_v2(si.base_url, si.instructions, si.selected_pwsids)
                 si.scraped = True
@@ -1952,10 +1981,18 @@ def save_instruct_list():
     instr_url = json.loads(result[0])[-1]['url']
     instr_array = result[1]
 
-    temp[instr_name] = {"URL": instr_url, "Instructions": instr, "JSArray": instr_array}
+    funcs = result[2]
+    if funcs == 'Select Function':
+        funcs = 'Select Function'
+    else:
+        funcs = funcs.split(",")
+        funcs.pop()
+
+    temp[instr_name] = {"URL": instr_url, "Instructions": instr, "JSArray": instr_array, "Functions": funcs}
     with open(file_temp, 'w') as f:
         json.dump(temp, f, indent=4)
     keys = list(temp.keys())
+
     return jsonify(message="Function saved.", data=keys, status=200, mimetype='application/json')
 
 @app.route("/scraper_ui/query_func_jsarray/<func_name>",  methods=['POST'])
@@ -1972,7 +2009,11 @@ def get_instr_jsarray(instr_name):
     file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "instruction_lists.json")
     with open(file_temp) as f:
         temp = json.load(f)
-    return [instr_name, temp[instr_name]["Instructions"], temp[instr_name]["JSArray"], temp[instr_name]["URL"]]
+    funcs = temp[instr_name]["Functions"]
+    if funcs != 'Select Function':
+        funcs = ", ".join(funcs)
+        funcs +=  ", "
+    return [instr_name, temp[instr_name]["Instructions"], temp[instr_name]["JSArray"], temp[instr_name]["URL"], funcs]
 
 @app.route("/documentation_home")
 def documentation_home():
