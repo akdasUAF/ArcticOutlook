@@ -802,6 +802,9 @@ def dynamic_v2_scrape():
             uri = request.form['Connection']
             db = request.form['Database']
             col = request.form['Collection']
+            if ": " in col:
+                # If the user uses the tool to select db/col, this ensures the col is in the db
+                db, col = col.split(": ", 1)
             add_mongodb_settings(db, col)
             names = get_mongodb_settings()
             if (uri == '' or db == '' or col == ''):
@@ -818,25 +821,19 @@ def dynamic_v2_scrape():
                     if (len(data) == 1):
                         # If the length of data is 1, attempt to extract list
                         # If the value stored within the json contains a list, insert that list as separate records
-                        print(len(data))
                         data_list = list(data.values())[0]
-                        print(data_list)
                         if isinstance(data_list, list):
-                            print("true")
                             col.insert_many(data_list)
                             flash("Contents uploaded successfully.", 'success')
                         # Else, insert the single entry
                         else:
-                            print("else")
                             col.insert_one(data)
                             flash("Entry uploaded successfully.", 'success')
                     elif (len(data) < 1):
                         # We have 0 data entries, do nothing
-                        print("elif")
                         flash("No insert to MongoDB: 0 entries to insert.", 'error')
                     else:
                         # If we have a list of data entries, insert_many
-                        print("else")
                         col.insert_many(data)
                         flash("Contents uploaded successfully.", 'success')
                 except Exception as e:
