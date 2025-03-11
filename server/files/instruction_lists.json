@@ -4,22 +4,30 @@
         "Instructions": [
             {
                 "id": "step-0-skip_to_tag",
-                "name": "Skip to table",
+                "name": "Skip to Table",
                 "contents": [
                     {
                         "name": "skip_to_tag_parameter",
                         "contents": "table"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Skips to the first table on the page (water system table)"
                     }
                 ],
                 "subs": []
             },
             {
                 "id": "step-1-skip_to_tag",
-                "name": "Skip to td",
+                "name": "Skip to PWSID",
                 "contents": [
                     {
                         "name": "skip_to_tag_parameter",
                         "contents": "td"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Skips to the first field in the table (PWSID)"
                     }
                 ],
                 "subs": []
@@ -30,7 +38,11 @@
                 "contents": [
                     {
                         "name": "save_value_as_property_parameter",
-                        "contents": "PWSID"
+                        "contents": "pwsid"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Saves the value into the field called pwsid"
                     }
                 ],
                 "subs": []
@@ -42,7 +54,7 @@
                 "url": "https://dec.alaska.gov/dww/JSP/WaterSystemFacility.jsp?tinwsys_is_number=3867&tinwsys_st_code=AK&tinwsf_is_number=44033&tinwsf_st_code=AK&wsf_id=SS001&wsf_name=SS%20GOLDEN%20HEART%20UTILITIES"
             }
         ],
-        "JSArray": "\n                    <div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-0-skip_to_tag\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-1-skip_to_tag\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-2-save_value_as_property\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
+        "JSArray": "\n                    <div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-0-skip_to_tag\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-1-skip_to_tag\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Skip to Tag<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"skip_to_tag\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Parameter</span><input class=\"form-control user-text\" type=\"text\" name=\"skip_to_tag_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step-2-save_value_as_property\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Save Value<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"save_value_as_property\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Column Name</span><input class=\"form-control user-text\" type=\"text\" name=\"save_value_as_property_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
         "Functions": "Select Function"
     },
     "TestSysLoop": {
@@ -50,7 +62,7 @@
         "Instructions": [
             {
                 "id": "step-0-form_submit",
-                "name": "Press form button",
+                "name": "Press Form Button",
                 "contents": [
                     {
                         "name": "form_submit_tag",
@@ -63,13 +75,17 @@
                     {
                         "name": "form_submit_value",
                         "contents": "submit"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Presses the JSP Button and submits the form to populate the next page."
                     }
                 ],
                 "subs": []
             },
             {
                 "id": "step-1-special_for_each",
-                "name": "Run loop",
+                "name": "Run Loop",
                 "contents": [
                     {
                         "name": "special_for_each_parameter",
@@ -94,6 +110,10 @@
                     {
                         "name": "special_for_each_range",
                         "contents": "2:7"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "A custom loop to iterate over the water systems list. The Pre and Post selectors are based on the firefox CSS Selector. Post-Selector and Range have been updated to no longer be required fields."
                     }
                 ],
                 "subs": []
@@ -105,7 +125,7 @@
                 "url": "https://dec.alaska.gov/dww/index.jsp"
             }
         ],
-        "JSArray": "\n                    <div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-0-form_submit\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Submit Form<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"form_submit\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Tag</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_tag\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Attribute</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_attribute\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Value</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_value\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-1-special_for_each\" style=\"\" draggable=\"false\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Special For Each<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"special_for_each\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Pre-Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_parameter\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Iterating Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"for_each_tag\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Post-Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_attribute\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">JSON Dataset Name</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_value\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Function Name</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_function_name\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Range</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_range\" style=\"color: rgb(0, 0, 0);\"></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
+        "JSArray": "\n                    <div class=\"scraper-step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step-0-form_submit\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Submit Form<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"form_submit\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Tag</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_tag\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Attribute</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_attribute\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Value</span><input class=\"form-control user-text\" type=\"text\" name=\"form_submit_value\" required=\"\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"scraper-step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step-1-special_for_each\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Special For Each<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name_-1\" required=\"\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete-step\">X</button><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"scraper-contents\" id=\"special_for_each\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Pre-Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_parameter\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Iterating Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"for_each_tag\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Post-Selector</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_attribute\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">JSON Dataset Name</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_value\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Function Name</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_function_name\" required=\"\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Range</span><input class=\"form-control user-text\" type=\"text\" name=\"special_for_each_range\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\" style=\"height: 79px;\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
         "Functions": [
             "SysLoop"
         ]

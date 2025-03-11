@@ -58,7 +58,7 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
           <button class="nav-link" id="function-tab" data-bs-toggle="pill" data-bs-target="#function-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">Function List</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pwsid-tab" data-bs-toggle="pill" data-bs-target="#pwsid-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">PWSID List</button>
+            <button class="nav-link" id="pwsid-tab" data-bs-toggle="pill" data-bs-target="#pwsid-list" type="button" role="tab" aria-controls="#pwsid-list" aria-selected="false">PWSID List</button>
           </li>
     </ul>
     <div class="row mb-3" id="scraperInfo"></div>
@@ -341,13 +341,11 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     // Ask Noah how he would prefer to save / export / import list (format)
     $("body").on("click", "#save-list", function () {
         var instruction_result = serialize( $('#instructions')[0] );
-        //console.log(instruction_result);
     })
 
     // Save function list
     $("body").on("click", "#save-function", function () {
         var function_result = serialize( $('#functions')[0] );
-        //console.log(function_result);
     })
 </script>
 
@@ -356,13 +354,11 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
     $("body").on("click", "#export-list", function () {
         var instruction_result = serialize( $('#instructions')[0] );
-        //console.log(instruction_result);
     })
 
     // Save function list
     $("body").on("click", "#export-function", function () {
         var function_result = serialize( $('#functions')[0] );
-        //console.log(function_result);
     })
 </script>
 <!-- <script>
@@ -456,15 +452,9 @@ $(document).ready( function() {
             var formdata = JSON.stringify(result);
             var data = [];
             //var html = document.querySelector('#instructions').innerHTML;
-            //console.log(html);
             data.push(formdata);
-            //data.push(html);
 
-            // Retrieve function lists
-            // var function_result = serialize( $('#functions')[0] );
-            // var formdata2 = JSON.stringify(function_result);
             var formdata2 = document.getElementById('dropdownBtn').children[0].textContent;
-            //formdata2 = funcs.replace(" ", ", ");
             data.push(formdata2);
 
             $.ajax({
@@ -474,7 +464,6 @@ $(document).ready( function() {
             dataType: 'json',
             url: "{{ url_for('get_scraper_input') }}",
             success: function (response) {
-                //console.log(response);
                 if (response.redirect)
                 {
                     window.location.replace(response.redirect);
@@ -492,7 +481,6 @@ $(document).ready( function() {
 
                     var p = document.createElement('p');
                     p.setAttribute('id', 'q_info');
-                    //console.log(response.message);
                     p.innerText = response.message;
 
                     var btn = document.createElement('button');
@@ -507,7 +495,6 @@ $(document).ready( function() {
                 }
             },
             error: function(error) {
-                //console.log(error);
                 var div = document.createElement('div');
                 div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
                 div.setAttribute('role', 'alert');
@@ -571,14 +558,12 @@ $(document).ready( function() {
     // Save function to list
     $(document).ready( function() {
         $('#save-function').click(function() {
-        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
         var result = serialize( $('#functions')[0] );
         var main_name = document.getElementById("func_name").value;
         result.push({func_name: main_name});
         var formdata = JSON.stringify(result);
         var data = [];
         var html = document.querySelector('#functions').innerHTML;
-        //console.log(formdata);
         data.push(formdata);
         data.push(html);
         $.ajax({
@@ -644,8 +629,6 @@ $(document).ready( function() {
     // function to save instruction list
     $(document).ready( function() {
         $('#save-list').click(function() {
-            console.log("Testing");
-        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
         var result = serialize( $('#instructions')[0] );
         var main_name = document.getElementById("scraper_name").value;
         var main_url = document.getElementById("url").value;

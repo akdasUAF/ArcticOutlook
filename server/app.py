@@ -804,24 +804,45 @@ def dynamic_v2_scrape():
             col = request.form['Collection']
             add_mongodb_settings(db, col)
             names = get_mongodb_settings()
-            print(uri)
-            print(db)
-            print(col)
             if (uri == '' or db == '' or col == ''):
                 flash('MongoDB Connection details were not inputted. Please try again.', 'error')
             else:
-                #try:
-                mongoClient = MongoClient(uri)
-                db = mongoClient[db]
-                col = db[col]
-                file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
-                with open(file) as f:
-                    data = json.load(f)
-                # if not isinstance(data, list):
-                #     data = list(data)
-                col.insert_many(data)
-                # except:
-                #     flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
+                try:
+                    mongoClient = MongoClient(uri)
+                    db = mongoClient[db]
+                    col = db[col]
+                    file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+                    with open(file) as f:
+                        data = json.load(f)
+
+                    if (len(data) == 1):
+                        # If the length of data is 1, attempt to extract list
+                        # If the value stored within the json contains a list, insert that list as separate records
+                        print(len(data))
+                        data_list = list(data.values())[0]
+                        print(data_list)
+                        if isinstance(data_list, list):
+                            print("true")
+                            col.insert_many(data_list)
+                            flash("Contents uploaded successfully.", 'success')
+                        # Else, insert the single entry
+                        else:
+                            print("else")
+                            col.insert_one(data)
+                            flash("Entry uploaded successfully.", 'success')
+                    elif (len(data) < 1):
+                        # We have 0 data entries, do nothing
+                        print("elif")
+                        flash("No insert to MongoDB: 0 entries to insert.", 'error')
+                    else:
+                        # If we have a list of data entries, insert_many
+                        print("else")
+                        col.insert_many(data)
+                        flash("Contents uploaded successfully.", 'success')
+                except Exception as e:
+                    print("except")
+                    flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
+                    flash(e, 'error')
 
     else:
         if si.base_url and si.instructions:
@@ -1980,6 +2001,7 @@ def save_instruct_list():
     instr_name = json.loads(result[0])[-2]['instr_name']
     instr_url = json.loads(result[0])[-1]['url']
     instr_array = result[1]
+    print(instr)
 
     funcs = result[2]
     if funcs == 'Select Function':

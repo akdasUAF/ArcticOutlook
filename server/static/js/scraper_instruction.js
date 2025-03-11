@@ -170,7 +170,7 @@ function specialForEach()
     div.appendChild(addLabel(commands["special_for_each"][1]));
     div.appendChild(addInput("for_each", "tag", false));
     div.appendChild(addLabel(commands["special_for_each"][2]));
-    div.appendChild(addInput("special_for_each", "attribute", false));
+    div.appendChild(addInput("special_for_each", "attribute", false, false));
 
     var div2 = addInputGroup();
     div2.appendChild(addLabel(commands["special_for_each"][3]));
@@ -178,7 +178,7 @@ function specialForEach()
     div2.appendChild(addLabel(commands["special_for_each"][4]));
     div2.appendChild(addInput("special_for_each", "function_name", false));
     div2.appendChild(addLabel(commands["special_for_each"][5]));
-    div2.appendChild(addInput("special_for_each", "range", false));
+    div2.appendChild(addInput("special_for_each", "range", false, false));
     
     var mainDiv = createMainDiv("special_for_each");
     mainDiv.appendChild(div);
@@ -333,7 +333,7 @@ function addIcon()
     return icon;
 }
 
-function addInput(id, cmd, dropdown)
+function addInput(id, cmd, dropdown, req=true)
 {
     // Function adds a text input to the input div. The id is set to the <command_inputNumber>
     var input = "";
@@ -366,7 +366,9 @@ function addInput(id, cmd, dropdown)
     var temp = id.concat("_", cmd);
 
     input.setAttribute("name", temp);
-    input.setAttribute("required", ""); // set input as required so we can change background color
+    if (req) {
+        input.setAttribute("required", ""); // set input as required so we can change background color
+    }
     return input;
 }
 
@@ -564,7 +566,6 @@ function addLi() {
 
     // Loop through each nested sortable element
     var scraperSortables = [].slice.call(document.querySelectorAll('#scraper-instruction-list .nested-sortable'));
-    console.log(scraperSortables);
     var functionSortables = [].slice.call(document.querySelectorAll('#function-list .nested-sortable'));
     loopSortable(scraperSortables, "#instructions");
     loopSortable(functionSortables, "#functions");
@@ -596,7 +597,7 @@ function addLi() {
 }
 
 // Function that fills the newly created list with saved user input
-function fillHTML(div, data, type)
+function fillHTML(div, data)
 {
     // Set the current div
     var elem = div.children;
@@ -604,40 +605,23 @@ function fillHTML(div, data, type)
     for (var x = 0; x < data.length; x++)
     {
         // Select the current step and contents/fields of the step.
-        console.log("Loop");
         var cmd = data[x];
-        //console.log(cmd);
-        console.log(cmd["contents"]);
         var con = cmd["contents"];
 
         // Select all the input fields
-        console.log(x);
         var fields = elem[x].querySelectorAll('input');
-        console.log(fields);
-        console.log(con.length);
 
         // Select the textarea representing a query step's notes
         var notes = elem[x].querySelector('textarea');
         
         // Set the name and notes fields of the query
         fields[0].value = cmd["name"];
-        //console.log(cmd);
-        //notes.value = cmd["notes"];
+        notes.value = con[con.length-1]["contents"];
 
         // Loop through each input field of the query and fill in previously saved data
-        if (type === "instr") {
-            for (var y = 0; y < con.length; y++)
-            {
-                fields[y+1].value = con[y]["contents"];
-            }
-        }
-        else {
-            for (var y = 1; y < con.length; y++)
-            {
-                console.log("Fields");
-                console.log(fields[y]);
-                fields[y].value = con[y-1]["contents"];
-            }
+        for (var y = 0; y < con.length-1; y++)
+        {
+            fields[y+1].value = con[y]["contents"];
         }
 
         // If this step has nested steps, call this function again.
@@ -657,14 +641,9 @@ function populateFuncJS(data)
     div.textContent = '';
     data[1].pop();
     var mainName = document.getElementById("func_name");
-    console.log("DATA")
-    console.log(data[1]);
-    console.log(data[0]);
     mainName.value = data[0];
     div.innerHTML = data[2];
-    // console.log(data);
-    // console.log(data[1]);
-    fillHTML(div, data[1], "func");
+    fillHTML(div, data[1]);
 }
 
 // Function that repopulates the page with a loaded query
@@ -679,7 +658,7 @@ function populateInstrJS(data)
     mainName.value = data[0];
     url.value = data[3];
     div.innerHTML = data[2];
-    fillHTML(div, data[1], "instr");
+    fillHTML(div, data[1]);
 }
 
 // initialize all cmdBtns to have same event listener
