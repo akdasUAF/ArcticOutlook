@@ -49,7 +49,6 @@ def instruct_pipeline(lst, num=0):
                 instructs.append((index, params, num, name, ""))
             case "save_value_as_property":
                 params = [contents[0]["contents"], "", "", "", ""]
-                print(params)
                 instructs.append((index, params, num, name, ""))
             case "save_attribute_as_property":
                 params = [contents[0]["contents"], contents[1]["contents"], "", "", ""]
@@ -82,7 +81,6 @@ def instruct_pipeline(lst, num=0):
                 params = ["", "", "", "", ""]
                 instructs.append((index, params, num, name, ""))
             case "special_for_each":
-                print(contents)
                 params = [contents[0]["contents"], contents[1]["contents"], contents[2]["contents"], contents[3]["contents"], contents[4]["contents"], contents[5]["contents"]]
                 instructs.append((index, params, num, name, ""))
             case "form_send_keys":

@@ -377,17 +377,8 @@ class Scraper(object):
                 min_range = 0
                 
             for i in range(min_range, max_range):
-                #print("Loop")
-                #print(f"{i}, {instruction[1]}, {instruction[2]}, {instruction[3]}, {instruction[4]}, {instruction[5]}, {instruction[6]} ")
-                # table tr:nth-of-type(0) a
-                # #ctl00_ContentPlaceHolder1_pnlContent > a:nth-child(3)
-                # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
-                # div.row:nth-child(5) > div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
                 # iterator, parent_selector, tag
                 selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
-                # - .col-md-12 > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > a:nth-child(1)
-                # .col-md-12 > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > a:nth-child(1)
-                #print(selector)
                 try:
                     elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
                     item = dict()
