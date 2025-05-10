@@ -7,13 +7,13 @@ from time import sleep
 from selenium.common import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 
-import dynamic_v2.Debug as Debug
+import Debug as Debug
 
-from dynamic_v2.CrawlerInstructionType import CrawlerInstructionType as CrawlerInstructionType
+from CrawlerInstructionType import CrawlerInstructionType as CrawlerInstructionType
 
 class Crawler(object):
 
-    def __init__(self):
+    def __init__(self, logger):
         self.current_element = None
         self.last_selected_element = self.current_element
         self.data = []
@@ -27,6 +27,9 @@ class Crawler(object):
 
         self.last_url = ""
         self.last_instruction = ""
+
+        self.logger = logger
+        self.log_crawler = 15
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
@@ -42,29 +45,29 @@ class Crawler(object):
 
     def set_parent_element(self, param):
         self.parent_element = param
-        self.__debug("Set parent element selector to " + param)
+        self.__debug("Set parent element selector to " + param, self.log_crawler)
 
     def set_item_element(self, param):
         self.item_element = param
-        self.__debug("Set item element selector to " + param)
+        self.__debug("Set item element selector to " + param, self.log_crawler)
 
     def set_sub_item_element(self, param):
         self.sub_item_element = param
-        self.__debug("Set sub item element selector to " + param)
+        self.__debug("Set sub item element selector to " + param, self.log_crawler)
 
-    @staticmethod
-    def __debug(param):
-        Debug.debug("[CRAWLER] " + param.__str__())
+    #@staticmethod
+    def __debug(self, param, log_lvl):
+        Debug.debug(param.__str__(), self.logger, log_lvl)
 
     def back_to_beginning(self):
         self.current_element = self.webdriver.find_element(By.TAG_NAME, "html")
 
     def set_current_element(self, element):
         self.current_element = element
-        self.__debug("Current element is now at " + self.current_element.location.__str__())
+        self.__debug("Current element is now at " + self.current_element.location.__str__(), self.log_crawler)
 
     def crawl_and_scrape(self, scraper, view=False):
-        self.__debug("Crawling...")
+        self.__debug("Crawling...", self.log_crawler)
         self.back_to_beginning()
         self.data = []
 
@@ -73,7 +76,7 @@ class Crawler(object):
             selector = self.create_selector_for_element_in_list(i)
             
 
-            self.__debug(selector.__str__())
+            self.__debug(selector.__str__(), self.log_crawler)
 
             elem = None
             try:

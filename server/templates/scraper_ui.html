@@ -83,7 +83,7 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                             </li>
                             <li class="nav-item mb-1">
                                 <button type="button" class="btn btn-sm infoBtn" id="back_to_beginning_info"><i class="fa-solid fa-circle-info"></i></button>
-                                <button type="button" class="btn btn-primary cmdBtn" id="back_to_beginning">Back to Beginning</button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="back_to_beginning">Back to Beginning (of page)</button>
                             </li>
                             <li class="nav-item mb-1">
                                 <button type="button" class="btn btn-sm infoBtn" id="skip_to_element_with_attribute_info"><i class="fa-solid fa-circle-info"></i></button>
@@ -174,12 +174,18 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
         <div class="tab-content col py-3 border border-secondary border-start-0 bg-light bg-gradient" id="instruction-tabs">
             <div class="tab-pane fade show active" id="scraper-instruction-list" role="tabpanel" aria-labelledby="scraper-tab">
                 <div class="row mb-3">
+                    <form class="col" method="POST" id="export-import">
+                        <div class="input-group">
+                            <input type="submit" name="import-list" id="import-list" class="btn btn-primary float-end" value="Import List"></input>
+                            <input type="file" class="form-control" id="import-list-file" name="import-list-file">
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="list-name" name="list-name" class="form-control" placeholder="List name">
+                            <input type="submit" id="export-list" name="export-list" class="btn btn-primary" value="Export List"></input>
+                        </div>
+                    </form>
                     <div class="col">
                         <button id="save-list" class="btn btn-success">Save List</button>
-                        <button id="import-list" class="btn btn-primary float-end">Import List</button>
-                    </div>
-                    <div class="col">
-                        <button id="export-list" class="btn btn-primary">Export List</button>
                         <button id="discard-list" class="btn btn-danger float-end">Discard List</button>
                     </div>
                 </div>
@@ -196,25 +202,30 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                 </div>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="scraper_name">Scraper Instruction List Name</label>
-                    <input type="text" class="form-control" name="scraper_name" id="scraper_name" required>
+                    <input type="text" class="form-control" name="scraper_name" id="scraper_name" onchange="updateListName(this)" required>
                 </div>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="url">Starting URL</label>
                     <input type="text" class="form-control" name="url" id="url" required>
                 </div>
-                <div class="search-select">
-                    <button id="dropdownBtn" type="button" data-bs-toggle="dropdown" class="btn btn-success dropdown-toggle">
-                        <span>Select Function</span>
-                        <i class="bi bi-caret-down-fill"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <input autofocus class="form-control" type="text" placeholder="Search..." onkeyup="filterData(this.value)" />
-                        </li>
-                        <div id="search-select-filtered-options">
-            
-                        </div>            
-                    </ul>
+                <div class="mb-3 row">
+                    <div class="search-select col">
+                        <button id="dropdownBtn" type="button" data-bs-toggle="dropdown" class="btn btn-success dropdown-toggle">
+                            <span>Select Function</span>
+                            <i class="bi bi-caret-down-fill"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <input autofocus class="form-control" type="text" placeholder="Search..." onkeyup="filterData(this.value)" />
+                            </li>
+                            <div id="search-select-filtered-options">
+                
+                            </div>            
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <button id="collapse-expand-list" class="btn btn-danger float-end">Collapse List</button>
+                    </div>
                 </div>
                 <!-- <div class="dropdown"> 
                     <button class="btn btn-success dropdown-toggle"
@@ -244,11 +255,19 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
             <div class="tab-pane fade" id="function-list" role="tabpanel" aria-labelledby="function-tab">
                 <div class="row mb-3">
                     <div class="col">
-                        <button id="save-function" class="btn btn-success">Save Function</button>
-                        <button id="import-function" class="btn btn-primary float-end">Import Function</button>
+                        <form class="col" method="POST" id="export-import">
+                            <div class="input-group">
+                                <input type="submit" name="import-function" id="import-function" class="btn btn-primary float-end" value="Import List"></input>
+                                <input type="file" class="form-control" id="import-func-file" name="import-func-file">
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="func-name" name="func-name" class="form-control" placeholder="List name">
+                                <input type="submit" id="export-function" name="export-function" class="btn btn-primary" value="Export List"></input>
+                            </div>
+                        </form>
                     </div>
                     <div class="col">
-                        <button id="export-function" class="btn btn-primary">Export Function</button>
+                        <button id="save-function" class="btn btn-success">Save Function</button>
                         <button id="discard-function" class="btn btn-danger float-end">Discard Function</button>
                     </div>
                 </div>
@@ -347,32 +366,52 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     })
 </script>
 
-<script>
-    // Save instruction list
-    // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
-    // Ask Noah how he would prefer to save / export / import list (format)
-    $("body").on("click", "#save-list", function () {
-        var instruction_result = serialize( $('#instructions')[0] );
-    })
+<!-- <script type="text/javascript">
+var input1 = document.getElementById('scraper-name');
+var input2 = document.getElementById('list-name');
 
-    // Save function list
-    $("body").on("click", "#save-function", function () {
-        var function_result = serialize( $('#functions')[0] );
-    })
-</script>
+  input1.addEventListener('change', function() {
+    input2.value = input1.value;
+  });
+//   function updateListName(input1) {
+//     console.log("Hello")
+//     var input2 = document.getElementById('list-name');
+//     input2.value = input1.value;
+//   }
+</script> -->
 
-<script>
+<!-- <script>
     // Export
-    // WIP: Do we want an ajax call to return the instruction list the scraper is expecting, or what the front end sees?
-    $("body").on("click", "#export-list", function () {
-        var instruction_result = serialize( $('#instructions')[0] );
-    })
-
+    // function to save instruction list
+    $(document).ready( function() {
+        $('#export-list').click(function() {
+        var result = serialize( $('#instructions')[0] );
+        var main_name = document.getElementById("scraper_name").value;
+        var main_url = document.getElementById("url").value;
+        result.push({instr_name: main_name});
+        result.push({url: main_url});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#instructions').innerHTML;
+        var funcs = document.getElementById('dropdownBtn').children[0].textContent;
+        data.push(formdata);
+        data.push(html);
+        data.push(funcs);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('export_list_excel') }}"
+        });
+    });
+}); -->
+<!-- 
     // Save function list
     $("body").on("click", "#export-function", function () {
         var function_result = serialize( $('#functions')[0] );
     })
-</script>
+</script> -->
 <script>
     $("body").on("click", "#pwsid-tab", function () {
         // Make all disabled
@@ -423,6 +462,22 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
             }
         });
     })
+
+    // Show / Hide all steps
+    $("body").on("click", "#collapse-expand-list", function () {
+        var btn = $(this);
+        var steps = 
+        $('instructions').parent(".scraper-step").children(".scraper-contents").slideToggle(500, function(){
+            if ($(this).is(':visible'))
+            {
+                btn.text('Collapse List'); 
+            }
+            else
+            {
+                btn.text('Expand List');
+            }
+        });
+    })
 </script>
 
 <script>
@@ -458,8 +513,10 @@ $(document).ready( function() {
             result.push({url: url});
             var formdata = JSON.stringify(result);
             var data = [];
-            //var html = document.querySelector('#instructions').innerHTML;
             data.push(formdata);
+            
+            var html = document.querySelector('#instructions').innerHTML;
+            data.push(html);
 
             var formdata2 = document.getElementById('dropdownBtn').children[0].textContent;
             data.push(formdata2);
@@ -639,7 +696,7 @@ $(document).ready( function() {
         var result = serialize( $('#instructions')[0] );
         var main_name = document.getElementById("scraper_name").value;
         var main_url = document.getElementById("url").value;
-        result.push({instr_name: main_name});
+        result.push({scraper_name: main_name});
         result.push({url: main_url});
         var formdata = JSON.stringify(result);
         var data = [];

@@ -1,0 +1,37 @@
+.navbar
+{
+  background-color: #e3f2fd;
+}
+
+#job-title
+{
+    text-align: center;
+    background-color: #e3f2fd;
+}
+
+#log-output
+{
+
+
+}
+
+#timestep
+{
+    text-align: left;
+    display: block;
+    margin: 0 auto;
+
+}
+
+#output
+{
+    text-align: left;
+    height: 400px;
+    background-color: #e3f2fd;
+}
+
+#output-div
+{
+    overflow: scroll;
+    background-color: #e3f2fd;
+}

@@ -3,8 +3,8 @@
 #
 #
 
-import dynamic_v2.Debug as Debug
-from dynamic_v2.ScraperInstructionType import ScraperInstructionType
+import Debug as Debug
+from ScraperInstructionType import ScraperInstructionType
 
 from time import sleep
 import time
@@ -33,7 +33,7 @@ from selenium.webdriver.support.select import Select
 
 class Scraper(object):
 
-    def __init__(self):
+    def __init__(self, logger):
         self.instructions = []
         self.current_element = None
         self.data = dict()
@@ -44,9 +44,13 @@ class Scraper(object):
         self.max_items = 50
         self.loop_list = False
         self.curr_list_item = None
+        self.logger = logger
+        self.log_value = 17
+        self.log_scraper = 16
 
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
+        self.webdriver.implicitly_wait(15)
 
     def activate_live_mode(self):
         self.live_mode = True
@@ -54,9 +58,9 @@ class Scraper(object):
     def deactivate_live_mode(self):
         self.live_mode = False
 
-    @staticmethod
-    def __debug(param):
-        Debug.debug("[SCRAPER] " + param.__str__())
+    #@staticmethod
+    def __debug(self, param, log_lvl):
+        Debug.debug(param.__str__(), self.logger, log_lvl)
 
     def back_to_beginning(self):
         self.current_element = self.webdriver.find_element(By.TAG_NAME, "html")
@@ -80,7 +84,7 @@ class Scraper(object):
             return True
 
     def next_closest_element_in_list(self, elems):
-        self.__debug("next_closest_element_in_list")
+        self.__debug("next_closest_element_in_list", self.log_scraper)
         closest = self.current_element
         for elem in elems:
             if closest is self.current_element:
@@ -92,7 +96,7 @@ class Scraper(object):
         return closest
 
     def next_closest_element_in_list_with_attribute_and_value(self, elems, attribute, value):
-        self.__debug("next_closest_element_in_list_with_attribute_and_value")
+        self.__debug("next_closest_element_in_list_with_attribute_and_value", self.log_scraper)
         closest = self.current_element
 
         if attribute is None or value is None:
@@ -124,15 +128,18 @@ class Scraper(object):
         self.functions[param] = []
         self.function_writing = param
 
-        self.__debug("Now writing function " + self.function_writing)
+        self.__debug("Now writing function " + self.function_writing, self.log_scraper)
 
     def end_function(self):
         if self.function_writing is not None:
-            self.__debug("Ending function " + self.function_writing)
+            self.__debug("Ending function " + self.function_writing, self.log_scraper)
         self.function_writing = None
 
-    def handle_instruction(self, param):
-        self.__debug("Handling instruction \"" + param.__str__() + "\"")
+    def handle_instruction(self, param, name = ""):
+        if name:
+            self.__debug(f"Handling instruction \"{param.__str__()}\": \"{name}\"", self.log_scraper)
+        else:
+            self.__debug("Handling instruction \"" + param.__str__() + "\"", self.log_scraper)
 
         if self.function_writing is not None:
             self.functions[self.function_writing].append(param)
@@ -141,57 +148,57 @@ class Scraper(object):
         else:
             self.instructions.append(param)
 
-    def then_for_each(self, tag, attribute, value, function_name):
+    def then_for_each(self, tag, attribute, value, function_name, name):
         instruction = [ScraperInstructionType.for_each, tag, attribute, value, function_name]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_for_list(self, parameter, function_name):
+    def then_for_list(self, parameter, function_name, name):
         instruction = [ScraperInstructionType.for_list, parameter, function_name]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_run_function(self, param):
+    def then_run_function(self, param, name):
         instruction = [ScraperInstructionType.run_function, param]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_skip_to_class(self, param):
-        instruction = [ScraperInstructionType.skip_to_class, param]
-        self.handle_instruction(instruction)
+    def then_skip_to_class(self, param, r, name):
+        instruction = [ScraperInstructionType.skip_to_class, param, r]
+        self.handle_instruction(instruction, name)
 
-    def then_skip_to_element(self, param):
-        instruction = [ScraperInstructionType.skip_to_tag, param]
-        self.handle_instruction(instruction)
+    def then_skip_to_element(self, param, r, name):
+        instruction = [ScraperInstructionType.skip_to_tag, param, r]
+        self.handle_instruction(instruction, name)
 
-    def then_save_value_as_property(self, param):
+    def then_save_value_as_property(self, param, name):
         instruction = [ScraperInstructionType.save_value_as_property, param]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_save_attribute_as_property(self, tag, param):
+    def then_save_attribute_as_property(self, tag, param, name):
         instruction = [ScraperInstructionType.save_attribute_as_property, tag, param]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_go_back_to_beginning(self):
+    def then_go_back_to_beginning(self, name):
         instruction = [ScraperInstructionType.back_to_beginning]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_skip_to_element_with_attribute(self, tag, attribute, value):
-        instruction = [ScraperInstructionType.skip_to_element_with_attribute, tag, attribute, value]
-        self.handle_instruction(instruction)
+    def then_skip_to_element_with_attribute(self, tag, attribute, value, r, name):
+        instruction = [ScraperInstructionType.skip_to_element_with_attribute, tag, attribute, value, r]
+        self.handle_instruction(instruction, name)
 
-    def then_click_element(self):
+    def then_click_element(self, name):
         instruction = [ScraperInstructionType.click_element]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_go_back(self):
+    def then_go_back(self, name):
         instruction = [ScraperInstructionType.goto_previous_page]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
     def set_current_element(self, element):
         self.current_element = element
-        self.__debug("Current element is now at " + self.current_element.location.__str__())
+        self.__debug("Current element is now at " + self.current_element.location.__str__(), self.log_scraper)
 
-    def then_scrape_table(self, param):
+    def then_scrape_table(self, param, name):
         instruction = [ScraperInstructionType.scrape_table, param]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
     def scrape_table(self):
         rows = self.current_element.find_elements(By.TAG_NAME, "tr")
@@ -212,40 +219,44 @@ class Scraper(object):
 
             row_dictionary_list.append(row_dictionary)
 
-        self.__debug(names.__str__())
-        self.__debug(row_dictionary_list.__str__())
+        self.__debug(f"\t[Names]:\t{names.__str__()}", self.log_value)
+        self.__debug(f"\t[Contents]:\t{row_dictionary_list.__str__()}", self.log_value)
         return row_dictionary_list
     
-    def then_send_keys(self, parameter, tag, attribute, value):
+    def then_send_keys(self, parameter, tag, attribute, value, name):
         instruction = [ScraperInstructionType.form_send_keys, tag, attribute, value, parameter]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
     
-    def then_form_submit(self, tag, attribute, value):
+    def then_form_submit(self, tag, attribute, value, name):
         # Instruction type, 
         instruction = [ScraperInstructionType.form_submit, tag, attribute, value]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
     
-    def then_delay(self):
+    def then_delay(self, name):
         instruction = [ScraperInstructionType.delay]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
-    def then_save_url(self, parameter):
+    def then_save_url(self, parameter, name):
         # save url under name
         instruction = [ScraperInstructionType.save_url, parameter]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
     
-    def then_check_for_text(self, parameter, value):
+    def then_check_for_text(self, parameter, value, name):
         # parameter => specific text
         instruction = [ScraperInstructionType.check_for_text, parameter, value]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
     
     # WIP: Instruction to scrape a table of links / perform action on subpages?
     def create_selector_for_element_in_list(self, i, start_ele, tag, sub_tag):
-        return start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
+        if start_ele:
+            sel = start_ele + " " + tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
+        else:
+            sel = tag + ":nth-of-type(" + i.__str__() + ") " + sub_tag
+        return sel
 
-    def special_for_each(self, param, tag, attribute, value, function_name, r):
+    def special_for_each(self, param, tag, attribute, value, function_name, r, name):
         instruction = [ScraperInstructionType.special_for_each, param, tag, attribute, value, function_name, r]
-        self.handle_instruction(instruction)
+        self.handle_instruction(instruction, name)
 
     def scroll_to_current_element(self):
         self.webdriver.execute_script("arguments[0].scrollIntoView();", self.current_element)
@@ -254,37 +265,37 @@ class Scraper(object):
     def wait_for_visibility(self, selector_type, selector):
         return WebDriverWait(self.webdriver, 20).until(EC.visibility_of_element_located((selector_type, selector)))
 
-    def scrape(self):
-        self.__debug("Scraping...")
+    def scrape(self): 
+        self.__debug("Scraping...", self.log_scraper)
         self.back_to_beginning()
         self.data = {}
         for instruction in self.instructions:
 
             self.execute_instruction(self.data, instruction)
-
+        self.__debug("Complete. Exiting scraper...", self.log_scraper)
         return self.data
 
     def execute_function(self, name, data):
         instructions = self.functions[name]
-        self.__debug("Running function " + name)
+        self.__debug("Running function " + name, self.log_scraper)
         for instr in instructions:
-            self.__debug("Function " + name + " executing " + instr.__str__())
+            self.__debug("Function " + name + " executing " + instr.__str__(), self.log_scraper)
             self.execute_instruction(data, instr)
         time.sleep(2)
 
     def check_if_list(self, instruction):
-        self.__debug("Checking for $list...")
+        self.__debug("Checking for $list...", self.log_scraper)
         instr = instruction
         for x, i in enumerate(instruction):
             if i == "$list":
                 instr = list(instruction)
-                self.__debug("$list replaced with " + self.curr_list_item)
+                self.__debug("$list replaced with " + self.curr_list_item, self.log_scraper)
                 instr[x] = self.curr_list_item
-        self.__debug(instr)
+        self.__debug(instr, self.log_scraper)
         return instr
 
     def execute_instruction(self, data, instruction):
-        self.__debug("Running instruction: " + instruction.__str__())
+        self.__debug("Running instruction: " + instruction.__str__(), self.log_scraper)
         
         time_start = time.time()
 
@@ -295,20 +306,33 @@ class Scraper(object):
             self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.CLASS_NAME, instruction[1])))
 
         if instruction[0] is ScraperInstructionType.skip_to_tag:
-            self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.TAG_NAME, instruction[1])))
+            # testTag = self.next_closest_element_in_list(self.webdriver.find_elements(By.TAG_NAME, instruction[1]))
+            # print(testTag)
+            # self.set_current_element(self.next_closest_element_in_list(testTag))
+            if instruction[2] and (int(instruction[2])>1):
+                num = int(instruction[2])
+                if num > 1:
+                    for x in range(0, num):
+                        self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.TAG_NAME, instruction[1])))
+                else:
+                    self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.TAG_NAME, instruction[1])))
+            else:
+                self.set_current_element(self.next_closest_element_in_list(self.webdriver.find_elements(By.TAG_NAME, instruction[1])))
 
         if instruction[0] is ScraperInstructionType.save_value_as_property:
             data[instruction[1]] = self.current_element.get_attribute('innerText')
+            self.__debug(f"{data[instruction[1]]}", self.log_value)
 
         if instruction[0] is ScraperInstructionType.save_attribute_as_property:
             data[instruction[2]] = self.current_element.get_attribute(instruction[1])
+            self.__debug(f"{instruction[2]}: {data[instruction[2]]}", self.log_value)
 
         if instruction[0] is ScraperInstructionType.back_to_beginning:
             self.back_to_beginning()
 
         if instruction[0] is ScraperInstructionType.skip_to_element_with_attribute:
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
-            self.__debug(selector)
+            self.__debug(selector, self.log_scraper)
             elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
             self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
 
@@ -334,6 +358,7 @@ class Scraper(object):
             self.back_to_beginning()
 
         if instruction[0] is ScraperInstructionType.scrape_table:
+            self.__debug(f"Table {instruction[1]}", self.log_value)
             data[instruction[1]] = self.scrape_table()
 
         if instruction[0] is ScraperInstructionType.run_function:
@@ -341,10 +366,11 @@ class Scraper(object):
 
         if instruction[0] is ScraperInstructionType.for_each:
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
-            self.__debug(selector)
+            self.__debug(selector, self.log_scraper)
             elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
             objects = []
             for index, val in enumerate(elements):
+                self.__debug(f"\t[Iteration]:\t{index}", self.log_scraper)
                 elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
 
             #for elem in elements:
@@ -359,41 +385,70 @@ class Scraper(object):
             # user passes css selector for 1st item
             # change end of css selector to be enumerated
             # keep the rest, should work
+            print(instruction[1])
             selector = instruction[2] + "[" + instruction[3] + "='" + instruction[4] + "']"
-            self.__debug(selector)
+            self.__debug(selector, self.log_scraper)
             # elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
-            objects = []
-            if instruction[6]:
-                split_range = instruction[6].split(':')
-                min_range = int(split_range[0])
-                max_range = int(split_range[1])
-                if not min_range:
-                    min_range = 0
-                if not max_range:
-                    max_range = self.max_items
+            objects = [] 
+            if instruction[6]: 
+                #split_range = instruction[6].split(':')
+                min_range, max_range = None, None
+                ranges = []
+                try:
+                    user_ranges = instruction[6].split(',')
+                    for split_range in user_ranges:
+                        splits = split_range.split(":")
+                        min_range = int(splits[0])
+                        if len(splits) > 1:
+                            max_range = int(splits[1])
+                        # Temporary for testing
+                        else:
+                            max_range = min_range
+                        ranges.append([min_range, max_range])
+                    ranges.sort(key=lambda x: x[0])
+                    
+                except Exception:
+                    return None, "Not a valid set of ranges."
 
             else:
                 max_range = self.max_items
                 min_range = 0
-                
-            for i in range(min_range, max_range):
-                # iterator, parent_selector, tag
-                selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
-                try:
-                    elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
-                    item = dict()
-                    self.set_current_element(elem)
-                    self.execute_function(instruction[5], item)
-                    objects.append(item)
-                except:
-                    continue
+                ranges = [[min_range, max_range]]
+
+            for x in ranges:
+                if x[0] == x[1]:
+                    self.__debug(f"\t[Iteration]:\t{x[0]}", self.log_scraper)
+                    selector = self.create_selector_for_element_in_list(x[0], instruction[1], instruction[2], instruction[3])
+                    self.__debug(selector, self.log_scraper)
+                    try:
+                        elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
+                        item = dict()
+                        self.set_current_element(elem)
+                        self.execute_function(instruction[5], item)
+                        objects.append(item)
+                    except:
+                        pass
+                else:
+                    for i in range(x[0], x[1]):
+                        self.__debug(f"\t[Iteration]:\t{i}", self.log_scraper)
+                        # iterator, parent_selector, tag
+                        selector = self.create_selector_for_element_in_list(i, instruction[1], instruction[2], instruction[3])
+                        self.__debug(selector, self.log_scraper)
+                        try:
+                            elem = self.webdriver.find_element(By.CSS_SELECTOR, selector)
+                            item = dict()
+                            self.set_current_element(elem)
+                            self.execute_function(instruction[5], item)
+                            objects.append(item)
+                        except:
+                            continue
 
             data[instruction[4]] = objects
         
         if instruction[0] is ScraperInstructionType.form_send_keys:
             # Set our webdriver to look at current element
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
-            self.__debug(selector)
+            self.__debug(selector, self.log_scraper)
             if self.wait_for_visibility(By.CSS_SELECTOR, selector):
                 elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
                 self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
@@ -411,10 +466,11 @@ class Scraper(object):
                         self.current_element.send_keys(Keys.BACKSPACE)
                     else:
                         self.current_element.send_keys(instruction[4])
+                        self.current_element.send_keys(Keys.ENTER)
 
         if instruction[0] is ScraperInstructionType.form_submit:
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
-            self.__debug(selector)
+            self.__debug(selector, self.log_scraper)
             elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
             self.set_current_element(self.next_closest_element_in_list_with_attribute_and_value(elements, instruction[2], instruction[3]))
             self.scroll_to_current_element()
@@ -427,6 +483,7 @@ class Scraper(object):
 
         if instruction[0] is ScraperInstructionType.save_url:
             data[instruction[1]] = self.webdriver.current_url
+            self.__debug(f"{data[instruction[1]]}", self.log_value)
 
         if instruction[0] is ScraperInstructionType.check_for_text:
             # temp hardcode so if text exists, save url
@@ -438,7 +495,7 @@ class Scraper(object):
             objects = []
             self.loop_list = True
             for pwsid in instruction[1]:
-                self.__debug("Executing function with item: " + pwsid)
+                self.__debug("Executing function with item: " + pwsid, self.log_scraper)
                 item = dict()
                 self.curr_list_item = pwsid
                 self.execute_function(instruction[2], item)
@@ -448,5 +505,5 @@ class Scraper(object):
             self.loop_list = False
 
         time_end = time.time()
-        self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__())
+        self.__debug("Executed instruction in " + (time_end - time_start).__str__() + " seconds: " + instruction.__str__(), self.log_scraper)
 

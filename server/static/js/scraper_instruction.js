@@ -1,11 +1,11 @@
 // Nested List for more complicated commands
 commands = {
-    "skip_to_tag":["Parameter"],
-    "skip_to_class": ["Parameter"],
+    "skip_to_tag":["Parameter", "Count"],
+    "skip_to_class": ["Parameter", "Count"],
     "save_value_as_property": ["Column Name"],
     "save_attribute_as_property": ["Column Name", "Tag"], // param, tag is the actual order the scraper expects!
     "back_to_beginning": [],
-    "skip_to_element_with_attribute": ["Tag", "Attribute", "Value"],
+    "skip_to_element_with_attribute": ["Tag", "Attribute", "Value", "Count"],
     "click_element":[],
     "goto_previous_page":[],
     "scrape_table":["Parameter"],
@@ -29,6 +29,8 @@ function skipToTag()
     var div = addInputGroup();
     div.appendChild(addLabel(commands["skip_to_tag"][0]));
     div.appendChild(addInput("skip_to_tag", "parameter", false));
+    div.appendChild(addLabel(commands["skip_to_tag"][1]));
+    div.appendChild(addInput("skip_to_tag", "range", false, false));
     
     var mainDiv = createMainDiv("skip_to_tag");
     mainDiv.appendChild(div);
@@ -40,6 +42,8 @@ function skipToClass()
     var div = addInputGroup();
     div.appendChild(addLabel(commands["skip_to_class"][0]));
     div.appendChild(addInput("skip_to_class", "parameter", false));
+    div.appendChild(addLabel(commands["skip_to_class"][1]));
+    div.appendChild(addInput("skip_to_class", "range", false, false));
     
     var mainDiv = createMainDiv("skip_to_class");
     mainDiv.appendChild(div);
@@ -83,11 +87,16 @@ function skipToElementWithAttribute()
     div.appendChild(addInput("skip_to_element_with_attribute", "tag", false));
     div.appendChild(addLabel(commands["skip_to_element_with_attribute"][1]));
     div.appendChild(addInput("skip_to_element_with_attribute", "attribute", false));
-    div.appendChild(addLabel(commands["skip_to_element_with_attribute"][2]));
-    div.appendChild(addInput("skip_to_element_with_attribute", "value", false));
+
+    var div2 = addInputGroup();
+    div2.appendChild(addLabel(commands["skip_to_element_with_attribute"][2]));
+    div2.appendChild(addInput("skip_to_element_with_attribute", "value", false));
+    div2.appendChild(addLabel(commands["skip_to_element_with_attribute"][3]));
+    div2.appendChild(addInput("skip_to_element_with_attribute", "range", false, false));
 
     var mainDiv = createMainDiv("skip_to_element_with_attribute");
     mainDiv.appendChild(div);
+    mainDiv.appendChild(div2);
     return mainDiv;
 }
 

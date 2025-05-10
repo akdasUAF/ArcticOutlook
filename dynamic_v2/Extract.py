@@ -4,7 +4,7 @@
 # Author: Darian Marvel
 #
 #
-
+import json, sys, os
 from time import sleep
 
 from selenium import webdriver
@@ -14,33 +14,97 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-import dynamic_v2.Crawler as Crawler
-import dynamic_v2.Scraper as Scraper
-import dynamic_v2.Debug as Debug
+import Crawler as Crawler
+import Scraper as Scraper
+import Debug as Debug 
 
 # Definitions
 #import ScraperDefinitions.WaterSystem
-import dynamic_v2.create_instruction as create_instruction
+# import create_instruction as create_instruction
+
+def setup_scraper(scraper, instructions, pwsids):
+    for i in instructions:
+        name = i[0]
+        params = i[1]
+        instr_name = i[3]
+        match name:
+            case "skip_to_tag":
+                scraper.then_skip_to_element(params[0], params[5], instr_name)
+            case "skip_to_class":
+                scraper.then_skip_to_class(params[0], params[5], instr_name)
+            case "save_value_as_property":
+                scraper.then_save_value_as_property(params[0], instr_name)
+            # tag, param
+            case "save_attribute_as_property":
+                scraper.then_save_attribute_as_property(params[1], params[0], instr_name)
+            case "back_to_beginning":
+                scraper.then_go_back_to_beginning(instr_name)
+            # tag, attribute, value
+            case "skip_to_element_with_attribute":
+                print(params)
+                scraper.then_skip_to_element_with_attribute(params[1], params[2], params[3], params[5], instr_name)
+            case "click_element":
+                scraper.then_click_element(instr_name)
+            case "goto_previous_page":
+                scraper.then_go_back(instr_name)
+            case "scrape_table":
+                scraper.then_scrape_table(params[0], instr_name)
+            case "run_function":
+                scraper.then_run_function(params[0], instr_name)
+            # tag, attribute, value, function_name
+            case "for_each":
+                scraper.then_for_each(params[1], params[2], params[3], params[4], instr_name)
+            case "create_function":
+                scraper.create_function(params[0])
+            case "end_function":
+                scraper.end_function()
+            case "special_for_each":
+                scraper.special_for_each(params[0], params[1], params[2], params[3], params[4], params[5], instr_name)
+            case "form_send_keys":
+                scraper.then_send_keys(params[0], params[1], params[2], params[3], instr_name)
+            case "form_submit":
+                scraper.then_form_submit(params[1], params[2], params[3], instr_name)
+            case "delay":
+                scraper.then_delay(instr_name)
+            case "save_url":
+                scraper.then_save_url(params[0], instr_name)
+            case "check_for_text":
+                scraper.then_check_for_text(params[0], params[3], instr_name)
+            case "for_list":
+                scraper.then_for_list(pwsids, params[4], instr_name)
+            case _:
+                print("Invalid Instruction")
+
+def setup_crawler(crawler):
+
+    # The element that holds all of the item elements we really want
+    # (table rows, etc)
+    crawler.set_parent_element("table")
+
+    # The elements that will be looped over
+    crawler.set_item_element("tr")
+
+    # Any sub-element(s) that have to be clicked on
+    crawler.set_sub_item_element("a")
 
 def main(url, instructs, pwsids):
     # TEMPORARY FOR TESTING
-
-    crawler = Crawler.Crawler()
+    logger = Debug.start_logging()
+    crawler = Crawler.Crawler(logger)
     #ScraperDefinitions.WaterSystem.setup_crawler(crawler)
-    create_instruction.setup_crawler(crawler)
+    setup_crawler(crawler)
 
-    scrappy = Scraper.Scraper()
+    scrappy = Scraper.Scraper(logger)
     #ScraperDefinitions.WaterSystem.setup_scraper(scrappy)
+    setup_scraper(scrappy, json.loads(instructs), json.loads(pwsids))
 
-    create_instruction.setup_scraper(scrappy, instructs, pwsids)
-
-    gecko_path = "/snap/bin/geckodriver"
-    service = webdriver.FirefoxService(executable_path=gecko_path)
+    #gecko_path = "/snap/bin/geckodriver"
+    #service = webdriver.FirefoxService(executable_path=gecko_path)
     options = webdriver.FirefoxOptions()
-    options.add_argument("-headless")
+    #options.add_argument("-headless")
 
-    driver = webdriver.Firefox(options=options, service=service)
-    #driver = webdriver.Firefox(options=options)
+    #driver = webdriver.Firefox(options=options, service=service)
+    driver = webdriver.Firefox(options=options)
     driver.get(url)
     driver.maximize_window() # Small edit to tell Selenium to maximize the window so that it may see all elements on the page.
 
@@ -70,11 +134,18 @@ def main(url, instructs, pwsids):
     #     crawler.set_max_items(max_items + 2)
     #     data = crawler.crawl_and_scrape(scrappy)
     #else:
+
     data = scrappy.scrape()
     #sleep(50)
     driver.close()
 
+    file = os.path.join('../server/files', "output.json")
+    output = open(file, "w") 
+    json.dump(data, output, indent=2)
+    output.close()
+    #clear_logs()
+    Debug.end_logging(logger)
     return data
 
 if __name__ == "__main__":
-    main()
+    main(url=sys.argv[1], instructs=sys.argv[2], pwsids=sys.argv[3])
