@@ -41,7 +41,6 @@ def setup_scraper(scraper, instructions, pwsids):
                 scraper.then_go_back_to_beginning(instr_name)
             # tag, attribute, value
             case "skip_to_element_with_attribute":
-                print(params)
                 scraper.then_skip_to_element_with_attribute(params[1], params[2], params[3], params[5], instr_name)
             case "click_element":
                 scraper.then_click_element(instr_name)

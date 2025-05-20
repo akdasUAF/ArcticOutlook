@@ -48,6 +48,11 @@ class Scraper(object):
         self.log_value = 17
         self.log_scraper = 16
 
+        # Function Flag
+        self.outer_function = "" # Value gets set when the first function starts. Only gets removed when this function ends
+        self.current_function = ""
+        self.current_functions = []
+
     def set_web_driver(self, webdriver):
         self.webdriver = webdriver
         self.webdriver.implicitly_wait(15)
@@ -130,6 +135,7 @@ class Scraper(object):
 
         self.__debug("Now writing function " + self.function_writing, self.log_scraper)
 
+    # pass name of function to end_function, so we can end a specific function
     def end_function(self):
         if self.function_writing is not None:
             self.__debug("Ending function " + self.function_writing, self.log_scraper)
@@ -215,6 +221,12 @@ class Scraper(object):
             row_dictionary = dict()
             row_values = row.find_elements(By.TAG_NAME, "td")
             for index, column_value in enumerate(row_values):
+                # test_a = column_value.find_element(By.TAG_NAME, "a")
+                # print(test_a)
+                # if test_a:
+                #     if "url" not in names:
+                #         names.append("url")
+                #     row_dictionary["url"] = test_a.get_attribute("href")
                 row_dictionary[names[index]] = column_value.get_attribute("innerText")
 
             row_dictionary_list.append(row_dictionary)
@@ -278,9 +290,30 @@ class Scraper(object):
     def execute_function(self, name, data):
         instructions = self.functions[name]
         self.__debug("Running function " + name, self.log_scraper)
+        self.current_functions.insert(0, name)
+        self.current_function = self.current_functions[0]
+
+        if len(self.current_functions) > 1:
+            self.outer_function = self.current_functions[1]
+        # Add this function to the function queue
+        # Function gets added to the front of the queue
+        # data["Outer Function"] = {datafromOuterFunction, datafromInnerFunction = []}
         for instr in instructions:
             self.__debug("Function " + name + " executing " + instr.__str__(), self.log_scraper)
             self.execute_instruction(data, instr)
+        self.current_functions.pop(0)   # Remove current function from our list
+
+        if self.current_functions:
+            self.current_function = self.current_functions[0]
+            if len(self.current_functions) > 1:
+                self.outer_function = self.current_functions[1]
+            else:
+                self.outer_function = ""
+        else:
+            self.outer_function = ""
+            self.current_function = ""
+
+        self.__debug("Function " + name + " is complete.", self.log_scraper)
         time.sleep(2)
 
     def check_if_list(self, instruction):
@@ -356,13 +389,16 @@ class Scraper(object):
             #self.webdriver.back()
             self.webdriver.execute_script("window.history.go(-1)")
             self.back_to_beginning()
+            sleep(2)
 
         if instruction[0] is ScraperInstructionType.scrape_table:
             self.__debug(f"Table {instruction[1]}", self.log_value)
             data[instruction[1]] = self.scrape_table()
 
         if instruction[0] is ScraperInstructionType.run_function:
-            self.execute_function(instruction[1], data)
+            item = dict()
+            self.execute_function(instruction[1], item)
+            data[instruction[1]] = item
 
         if instruction[0] is ScraperInstructionType.for_each:
             selector = instruction[1] + "[" + instruction[2] + "='" + instruction[3] + "']"
@@ -379,13 +415,17 @@ class Scraper(object):
                 self.execute_function(instruction[4], item)
                 objects.append(item)
 
-            data[instruction[4]] = objects
+            if self.outer_function is not instruction[4] and self.outer_function != "":
+                dataInner = dict()
+                dataInner[instruction[4]] = objects
+                data[self.outer_function] = dataInner
+            else:
+                data[instruction[4]] = objects
         
         if instruction[0] is ScraperInstructionType.special_for_each:
             # user passes css selector for 1st item
             # change end of css selector to be enumerated
             # keep the rest, should work
-            print(instruction[1])
             selector = instruction[2] + "[" + instruction[3] + "='" + instruction[4] + "']"
             self.__debug(selector, self.log_scraper)
             # elements = self.webdriver.find_elements(By.CSS_SELECTOR, selector)
@@ -443,7 +483,12 @@ class Scraper(object):
                         except:
                             continue
 
-            data[instruction[4]] = objects
+            if self.outer_function is not instruction[4] and self.outer_function != "":
+                dataInner = dict()
+                dataInner[instruction[4]] = objects
+                data[self.outer_function] = dataInner
+            else:
+                data[instruction[4]] = objects
         
         if instruction[0] is ScraperInstructionType.form_send_keys:
             # Set our webdriver to look at current element

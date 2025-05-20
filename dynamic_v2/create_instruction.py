@@ -57,7 +57,6 @@ def instruct_pipeline(lst, num=0):
                 params = ["", "", "", "", ""]
                 instructs.append((index, params, num, name, ""))
             case "skip_to_element_with_attribute":
-                print(contents)
                 params = ["", contents[0]["contents"], contents[1]["contents"], contents[2]["contents"], "", contents[3]["contents"]]
                 instructs.append((index, params, num, name, ""))
             case "click_element":
@@ -73,7 +72,7 @@ def instruct_pipeline(lst, num=0):
                 params = [contents[0]["contents"], "", "", "", ""]
                 instructs.append((index, params, num, name, ""))
             case "for_each":
-                params = ["", contents[1]["contents"], contents[2]["contents"], contents[3]["contents"], contents[4]["contents"]]
+                params = ["", contents[0]["contents"], contents[1]["contents"], contents[2]["contents"], contents[3]["contents"]]
                 instructs.append((index, params, num, name, ""))
             case "create_function":
                 params = [contents[0]["contents"], "", "", "", ""]
