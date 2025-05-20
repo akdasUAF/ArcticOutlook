@@ -22,12 +22,26 @@ commands = {
     "range": ["start", "end", "step"],
     "reduce": ["input", "initialValue", "in"],
     "regexMatch": ["input", "regex"],
-    "substrCP": ["string", "index", "count"]
+    "substrCP": ["string", "index", "count"],
+    "currentDate": ["field"]
+}
+
+queries = {
+    "test": ["filter", "concat", "concatArrays"]
 }
 
 var list = document.getElementById("sortable");
 var elements = document.getElementsByClassName("cmdBtn");
-
+function create_premade_query(user_id, name)
+{
+    var query_name = user_id;
+    var query = queries[query_name];
+    query.forEach(function(element, index, array) {
+        // Code to be executed for each element
+        addLi(element, name);
+        console.log("Element:", element, "Index:", index);
+        });
+}
 // Function to create user comments input
 function addCommentField()
 {
@@ -177,10 +191,31 @@ function updateColorIndex()
     });
 }
 
-// Adds a list item to the sortable list
-function addLi() {
+// if cmd, immediately go to addLi
+// else, if query premade, go to create_premade_query
+function determine_li()
+{
     var id = this.getAttribute("id");
     var btnName = this.textContent;
+    if (id in commands) {
+        addLi(id, btnName);
+    }
+    else
+    {
+        create_premade_query(id, btnName);
+    }
+}
+// Adds a list item to the sortable list
+function addLi(user_id="", name) {
+    // if (user_id === "") {
+    //     var id = this.getAttribute("id"); 
+    // }
+    // else {
+    //     var id = user_id;
+    // }
+    // var id = this.getAttribute("id");
+    var id = user_id;
+    var btnName = name;
     var counter = 0;
     var newLi = document.createElement("div");
     var final = false;
@@ -398,5 +433,5 @@ function populateJS(data)
 
 // initialize all cmdBtns to have same event listener
 for (var i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('click', addLi);
+    elements[i].addEventListener('click', determine_li);
 }

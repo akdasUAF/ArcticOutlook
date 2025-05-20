@@ -13,6 +13,7 @@ from dynamic_v2.create_instruction import generate_list
 from server.node import Node
 import server.node as node
 import server.export_list as export_list
+import server.import_list as import_list
 from server.query_manager import QueryManager
 from server.file_upload import FileUpload
 from server.scrape_items import ScrapeItems
@@ -846,6 +847,9 @@ def dynamic_v2_scrape():
                     elif (len(data) < 1):
                         # We have 0 data entries, do nothing
                         flash("No insert to MongoDB: 0 entries to insert.", 'error')
+                    # elif case is 1 dict item
+                    elif isinstance(data, dict):
+                        col.insert_one(data)
                     else:
                         # If we have a list of data entries, insert_many
                         col.insert_many(data)
@@ -1951,7 +1955,7 @@ def get_scraper_input():
             if funcs == 'Select Function':
                 funcs = []
             else:
-                funcs = funcs.split(",")
+                funcs = funcs.split(", ")
                 funcs.pop()
                 funcs = get_funcs(funcs)
             si.instructions, name, si.base_url = generate_list(result[0], funcs)
@@ -1978,7 +1982,18 @@ def scraper_ui():
             except Exception as e:
                 flash("Error sending file to user.", "error")
         elif 'import-list' in request.form:
-            pass
+            if 'import-list-file' not in request.files:
+                flash('No file part', 'error')
+            else:
+                file = request.files['import-list-file']
+                if file.filename == '':
+                    flash('No selected file', 'error')
+                elif file:
+                    filename = secure_filename(file.filename)
+                    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(path)
+                    instructs = import_list.read_excel_sheet(path, filename)
+
         elif 'export-function' in request.form:
             export_list.create_func_excel_sheet(request.form["func-name"], request.form["func-name"])
             name = request.form["func-name"] + ".xlsx"
@@ -1989,7 +2004,17 @@ def scraper_ui():
             except Exception as e:
                 flash("Error sending file to user.", "error")
         elif 'import-function' in request.form:
-            pass
+            if 'import-func-file' not in request.files:
+                flash('No file part', 'error')
+            else:
+                file = request.files['import-func-file']
+                if file.filename == '':
+                    flash('No selected file', 'error')
+                elif file:
+                    filename = secure_filename(file.filename)
+                    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(path)
+                    instructs = import_list.read_excel_sheet(path, filename)
     file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "functions.json")
     with open(file_temp) as f:
         temp = json.load(f)
@@ -2032,7 +2057,7 @@ def save_list(result):
     if funcs == 'Select Function':
         funcs = 'Select Function'
     else:
-        funcs = funcs.split(",")
+        funcs = funcs.split(", ")
         funcs.pop()
 
     temp[instr_name] = {"URL": instr_url, "Instructions": instr, "JSArray": instr_array, "Functions": funcs}
@@ -2099,6 +2124,10 @@ def export_list_excel():
                                "instruction_sheet.xlsx", as_attachment=True)
     except Exception as e:
         return jsonify(message=str(e), data=keys, status=200, mimetype='application/json')
+
+@app.route("/scraper_ui/import_list", methods=['POST', 'GET'])
+def import_list_excel():
+    pass
 
 @app.route("/documentation_home")
 def documentation_home():

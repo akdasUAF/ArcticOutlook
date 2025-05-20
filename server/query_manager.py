@@ -43,7 +43,8 @@ class QueryManager():
             "reduce": """Applies an expression to each element in an array and combines them into a single value.""",
             "regexMatch": """Performs a regular expression (regex) pattern matching and returns: true if a match exists, false if a match does not exist.""",
             "substrCP": """Returns the substring of a string. The substring starts with the character at the specified index (zero-based) 
-            in the string for the number of code points specified."""
+            in the string for the number of code points specified.""",
+            "currentDate": """Sets the value of a field to the current date, either as a Date or a timestamp. The default type is Date."""
         }
         self.syntaxes = {
             "addFields": "Name: <FieldName>, Value: <FieldValue>",
@@ -88,7 +89,8 @@ class QueryManager():
             initialValue: <expression>,
             in: <expression> """,
             "regexMatch": """input: <expression> , regex: <expression>, options (optional): <expression>""",
-            "substrCP": """string: <string expression>, index: <code point index>, count: <code point count>"""
+            "substrCP": """string: <string expression>, index: <code point index>, count: <code point count>""",
+            "currentDate": """<field1>: <typeSpecification1>, ... """
         }
         self.cmd = {
             "addFields": "$addFields",
@@ -108,7 +110,8 @@ class QueryManager():
             "index": "index",
             "coll": "coll",
             "unset": "$unset",
-            "concatArrays": "$concatArrays"
+            "concatArrays": "$concatArrays",
+            "currentDate": "$currentDate"
         }
         self.instructions = []
 
@@ -126,6 +129,7 @@ class QueryManager():
         pipeline = self.generate_gui_pipeline(self.response)
         pipeline = self.remove_query_name(pipeline)
         self.pipeline = self.clean_pipeline(pipeline)
+        print(self.pipeline)
         return self.pipeline, name
 
     def remove_query_name(self, pipeline):
@@ -216,6 +220,8 @@ class QueryManager():
                     self.create_index(contents)
                 case "coll":
                     self.create_coll(contents)
+                case "$currentDate":
+                    step = self.cmd_currentDate(contents, name)
             
             # Append any substeps into the current command.
             if cmd != 'index' and cmd != 'coll':
@@ -496,6 +502,14 @@ class QueryManager():
         query = contents[0]["contents"]
         step = {
             "$concat": json.loads(query)
+        }
+        q = {"query_name": name, "query": step}
+        return q
+    
+    def cmd_currentDate(self, contents, name):
+        query = contents[0]["contents"]
+        step = {
+            "$currentDate": { query: True }
         }
         q = {"query_name": name, "query": step}
         return q

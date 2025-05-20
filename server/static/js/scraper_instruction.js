@@ -670,6 +670,16 @@ function populateInstrJS(data)
     fillHTML(div, data[1]);
 }
 
+// import list
+// - determine each instruct that needs to be called
+// - call instruct, pass commands for that instruct
+// - as instruct is being filled, set input values
+// - continue until each div is called and filled
+// - save
+function import_list(data){
+    console.log(data);
+
+}
 // initialize all cmdBtns to have same event listener
 for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener('click', addLi);

@@ -97,13 +97,13 @@ def main(url, instructs, pwsids):
     #ScraperDefinitions.WaterSystem.setup_scraper(scrappy)
     setup_scraper(scrappy, json.loads(instructs), json.loads(pwsids))
 
-    #gecko_path = "/snap/bin/geckodriver"
-    #service = webdriver.FirefoxService(executable_path=gecko_path)
+    gecko_path = "/snap/bin/geckodriver"
+    service = webdriver.FirefoxService(executable_path=gecko_path)
     options = webdriver.FirefoxOptions()
-    #options.add_argument("-headless")
+    options.add_argument("-headless")
 
-    #driver = webdriver.Firefox(options=options, service=service)
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox(options=options, service=service)
+    #driver = webdriver.Firefox(options=options)
     driver.get(url)
     driver.maximize_window() # Small edit to tell Selenium to maximize the window so that it may see all elements on the page.
 
