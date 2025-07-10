@@ -2227,7 +2227,7 @@ def import_list_excel():
 
 @app.route("/documentation_home")
 def documentation_home():
-    return render_template("index.html")
+    return render_template("scraper_doc.html")
 
 @app.route("/log", methods=['POST', 'GET'])
 def log():
