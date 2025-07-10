@@ -221,14 +221,17 @@ class Scraper(object):
             row_dictionary = dict()
             row_values = row.find_elements(By.TAG_NAME, "td")
             for index, column_value in enumerate(row_values):
-                # test_a = column_value.find_element(By.TAG_NAME, "a")
-                # print(test_a)
-                # if test_a:
-                #     if "url" not in names:
-                #         names.append("url")
-                #     row_dictionary["url"] = test_a.get_attribute("href")
-                row_dictionary[names[index]] = column_value.get_attribute("innerText")
-
+                try:
+                    test_a = column_value.find_elements(By.XPATH, "./a")
+                    if len(test_a) > 0:
+                        test = dict()
+                        test["href"] = test_a[0].get_attribute("href")
+                        test["value"] = column_value.get_attribute("innerText")
+                        row_dictionary[names[index]] = test
+                    else:
+                        row_dictionary[names[index]] = column_value.get_attribute("innerText")
+                except NoSuchElementException:
+                    row_dictionary[names[index]] = column_value.get_attribute("innerText")
             row_dictionary_list.append(row_dictionary)
 
         self.__debug(f"\t[Names]:\t{names.__str__()}", self.log_value)
