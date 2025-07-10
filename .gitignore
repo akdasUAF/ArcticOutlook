@@ -245,6 +245,8 @@ server/files/*
 !server/files/settings.json
 !server/files/functions.json
 !server/files/instruction_lists.json
+!server/files/queries.json
+!server/files/query_functions.json
 
 # Ignore WIP files
 Dockerfile
