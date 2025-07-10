@@ -23,14 +23,15 @@ commands = {
     "reduce": ["input", "initialValue", "in"],
     "regexMatch": ["input", "regex"],
     "substrCP": ["string", "index", "count"],
-    "currentDate": ["field"]
+    "currentDate": ["field"],
+    "unwind": ["path"]
 }
 
 queries = {
     "test": ["filter", "concat", "concatArrays"]
 }
 
-var list = document.getElementById("sortable");
+//var list = document.getElementById("sortable");
 var elements = document.getElementsByClassName("cmdBtn");
 function create_premade_query(user_id, name)
 {
@@ -38,12 +39,12 @@ function create_premade_query(user_id, name)
     var query = queries[query_name];
     query.forEach(function(element, index, array) {
         // Code to be executed for each element
-        addLi(element, name);
+        addLi(element, "", "", name);
         console.log("Element:", element, "Index:", index);
         });
 }
 // Function to create user comments input
-function addCommentField()
+function addCommentField(notes="")
 {
     var div = addInputGroup();
     div.appendChild(addLabel("User Notes"));
@@ -51,6 +52,10 @@ function addCommentField()
     inputText.setAttribute("class", "form-control");
     inputText.setAttribute("rows", "1");
     inputText.setAttribute("name", "notes");
+    if (notes !== "") {
+        inputText.value = notes;
+        inputText.disabled = true;
+    }
     div.appendChild(inputText);
     return div;
 }
@@ -198,7 +203,7 @@ function determine_li()
     var id = this.getAttribute("id");
     var btnName = this.textContent;
     if (id in commands) {
-        addLi(id, btnName);
+        addLi(id, "", "", btnName);
     }
     else
     {
@@ -206,19 +211,31 @@ function determine_li()
     }
 }
 // Adds a list item to the sortable list
-function addLi(user_id="", name) {
+function addLi(user_id="", note="", params="", name) {
     // if (user_id === "") {
     //     var id = this.getAttribute("id"); 
     // }
     // else {
     //     var id = user_id;
     // }
-    // var id = this.getAttribute("id");
+    // var id = this.getAttribute("id");    
+    var list = getActiveList();
     var id = user_id;
     var btnName = name;
     var counter = 0;
     var newLi = document.createElement("div");
     var final = false;
+
+    var len = 0
+    if (params === "")
+    {
+        len = commands[id].length;
+        params = commands[id];
+    }
+    else
+    {
+        len = params.length;
+    }
 
     // Certain commands have unique colors / classes
     if (id === "merge" | id === "out")
@@ -238,6 +255,11 @@ function addLi(user_id="", name) {
         newLi.setAttribute("class", "query_step list-group-item list-group-item-action list-group-item-light nested-1 index");
     }
 
+    else if (id === "user_function")
+    {
+        newLi.setAttribute("class", "query_step list-group-item list-group-item-action list-group-item-light nested-1");
+    }
+
     else 
     {
         newLi.setAttribute("class", "query_step list-group-item list-group-item-action nested-1");
@@ -252,7 +274,7 @@ function addLi(user_id="", name) {
     // Create div to hold input fields
     const steps = [];
     const divs = [];
-    len = commands[id].length;
+
     for (let i = 0; i < len / 2; i++)
     {
         divs[i] = addInputGroup()
@@ -262,9 +284,9 @@ function addLi(user_id="", name) {
             {
                 break;
             }
-            divs[i].appendChild(addLabel(commands[id][counter]));
+            divs[i].appendChild(addLabel(params[counter]));
             var dropdown = false;
-            if (commands[id][counter] === 'Type')
+            if (params[counter] === 'Type')
             {
                 dropdown = true;
             }
@@ -283,7 +305,7 @@ function addLi(user_id="", name) {
         mainDiv.appendChild(divs[i]);
     }
 
-    mainDiv.appendChild(addCommentField());
+    mainDiv.appendChild(addCommentField(note));
     newLi.appendChild(mainDiv);
 
     // If there is a 'final' element (out / merge), ensure all commands are inputted before it
@@ -346,9 +368,14 @@ function addLi(user_id="", name) {
                 }
     
                 // serialize
-                var order = JSON.stringify( serialize( $('#sortable')[0] ) );
+                var order = JSON.stringify( serialize( $('#query')[0] ) );
                 // pretty output
                 var json_out = JSON.stringify(JSON.parse(order),null,2);
+                
+                updateColorIndex();
+
+                var order2 = JSON.stringify( serialize( $('#function')[0] ) );
+                var json_out2 = JSON.stringify(JSON.parse(order2),null,2);
                 updateColorIndex();
 
             }
@@ -380,6 +407,20 @@ function addLi(user_id="", name) {
     
 }
 
+function getActiveList()
+{
+    // Function to return active tab so the new instruction is added correctly
+    var id = $("ul#queryTabs li button.active").attr('id');
+    if (id === "query-tab")
+    {
+        return document.getElementById("query");
+    }
+    else
+    {
+        return document.getElementById("function");
+    }
+}
+
 // Function that fills the newly created list with saved user input
 function fillHTML(div, data)
 {
@@ -387,6 +428,8 @@ function fillHTML(div, data)
     var elem = div.children;
 
     // Loop through each item in the data array
+    console.log(data.length);
+    console.log(data);
     for (var x = 0; x < data.length; x++)
     {
         // Select the current step and contents/fields of the step.
@@ -422,15 +465,57 @@ function fillHTML(div, data)
 // Function that repopulates the page with a loaded query
 function populateJS(data)
 {
-    var div = document.getElementById("sortable");
+    var div = document.getElementById("query");
+    data[2].pop();
+    data[2].pop();
     div.textContent = '';
-    data[1].pop();
     var mainName = document.getElementById("main_name");
+    var description = document.getElementById("query_description");
     mainName.value = data[0];
-    div.innerHTML = data[2];
-    fillHTML(div, data[1]);
+    description.value = data[1];
+    div.innerHTML = data[3];
+    fillHTML(div, data[2]);
 }
 
+function populateFuncJS(data)
+{
+    console.log("Populate FuncJS")
+    var div = document.getElementById("function");
+    div.textContent = '';
+    data[3].pop();
+    data[3].pop();
+    //data[3].pop();
+    var mainName = document.getElementById("function_name");
+    var description = document.getElementById("function_description");
+    //var counter = document.getElementById("parameter-counter")
+    mainName.value = data[0];
+    description.value = data[1];
+    //counter.value = data[2];
+    div.innerHTML = data[4];
+    // console.log(data[0]);
+    // console.log(data[1]);
+    //console.log(data[2]);
+
+    fillHTML(div, data[3]);
+}
+
+function createUserFunc(data)
+{
+    console.log(data);
+    var queryname = data[0];
+    var descript = data[1];
+    var params = data[2];
+    var id = "userFunction:" + queryname;
+    addLi(id, descript, params, queryname);
+
+    // var query_name = user_id;
+    // var query = queries[query_name];
+    // query.forEach(function(element, index, array) {
+    //     // Code to be executed for each element
+    //     addLi(element, name);
+    //     console.log("Element:", element, "Index:", index);
+    //     });
+}
 // initialize all cmdBtns to have same event listener
 for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener('click', determine_li);

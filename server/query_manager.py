@@ -3,8 +3,8 @@ import pymongo, json
 
 class QueryManager():
     """This class handles running the query manager, displaying query information to the user, and submitting queries to the db."""
-    def __init__(self, db="TestGui", col="Dump"):
-        self.uri = "mongodb+srv://relewis:JAP8ES9I6dLD0i9r@practice.cv4a2wt.mongodb.net/?retryWrites=true&w=majority"
+    def __init__(self, uri="", db="TestGui", col="Dump"):
+        self.uri = uri
         self.db = db
         self.col = col
         self.response = ""
@@ -44,7 +44,8 @@ class QueryManager():
             "regexMatch": """Performs a regular expression (regex) pattern matching and returns: true if a match exists, false if a match does not exist.""",
             "substrCP": """Returns the substring of a string. The substring starts with the character at the specified index (zero-based) 
             in the string for the number of code points specified.""",
-            "currentDate": """Sets the value of a field to the current date, either as a Date or a timestamp. The default type is Date."""
+            "currentDate": """Sets the value of a field to the current date, either as a Date or a timestamp. The default type is Date.""",
+            "unwind": """Deconstructs an array field from the input documents to output a document for each element. Each output document is the input document with the value of the array field replaced by the element."""
         }
         self.syntaxes = {
             "addFields": "Name: <FieldName>, Value: <FieldValue>",
@@ -90,7 +91,8 @@ class QueryManager():
             in: <expression> """,
             "regexMatch": """input: <expression> , regex: <expression>, options (optional): <expression>""",
             "substrCP": """string: <string expression>, index: <code point index>, count: <code point count>""",
-            "currentDate": """<field1>: <typeSpecification1>, ... """
+            "currentDate": """<field1>: <typeSpecification1>, ... """,
+            "unwind": """{ $unwind: <field path> }"""
         }
         self.cmd = {
             "addFields": "$addFields",
@@ -111,38 +113,84 @@ class QueryManager():
             "coll": "coll",
             "unset": "$unset",
             "concatArrays": "$concatArrays",
-            "currentDate": "$currentDate"
+            "currentDate": "$currentDate",
+            "unwind": "$unwind"
         }
         self.instructions = []
 
-    def set_mongodb(self, db="", col="", uri=""):
+    def set_mongodb(self, uri="", db="", col=""):
         if uri != "":
             self.uri = uri
         self.db = db
         self.col = col
+
+    def create_function(self, str):
+        self.response = json.loads(str)
+        description = self.response[-1]
+        self.response.pop()
+        # counter = self.response[-1]
+        # self.response.pop()
+        name = self.response[-1]
+        self.response.pop()
+        pipeline, params, counter = self.generate_gui_pipeline(self.response)
+        params = self.clean_params(params)
+        counter = len(params)
+        pipeline = self.remove_query_name(pipeline)
+        self.pipeline = self.clean_pipeline(pipeline)
+        return self.pipeline, name, description, counter, params
+    
+    def save_query(self, str):
+        self.response = json.loads(str)
+        description = self.response[-1]
+        self.response.pop()
+        # counter = self.response[-1]
+        # self.response.pop()
+        name = self.response[-1]
+        self.response.pop()
+        pipeline, params, counter = self.generate_gui_pipeline(self.response)
+        params = self.clean_params(params)
+        counter = len(params)
+        pipeline = self.remove_query_name(pipeline)
+        self.pipeline = self.clean_pipeline(pipeline)
+        return self.pipeline, name, description, params
 
     def accept_json(self, str):
         """Function that controls generating a pipeline. This will turn the user input dictionary into a pymongo pipeline."""
         self.response = json.loads(str)
         query_name = self.response.pop(-1)
         name = query_name["query_name"]
-        pipeline = self.generate_gui_pipeline(self.response)
+        pipeline, params, counter = self.generate_gui_pipeline(self.response)
         pipeline = self.remove_query_name(pipeline)
         self.pipeline = self.clean_pipeline(pipeline)
-        print(self.pipeline)
         return self.pipeline, name
 
+    def clean_params(self, params):
+        ul = list(dict.fromkeys(params))
+        return ul
+    
     def remove_query_name(self, pipeline):
         for p in pipeline:
             if "query_name" in p:
                 del p["query_name"]
+            elif "description" in p:
+                del p["description"]
+            elif "function_name" in p:
+                del p["function_name"]
+            elif "param_counter" in p:
+                del p["param_counter"]
         return pipeline
     
     def clean_pipeline(self, pipeline):
         query = []
         if pipeline:
             for p in pipeline:
-                query.append(p["query"])
+                step = p["query"]
+                if isinstance(step, list):
+                    for s in step:
+                        query.append(s)
+                else:
+                    query.append(step)
+                #query.append(p["query"])
             return query
     
     def aggre_pipeline(self, pipeline):
@@ -151,9 +199,8 @@ class QueryManager():
         db = client[self.db]
         col = db[self.col]
         results = col.aggregate(pipeline)
-        # for r in results:
-        #     print(r)
-        # print(results)
+        client.close()
+        return results
 
     def check_name(self, name):
         """Future function that will check user input for specific commands."""
@@ -167,8 +214,10 @@ class QueryManager():
     def generate_gui_pipeline(self, lst):
         """Function that generates a query pipeline."""
         pipeline = []
+        param_counter = 0
+        params = []
         if lst == []:
-            return
+            return pipeline, params, param_counter
         
         # Loop through the list of dictionaries.
         for i in lst:
@@ -177,51 +226,69 @@ class QueryManager():
             contents = i["contents"]
             subs = i["subs"]
 
+            # If there's a parameter, save it
+            for c in contents:
+                if "$PARAMETER" in c["contents"]:
+                    param_counter+=1
+                    var = c["contents"].split(":")
+                    if var[1] not in params:
+                        params.append(var[1])
+
             # Determine command of current item
             cmd = self.determine_cmd(index)
 
             # Determine if there are any substeps. If there are, generate those steps first
-            sub_steps = self.generate_gui_pipeline(subs)
+            sub_steps, sub_params, sub_param_counter = self.generate_gui_pipeline(subs)
+            param_counter = param_counter + sub_param_counter
+            for p in sub_params:
+                params.append(p)
 
             # Determine current step
             step = ""
-            match cmd:
-                case "$addFields":
-                    step = self.cmd_addFields(contents, name)
-                case "$concat":
-                    step = self.cmd_concat(contents, name)
-                case "$concatArrays":
-                    step = self.cmd_concatArrays(contents, name)
-                case "$filter":
-                    step = self.cmd_filter(contents, name)
-                case "$match":
-                    step = self.cmd_match(contents, name)
-                case "$map":
-                    step = self.cmd_map(contents, name)
-                case "$merge":
-                    step = self.cmd_merge(contents, name)
-                case "$out":
-                    step = self.cmd_out(contents, name)
-                case "$project":
-                    step = self.cmd_project(contents, name)
-                case "$unset":
-                    step = self.cmd_unset(contents, name)
-                case "$range":
-                    step = self.cmd_range(contents, name)
-                case "$reduce":
-                    step = self.cmd_reduce(contents, name)
-                case "$regexMatch":
-                    step = self.cmd_regexMatch(contents, name)
-                case "$set":
-                    step = self.cmd_set(contents, name)
-                case "$substrCP":
-                    step = self.cmd_substrCP(contents, name)
-                case "index":
-                    self.create_index(contents)
-                case "coll":
-                    self.create_coll(contents)
-                case "$currentDate":
-                    step = self.cmd_currentDate(contents, name)
+            if 'userFunction' in cmd:
+                var = cmd.split(":")
+                func_name = var[1]
+                step = self.user_function(contents, func_name)
+            else:
+                match cmd:
+                    case "$addFields":
+                        step = self.cmd_addFields(contents, name)
+                    case "$concat":
+                        step = self.cmd_concat(contents, name)
+                    case "$concatArrays":
+                        step = self.cmd_concatArrays(contents, name)
+                    case "$filter":
+                        step = self.cmd_filter(contents, name)
+                    case "$match":
+                        step = self.cmd_match(contents, name)
+                    case "$map":
+                        step = self.cmd_map(contents, name)
+                    case "$merge":
+                        step = self.cmd_merge(contents, name)
+                    case "$out":
+                        step = self.cmd_out(contents, name)
+                    case "$project":
+                        step = self.cmd_project(contents, name)
+                    case "$unset":
+                        step = self.cmd_unset(contents, name)
+                    case "$range":
+                        step = self.cmd_range(contents, name)
+                    case "$reduce":
+                        step = self.cmd_reduce(contents, name)
+                    case "$regexMatch":
+                        step = self.cmd_regexMatch(contents, name)
+                    case "$set":
+                        step = self.cmd_set(contents, name)
+                    case "$substrCP":
+                        step = self.cmd_substrCP(contents, name)
+                    case "index":
+                        self.create_index(contents)
+                    case "coll":
+                        self.create_coll(contents)
+                    case "$currentDate":
+                        step = self.cmd_currentDate(contents, name)
+                    case "$unwind":
+                        step = self.cmd_unwind(contents, name)
             
             # Append any substeps into the current command.
             if cmd != 'index' and cmd != 'coll':
@@ -235,8 +302,60 @@ class QueryManager():
                                 break
                     sub_steps = self.remove_query_name(sub_steps)
                 pipeline.append(step)
-        return pipeline
-    
+        return pipeline, params, param_counter
+
+    # https://stackoverflow.com/questions/43752962/how-to-iterate-through-a-nested-dict
+    def get_all_keys(self, d, params):
+        hold_key, name = "", ""
+        for key, value in d.items():
+            if '$PARAMETER' in key:
+                name = key.split(':')
+                name = name[1]
+                if name in list(params.keys()):
+                    hold_key = key
+                    break
+            if '$PARAMETER' in str(value) and isinstance(value, dict) is False:
+                if isinstance(value, list):
+                    for i, item in enumerate(value):
+                        if '$PARAMETER' in str(item):
+                            name = item.split(':')
+                            name = name[1]
+                            if name in list(params.keys()):
+                                value[i] = params[name]
+                            break
+                else:
+                    name = value.split(':')
+                    name = name[1]
+                    if name in list(params.keys()):
+                        d[key] = params[name]
+            if isinstance(value, dict):
+                yield from self.get_all_keys(value, params)
+        if hold_key != '':
+            d[params[name]] = d[hold_key]
+            del d[hold_key]
+            if isinstance(d, dict) and params:
+                yield from self.get_all_keys(value, params)
+
+    def user_function(self, contents, func_name):
+        filepath = "./files/query_functions.json"
+        with open(filepath, 'r') as file:
+            temp = json.load(file)
+        func = temp[func_name]
+        step = func["Pipeline"]
+        func_params = func["Parameters"]
+        counter = 0
+        params = dict()
+        for c in contents:
+            if c["name"] == "notes":
+                break
+            params[func_params[counter]] = c["contents"]
+            counter+=1
+        for p in step:
+            for x in self.get_all_keys(p, params):
+                continue
+        q = {"query_name": func_name, "query": step}
+        return q
+
     def create_index(self, contents):
         """Function that enables the user to create an index for a specified collection."""
         database = contents[0]["contents"]
@@ -278,6 +397,8 @@ class QueryManager():
         db.create_collection(name)
 
     def determine_cmd(self, index):
+        if 'userFunction' in index:
+            return index
         s = index.split('_')
         return self.cmd[s[2]]
     
@@ -486,9 +607,16 @@ class QueryManager():
         query = contents[0]["contents"]
         step = {}
         try:
-            proj = json.loads(query)
-            step["$project"] = proj
-        except:
+            if isinstance(query, list):
+                step["$project"] = query
+            elif len(contents) < 3:
+                proj = json.loads(query)
+                step["$project"] = proj
+            else:
+                item = dict()
+                item[query] = int(contents[1]["contents"])
+                step["$project"] = item
+        except Exception as e:
             step["query"] = query
         q = {"query_name": name, "query": step}
         return q
@@ -510,6 +638,14 @@ class QueryManager():
         query = contents[0]["contents"]
         step = {
             "$currentDate": { query: True }
+        }
+        q = {"query_name": name, "query": step}
+        return q
+    
+    def cmd_unwind(self, contents, name):
+        query = contents[0]["contents"]
+        step = {
+            "$unwind": { "path": query }
         }
         q = {"query_name": name, "query": step}
         return q

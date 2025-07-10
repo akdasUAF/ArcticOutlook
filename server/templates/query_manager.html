@@ -164,10 +164,10 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
     <div class="row mb-3" id="scraperInfo"></div>
     <ul class="nav nav-pills mb-3" id="queryTabs" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="query-tab" data-bs-toggle="pill" data-bs-target="query-list" type="button" role="tab" aria-controls="query-list" aria-selected="true">Query</button>
+          <button class="nav-link active" id="query-tab" data-bs-toggle="pill" data-bs-target="#querylist" type="button" role="tab" aria-controls="#querylist" aria-selected="true">Instruction List</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="function-tab" data-bs-toggle="pill" data-bs-target="#function-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">Function Creator</button>
+          <button class="nav-link" id="function-tab" data-bs-toggle="pill" data-bs-target="#function-list" type="button" role="tab" aria-controls="#function-list" aria-selected="false">Function List</button>
         </li>
     </ul>
     <div class="row mb-3" id="queryInfo"></div>
@@ -214,6 +214,10 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                             <li class="nav-item mb-1">
                                 <button type="button" class="btn btn-sm infoBtn" id="unset_info"><i class="fa-solid fa-circle-info"></i></button>
                                 <button type="button" class="btn btn-primary cmdBtn" id="unset">Remove Field</button>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <button type="button" class="btn btn-sm infoBtn" id="unwind_info"><i class="fa-solid fa-circle-info"></i></button>
+                                <button type="button" class="btn btn-primary cmdBtn" id="uwnind">Unwind Array</button>
                             </li>
                         </ul>
                     </li>
@@ -295,48 +299,114 @@ integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="#submenu5" data-bs-toggle="collapse" class="nav-link px-0 align-middle" id="misc_menu">
-                            <span class="fs-5 d-none d-sm-inline text-light">Premade </span><i class="fa-solid fa-chevron-down"></i></a>
-                        <ul class="collapse show nav flex-column ms-1" id="submenu5" data-bs-parent="#menu">
-                            <li class="nav-item mb-1">
-                                <button type="button" class="btn btn-sm infoBtn" id="test_info"><i class="fa-solid fa-circle-info"></i></button>
-                                <button type="button" class="btn btn-warning cmdBtn" id="test">test</button>
-                            </li>
-                        </ul>
-                    </li>
                 </ul>
                 <hr>
             </div>
         </div>
         <div class="tab-content col py-3 border border-secondary border-start-0 bg-light bg-gradient" id="instruction-tabs">
-            <div class="tab-pane fade show active" id="query-list" role="tabpanel" aria-labelledby="query-tab">
+            <div class="tab-pane fade show active" id="querylist" role="tabpanel" aria-labelledby="query-tab">
+                <div class="row mb-3">
+                    <div class="col">
+                        <form class="col" method="POST" id="export-import-query">
+                            <div class="input-group">
+                                <input type="submit" name="import-query" id="import-query" class="btn btn-primary float-end" value="Import Query"></input>
+                                <input type="file" class="form-control" id="import-query-file" name="import-query-file">
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="func-name" name="func-name" class="form-control" placeholder="Query Name">
+                                <input type="submit" id="export-query" name="export-query" class="btn btn-primary" value="Export Query"></input>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <button id="save-query" class="btn btn-success">Save Query</button>
+                        <button id="discard-query" class="btn btn-danger float-end">Discard Query</button>
+                    </div>
+                </div>
                 <p class="h3 text-center">Query</p>
                 <p>Special Notation:
                     <ol>@: This should be the <b>Name</b> of a <b>Sub / Nested Command</b></ol>
                     <ol>$: This typically refers to the <b>Value</b> of an item stored inside of a Column ("$Community" would return "Adak"). Alternatively, it can be a MongoDB command.</ol>
                 </p>
                 <div class="input-group mb-3">
+                    <select class="form-select" id="query_select">
+                        <option selected disabled>Select Query</option>
+                        {% for q in queries %}
+                            <option value="{{q}}">{{q}}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="load-query">Load Query</button>
+                </div>
+                <div class="input-group mb-3" id="import-query-function">
+                    <select class="form-select" id="import-query-func" aria-label="Example select with button addon">
+                        <option selected disabled>Select Function</option>
+                        {% for key in keys %}
+                            <option value="{{key}}">{{key}}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="use-function">Use Function</button>
+                </div>
+                <div class="input-group mb-3">
                     <label class="input-group-text" for="main_name">Query Name</label>
                     <input type="text" class="form-control" name="main_name" id="main_name">
                 </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="query_description">Description</label>
+                    <textarea class="form-control" name="query_description" id="query_description"></textarea>
+                </div>
                 <div class="list-group">
-                    <div id="sortable" class="list-group nested-sortable" data-nest="1">
+                    <div id="query" class="list-group nested-sortable" data-nest="1">
                     </div>
                 </div>
             </div>
             <div class="tab-pane fade" id="function-list" role="tabpanel" aria-labelledby="function-tab">
+                <div class="row mb-3">
+                    <div class="col">
+                        <form class="col" method="POST" id="export-import-function">
+                            <div class="input-group">
+                                <input type="submit" name="import-function" id="import-function" class="btn btn-primary float-end" value="Import Function"></input>
+                                <input type="file" class="form-control" id="import-func-file" name="import-func-file">
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="func-name" name="func-name" class="form-control" placeholder="List name">
+                                <input type="submit" id="export-function" name="export-function" class="btn btn-primary" value="Export Function"></input>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <button id="save-function" class="btn btn-success">Save Function</button>
+                        <button id="discard-function" class="btn btn-danger float-end">Discard Function</button>
+                    </div>
+                </div>
                 <p class="h3 text-center">Function Creator</p>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="function_select">
+                        <option selected disabled>Select Function</option>
+                        {% for key in keys %}
+                            <option value="{{key}}">{{key}}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="load_func">Load Function</button>
+                </div>
                 <p>Special Notation:
                     <ol>@: This should be the <b>Name</b> of a <b>Sub / Nested Command</b></ol>
                     <ol>$: This typically refers to the <b>Value</b> of an item stored inside of a Column ("$Community" would return "Adak"). Alternatively, it can be a MongoDB command.</ol>
+                    <ol>$PARAMETER is used to mark locations where a user may pass a parameter into the function.</ol>
                 </p>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="function_name">Function Name</label>
                     <input type="text" class="form-control" name="function_name" id="function_name">
                 </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="function_description">Description</label>
+                    <textarea class="form-control" name="function_description" id="function_description"></textarea>
+                </div>
+                <!-- <div class="input-group mb-3">
+                    <label for="paramter-counter" class="form-label">Number of Parameters: <span id="count">0</span></label>
+                    <input type="range" class="custom-range" value="0" min="0" max="5" step="1" id="parameter-counter" name="parameter-counter">
+                </div> -->
                 <div class="list-group">
-                    <div id="sortable" class="list-group nested-sortable" data-nest="1">
+                    <div id="function" class="list-group nested-sortable" data-nest="1">
                     </div>
                 </div>
             </div>
@@ -407,6 +477,211 @@ $(".selectable-query-list").bind("click", function(e)
         queryOrder.removeChild(elem);
     })
 </script> -->
+<script>
+    // Save query function
+    $(document).ready( function() {
+    $('#save-query').click(function() {
+        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
+        var result = serialize( $('#query')[0] );
+        console.log(result);
+        var main_name = document.getElementById("main_name").value;
+        //var param_counter = document.getElementById("parameter-counter").value;
+        var description = document.getElementById("query_description").value;
+        result.push({function_name: main_name});
+        //result.push({param_counter: param_counter});
+        result.push({description: description});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#query').innerHTML;
+        console.log(html);
+        data.push(formdata);
+        data.push(html);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('save_query') }}",
+            success: function (response) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+
+                var query_select = document.getElementById("query_select");
+                var i, L = query_select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                    query_select.remove(i);
+                }
+                response.data.forEach((item) => {
+                    let newOption = new Option(item, item);
+                    query_select.add(newOption, undefined);
+                });
+            },
+            error: function(error) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+            }
+        });
+    });
+});
+</script>
+<script>
+    var load = document.getElementById("load_func");
+    load.addEventListener('click', function(){
+        //var select = document.getElementById("function_select");
+        //var value = select.options[select.selectedIndex].value;
+        var value = document.getElementById("function_select").value;
+        $.ajax({
+                url: "{{ url_for('load_query_function', func_name='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    populateFuncJS(data); // populate the JS
+                },
+            });
+        })
+</script>
+<script>
+    // Save query function
+    $(document).ready( function() {
+    $('#save-function').click(function() {
+        //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
+        var result = serialize( $('#function')[0] );
+        console.log(result);
+        var main_name = document.getElementById("function_name").value;
+        //var param_counter = document.getElementById("parameter-counter").value;
+        var description = document.getElementById("function_description").value;
+        result.push({function_name: main_name});
+        //result.push({param_counter: param_counter});
+        result.push({description: description});
+        var formdata = JSON.stringify(result);
+        var data = [];
+        var html = document.querySelector('#function').innerHTML;
+        console.log(html);
+        data.push(formdata);
+        data.push(html);
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            url: "{{ url_for('save_query_function') }}",
+            success: function (response) {
+                console.log(response);
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-success alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+
+                var func_select = document.getElementById("function_select");
+                var import_func_select = document.getElementById("import-query-func");
+                var i, L = func_select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                    func_select.remove(i);
+                    import_func_select.remove(i);
+                }
+                response.data.forEach((item) => {
+                    let newOption = new Option(item, item);
+                    let newOption2 = new Option(item, item);
+                    func_select.add(newOption, undefined);
+                    import_func_select.add(newOption2, undefined);
+                });
+            },
+            error: function(error) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = response.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+            }
+        });
+    });
+});
+</script>
+<script>
+    var load = document.getElementById("load-query");
+    load.addEventListener('click', function(){
+        //var select = document.getElementById("function_select");
+        //var value = select.options[select.selectedIndex].value;
+        var value = document.getElementById("query_select").value;
+        $.ajax({
+                url: "{{ url_for('load_query', query_name='')}}" + value,
+                method: "POST",
+                success: function(data) {
+                    populateJS(data); // populate the JS
+                },
+            });
+        })
+</script>
 <script>
     var run = document.getElementById("run_query_order");
     run.addEventListener('click', function(){
@@ -612,13 +887,13 @@ $(".selectable-query-list").bind("click", function(e)
 $(document).ready( function() {
     $('#new_query_gui').click(function() {
         //var formdata = JSON.stringify( serialize( $('#sortable')[0] ) );
-        var result = serialize( $('#sortable')[0] );
+        var result = serialize( $('#query')[0] );
         console.log(result);
         var main_name = document.getElementById("main_name").value;
         result.push({query_name: main_name});
         var formdata = JSON.stringify(result);
         var data = [];
-        var html = document.querySelector('#sortable').innerHTML;
+        var html = document.querySelector('#query').innerHTML;
         console.log(html);
         data.push(formdata);
         data.push(html);
@@ -639,6 +914,7 @@ $(document).ready( function() {
 
                 var p = document.createElement('p');
                 p.setAttribute('id', 'q_info');
+                console.log(msg);
                 p.innerText = msg[0];
 
                 var btn = document.createElement('button');
@@ -724,5 +1000,77 @@ $(document).ready( function() {
             altSelectCol.style.display = "none";
         }
     });
+</script>
+<script>
+$(document).ready( function() {
+    $('#use-function').click(function() {
+        var value = document.getElementById("import-query-func").value; // get selectionID
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: "{{ url_for('use_query_function', func_name='')}}" + value,
+            success: function (response) {
+                if (response.redirect)
+                {
+                    window.location.replace(response.redirect);
+                }
+                else if (response.status >= 400)
+                {
+                    var div = document.createElement('div');
+                    div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                    div.setAttribute('role', 'alert');
+
+                    var h4 = document.createElement('h4');
+                    h4.setAttribute('class', 'alert-heading');
+                    h4.innerText = "Query Status";
+
+                    var p = document.createElement('p');
+                    p.setAttribute('id', 'q_info');
+                    p.innerText = response.message;
+
+                    var btn = document.createElement('button');
+                    btn.setAttribute('class', 'btn-close');
+                    btn.setAttribute('data-bs-dismiss', 'alert');
+                    btn.setAttribute('aria-label', 'Close');
+
+                    div.appendChild(h4);
+                    div.appendChild(p);
+                    div.append(btn);
+                    $("#queryInfo").append(div);
+                    }
+                else 
+                {
+                    // call js function that will turn response into correct blob
+                    console.log("Success");
+                    createUserFunc(response.data);
+                }
+            },
+            error: function(error) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'alert alert-danger alert-dismissible fade show');
+                div.setAttribute('role', 'alert');
+
+                var h4 = document.createElement('h4');
+                h4.setAttribute('class', 'alert-heading');
+                h4.innerText = "Query Status";
+
+                var p = document.createElement('p');
+                p.setAttribute('id', 'q_info');
+                p.innerText = error.message;
+
+                var btn = document.createElement('button');
+                btn.setAttribute('class', 'btn-close');
+                btn.setAttribute('data-bs-dismiss', 'alert');
+                btn.setAttribute('aria-label', 'Close');
+
+                div.appendChild(h4);
+                div.appendChild(p);
+                div.append(btn);
+                $("#queryInfo").append(div);
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

@@ -362,7 +362,6 @@ def dynamic_upload(mongo_uri, mongo_db, mongo_col):
     mongoClient = MongoClient(mongo_uri)
     db = mongoClient[mongo_db]
     col = db[mongo_col]
-    print(col)
     file = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
     with open(file) as f:
         data = json.load(f)
@@ -430,7 +429,7 @@ def static_download_cc(uri, db, comm, con):
 def clean_files():
     """A simple function that removes all files found in the upload folder except for settings.json."""
     try:
-        allowed_files = ['settings.json', 'functions.json', 'instruction_lists.json']
+        allowed_files = ['settings.json', 'functions.json', 'instruction_lists.json', "query_functions.json", "queries.json"]
         for file in os.listdir(app.config['UPLOAD_FOLDER']):
             if file not in allowed_files:
                 path = os.path.join(app.config['UPLOAD_FOLDER'], file)
@@ -855,7 +854,6 @@ def dynamic_v2_scrape():
                         col.insert_many(data)
                         flash("Contents uploaded successfully.", 'success')
                 except Exception as e:
-                    print("except")
                     flash('Error in trying to upload contents to MongoDB. Please make sure inputted connection details are correct.', 'error')
                     flash(e, 'error')
 
@@ -1321,7 +1319,7 @@ def csv_mongodb():
             col = db[file_upload.mongo_col]
 
             # Set up Query Manager mongodb connection
-            qm.set_mongodb(file_upload.mongo_uri, file_upload.mongo_col, file_upload.mongo_uri)
+            qm.set_mongodb(file_upload.mongo_uri, file_upload.mongo_db, file_upload.mongo_col)
 
             # Open, load, and insert file contents to MongoDB
             file = os.path.join(app.config['UPLOAD_FOLDER'], "output_table.json")
@@ -1649,7 +1647,7 @@ def compare_csv():
         col = db[file_upload.mongo_col]
 
         # Generate mongodb information for query manager.
-        qm.set_mongodb(file_upload.mongo_uri, file_upload.mongo_col, file_upload.mongo_uri)
+        qm.set_mongodb(file_upload.mongo_uri, file_upload.mongo_db, file_upload.mongo_col)
 
         # Upload file to mongodb
         file = os.path.join(app.config['UPLOAD_FOLDER'], "output_table.json")
@@ -1832,6 +1830,72 @@ def delete_query(query):
 
     return query
 
+@app.route("/query_manager/save_query", methods=['POST', 'GET'])
+def save_query():
+    """Function to save a query function to a json file."""
+    if request.method == 'POST':
+        result = request.json
+        pipeline, name, description, parameters = qm.save_query(result[0])
+        function = dict()
+        function["Description"] = description["description"]
+        function["Pipeline"] = pipeline
+        function["JSArray"] = json.loads(result[0])
+        function["Div"] = result[1]
+        function["Parameters"] = parameters
+
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], "queries.json")
+        with open(filename) as f:
+            temp = json.load(f)
+        temp[name["function_name"]] = function
+        keys = list(temp.keys())
+        with open(filename, 'w') as f:
+            json.dump(temp, f, indent=4)
+        msg = "Success."
+        return jsonify(redirect=None, data=keys, message=msg, status=200, mimetype='application/json')
+    msg = "Failure."
+    return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
+
+@app.route("/query_manager/load_query/<query_name>", methods=['POST', 'GET'])
+def load_query(query_name):
+    """Function that returns the html information/jsarray saved to a specific query."""
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "queries.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    return [query_name, temp[query_name]["Description"], temp[query_name]["JSArray"], temp[query_name]["Div"]]
+
+@app.route("/query_manager/save_query_function", methods=['POST', 'GET'])
+def save_query_function():
+    """Function to save a query function to a json file."""
+    if request.method == 'POST':
+        result = request.json
+        pipeline, name, description, counter, parameters = qm.create_function(result[0])
+        function = dict()
+        function["Description"] = description["description"]
+        function["Counter"] = counter
+        function["Pipeline"] = pipeline
+        function["JSArray"] = json.loads(result[0])
+        function["Div"] = result[1]
+        function["Parameters"] = parameters
+
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], "query_functions.json")
+        with open(filename) as f:
+            temp = json.load(f)
+        temp[name["function_name"]] = function
+        keys = list(temp.keys())
+        with open(filename, 'w') as f:
+            json.dump(temp, f, indent=4)
+        msg = "Success."
+        return jsonify(redirect=None, data=keys, message=msg, status=200, mimetype='application/json')
+    msg = "Failure."
+    return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
+
+@app.route("/query_manager/load_query_function/<func_name>", methods=['POST', 'GET'])
+def load_query_function(func_name):
+    """Function that returns the html information/jsarray saved to a specific query."""
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "query_functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    return [func_name, temp[func_name]["Description"], temp[func_name]["Counter"], temp[func_name]["JSArray"], temp[func_name]["Div"]]
 
 @app.route("/query_manager", methods=['POST', 'GET'])
 def query_manager():
@@ -1885,10 +1949,18 @@ def query_manager():
         add_mongodb_settings(file_upload.mongo_db, file_upload.mongo_col)
         names = get_mongodb_settings()
 
-        qm.set_mongodb(file_upload.mongo_db, file_upload.mongo_col, file_upload.mongo_uri)
+        qm.set_mongodb(file_upload.mongo_uri, file_upload.mongo_db, file_upload.mongo_col)
 
     info = [file_upload.mongo_uri, file_upload.mongo_db , file_upload.mongo_col]
-    return render_template("query_manager.html", query_list=queries, commands=qm.queries, templates=temp, template_name=name, mongodb_info=info, compared=file_upload.compared, names=names)
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "query_functions.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    keys = list(temp.keys())
+    file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "queries.json")
+    with open(file_temp) as f:
+        temp = json.load(f)
+    qs = list(temp.keys())
+    return render_template("query_manager.html", query_list=queries, commands=qm.queries, templates=temp, template_name=name, mongodb_info=info, compared=file_upload.compared, names=names, keys=keys, queries=qs)
 
 @app.route('/query_manager/submit', methods=['GET', 'POST'])
 def submit_gui_query():
@@ -1902,7 +1974,7 @@ def submit_gui_query():
                 msg = 'Please name your query and try again.'
                 return [msg]
             if pipeline:
-                # Attempt to submit the pipeline to mongodb.
+            # Attempt to submit the pipeline to mongodb.
                 response = qm.aggre_pipeline(pipeline)
         except Exception as e:
             msg = 'An error occurred with the query. Please review submission and try again.\n' + str(e)
@@ -1925,6 +1997,30 @@ def submit_gui_query():
                     json.dump(temp, f, indent=4)
         return [msg]
     return redirect('/query_manager')
+
+@app.route('/query_manager/use_function/<func_name>', methods=['GET', 'POST'])
+def use_query_function(func_name):
+    if func_name != 'Select Function':
+        file_temp = os.path.join(app.config['UPLOAD_FOLDER'], "query_functions.json")
+        try:
+            with open(file_temp) as f:
+                temp = json.load(f)
+            func = temp[func_name]
+            desc = func["Description"]
+            params = func["Parameters"] # List containing all the parameters in the function
+            data = [func_name, desc, params]
+            return jsonify(redirect=None, data=data, status=200, mimetype='application/json')
+        except FileNotFoundError:
+            msg = "Issue finding file containing query functions. Please check to ensure query_functions.json exists."
+            return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
+        except KeyError as e:
+            msg = f"""Issue finding function data within the file. Please make sure that the function exists within the file or recreate the function and try again.
+                    KeyError: {e}"""
+            return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
+    else:
+        msg = "No function was selected. Please select a function name from the dropdown."
+        return jsonify(redirect=None, message=msg, status=400, mimetype='application/json')
+
 
 @app.route("/csv_download")
 def csv_download():
@@ -1966,7 +2062,7 @@ def get_scraper_input():
                 print(f"Error: Log file ./logs/usr.log not found.")
             except Exception as e:
                 print(f"An error occurred: {e}")
-            return jsonify(redirect = "/log", status=200, mimetype='application/json')
+            return jsonify(redirect = "/log", status=300, mimetype='application/json')
     msg = "No result."
     return jsonify(redirect=None, message=msg, status=500, mimetype='application/json')
 
@@ -2123,7 +2219,7 @@ def export_list_excel():
         return send_from_directory(app.config['UPLOAD_FOLDER'],
                                "instruction_sheet.xlsx", as_attachment=True)
     except Exception as e:
-        return jsonify(message=str(e), data=keys, status=200, mimetype='application/json')
+        return jsonify(message=str(e), data=keys, status=500, mimetype='application/json')
 
 @app.route("/scraper_ui/import_list", methods=['POST', 'GET'])
 def import_list_excel():

@@ -9,7 +9,7 @@
   height:100vh;
 }
 
-#query-list
+#instruction-tabs
 {
   overflow: scroll;
   display: inline-block;
