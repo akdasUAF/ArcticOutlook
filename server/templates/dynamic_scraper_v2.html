@@ -1,0 +1,534 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <!-- <script src="{{ url_for('static', filename='js/dynamic_scraper.js') }}"></script> -->
+    <title>Dynamic Scraper Version 2</title>
+{% endblock %}
+
+{% block body %}
+<nav class="nav">
+    <a id="index" class="nav-link" href="{{ url_for('index') }}">Return to Main Page</a>
+    <a id="reset" class="nav-link" href="{{ url_for('reset_scraper') }}">Reset Scraper</a>
+</nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div id="main" class="row px-4 mb-3">  
+    <div id="selections" class="col-8 gx-5">
+        <h4>Scraper Instructions</h4>
+        <span>
+            {% if url_needed == True %}
+            <p>Please input the url of the items you would like to scrape.</p>
+            <p class="error">{{error}}</p>
+            {% else %}
+            <p><b>Starting URL:</b> {{url}}</p>
+            <p class="error">{{error}}</p>
+            {% endif %}
+        </span>
+        <div class="container">
+            <div class="row g-6" style="max-height: 75vh;">
+                <div id="list" class="col-8 border bg-light rounded-top">
+                        <div id="tree" class="p-3">
+                        </div>
+                </div>
+                <div id="instruction_details" class="col-4" style="max-height: 50vh;">
+                    <div class="form-inline p-3 border bg-light rounded-top">
+                        <div id="details"></div>
+                        <button type="button" class="btn btn-outline-primary" id="update_instruct" disabled>Update</button>
+                        <button type="button" class="btn btn-outline-primary" id="delete_instruct" disabled>Delete</button>
+                        <button type="button" class="btn btn-outline-primary" id="view_instruct" disabled>View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="form" class="col-4">
+        {% if url_needed == True %}
+        <div class="row">
+            <div class="col">
+                <form method="POST" id="url_submit">
+                    <h4 style="text-align: center;">Submit URL</h4>
+                    <div class="md-6">
+                        <label class="form-label" id="url_label">Starting URL</label>
+                        <input type="url" class="form-control" name="url" aria-describedby="url_label url_example" required>
+                    </div>
+                    <div class="form-text mb-3" id="url_example">Example: https://dec.alaska.gov/dww/index.jsp</div>
+                    <br>
+                    <input type="submit" name="url_submit" value="Submit URL">
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col">
+                <form method="POST" id="scrape">
+                    <h4 style="text-align: center;">Add Scraper Instruction</h4>
+                    <div class="col">
+                        <label class="form-label" for="instruction_select">Instruction:</label>
+                        <select class="form-select" id="instruction_select" name="instruction_select" onchange="showMore(this)">
+                            <option selected disabled value="">Select Instruction</option>
+                            <option value="1">1: Skip to HTML Tag</option>
+                            <option value="2">2: Skip to HTML Class</option>
+                            <option value="3">3: Save Value</option>
+                            <option value="4">4: Save Attribute</option>
+                            <option value="5">5: Back to Beginning</option>
+                            <option value="6">6: Skip to Specific Attribute</option>
+                            <option value="7">7: Click an Element</option>
+                            <option value="8">8: Go to Previous Page</option>
+                            <option value="9">9: Scrape Table</option>
+                            <option value="10">10: Run Function</option>
+                            <option value="11">11: For Each Loop</option>
+                            <option value="12">12: Create Function</option>
+                            <option value="13">13: End Function</option>
+                            <option value="14">14: Special For Each Loop</option>
+                            <option value="15">15: Send Form Values</option>
+                            <option value="16">16: Submit Form</option>
+                            <option value="17">17: Delay</option>
+                            <option value="18">18: Save Url</option>
+                            <option value="19">19: Check for Text</option>
+                            <option value="20">20: For-Each List</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label" for="instruct_name"
+                        title="This is a name for this value for easier instruction reading. Example: Water System Table. This needs to be unique!">Instruction Name</label>
+                        <input name="instruct_name" type="text" class="form-control">
+                    </div>
+                    <div class="col">
+                        <label class="form-label" for="notes" style="padding-bottom: 0px;">Notes</label>
+                        <textarea name="notes" class="form-control"></textarea>
+                    </div>
+        
+                    <div class ="10 2 1 3 4 9 12 14 15 18 19 op" style="display:none">
+                        <div class="col">
+                            <label class="form-label" for="param" 
+                            title="This is a generic name. It could be asking for a specific element label ('td', 'table') or for a name to save a value.">
+                            Parameter</label>
+                            <input class="form-control" name="param" type="text" placeholder="param">
+                        </div>
+                    </div>
+        
+                    <div class = "6 4 11 14 15 16 op" style="display:none">
+                        <div class="col">
+                            <label class="form-label" for="tag" title="This refers to a html value. (Examples: 'a', 'h3')">Tag</label>
+                            <input class="form-control" name="tag" type="text" placeholder="tag">
+                        </div>
+                    </div>
+        
+                    <div class = "11 6 14 15 16 op" style="display:none">
+                        <div class="col">
+                            <label class="form-label" for="attribute" title="This refers to a specific label of an item in the html, such as the class.">Attribute</label>
+                            <input class="form-control" name="attribute" type="text" placeholder="attribute">
+                        </div>
+                    </div>
+        
+                    <div class = "6 11 14 15 16 19 op" style="display:none">
+                        <div class="col">
+                            <label class="form-label" for="value" title="This refers to a specific value found in the html. (Example: 'Violations/Enforcement Actions)">Value</label>
+                            <input class="form-control" name="value" type="text" placeholder="value">
+                        </div>
+                    </div>
+        
+                    <div class = "11 14 20 op" style="display:none">
+                        <div class="col">
+                            <label class="form-label" for="function_name" title="This refers to the name of a previously created function.">Function Name</label>
+                            <input class="form-control" name="function_name" type="text" placeholder="function_name">
+                        </div>
+                    </div>
+        
+                    <div class = "op" style="display:none">
+                        <div class = "row g-3 table_options">
+                            <div class="col-md-6">
+                                <label class="form-label" for="header" title="Row number for the header.">Header Row</label>
+                                <input name="header" type="text" class="form-control"> 
+                                <label class="form-label" for="col_num" title="Number of columns.">Number of Columns</label>
+                                <input name="col_num" type="text" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="link_col" title="The column containing the link to follow.">Link Column</label>
+                                <input name="link_col" type="text" class="form-control">
+                                <label class="form-label" for="skip_rows" title="Optional list of rows to skip.">Skip Rows</label>
+                                <input name="skip_rows" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <input type="submit" name="add_item" value="Add Item"></input>
+                    <input type="submit" name="scrape" value="Start Scrape"/> 
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        <script>
+            var showMore = function(option)
+                {
+                    var divClass = option.value;
+                    $(".op").hide();
+                    $("."+divClass).slideDown('medium');
+                }
+        </script>
+    </div>
+</div>
+<div class="row px-4 mb-3" id="pwsid-upload">  
+    <form class="col-4 gx-5 mb-3 border" id="upload-form-pwsid" method="POST" enctype="multipart/form-data">
+        <h4>Upload PWSID LIST or TABLE</h4>
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" name="uploaded-file" id="uploaded-file">
+            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+          </div>
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" type="checkbox" value="" name="table-select" id="table-select" aria-label="Checkbox for following text input">
+            </div>
+            <label class="input-group-text" for="file-type">File uploaded is a table.</label>
+            <select class="form-select" id="file-type" name="file-type" aria-label="Example select with button addon">
+                <option selected>Select File Type</option>
+                <option value="excel">Excel</option>
+                <option value="csv">CSV</option>
+            </select>      
+        </div> 
+        <div class="input-group mb-3">
+            <span class="input-group-text">PWSID Column Name</span>
+            <input type="text" class="form-control" id="pwsid-col" name="pwsid-col">
+        </div> 
+        <div class="input-group mb-3">
+            <span class="input-group-text">New Column Name</span>
+            <input type="text" class="form-control" id="col-name" name="col-name">
+        </div>   
+        <input type="submit" id="upload-pwsid" name="upload-pwsid" class="btn btn-primary" value="Upload PWSID">
+    </form>
+    <div class="col-4 gx-5 mb-3 border">
+        <h4>Full PWSID List</h4>
+        <button id="select-all" class="btn btn-primary mb-3">Select All</button>
+        <button id="clear-all" class="btn btn-primary mb-3">Clear Selection</button>
+        <form id="pwsid-list" method="POST">
+            <select class="form-select mb-3" id="select-pwsid" name="select-pwsid" size="5" multiple>
+                {% for pwsid in pwsids %}
+                <option value="{{pwsid}}">{{pwsid}}</option>
+                {% endfor %}
+            </select>   
+            <input type="submit" id="add-all" name="add-all" class="btn btn-primary" value="Add Selection">     
+        </form>
+    </div>
+    <div class="col-4 gx-5 mb-3 border">
+        <h4>Selected PWSIDs</h4>
+        <form id="pwsid" method="POST">
+            <select class="form-select mb-3" id="selected" name="selected" size="5" multiple>
+                {% for pwsid in selected_pwsids %}
+                <option value="{{pwsid}}">{{pwsid}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" id="remove-pwsid" name="remove-pwsid" class="btn btn-primary" value="Remove Selection">
+            <!-- <input type="submit" id="submit-pwsid" name="submit-pwsid" class="btn btn-primary" value="Submit Selection">         -->
+        </form>
+    </div>
+</div>
+
+<script>
+    $('#select-all').click(function() {
+        $('#select-pwsid option').prop('selected', true);
+    });   
+
+    $('#clear-all').click(function() {
+        $('#select-pwsid option').prop('selected', false);
+    });
+</script>
+
+<script>
+    $(document).on('click', '#update_instruct', function(){ 
+        var key = $('#selected_item').attr('name');
+        $("html").load("/callback");
+        $.ajax({
+                url: "{{ url_for('dynamic_update_v2', key='')}}" + key,
+                method: "GET",
+                success: function(response) {
+                    document.write(response);
+                    window.location.href = "{{ url_for('dynamic_update_v2', key='')}}" + key;
+        }
+            });
+    });
+</script>
+<script>
+        $(document).on('click', '#delete_instruct', function(){ 
+        var key = $('#selected_item').attr('name');
+        $("html").load("/callback");
+        $.ajax({
+                url: "{{ url_for('dynamic_update_v2', key='')}}" + key,
+                method: "GET",
+                success: function(response) {
+                    document.write(response);
+                    window.location.href = "{{ url_for('dynamic_delete_v2', key='')}}" + key;
+        }
+            });
+    });
+</script>
+<script>
+    $(document).on('click', '#view_instruct', function(){ 
+    var key = $('#selected_item').attr('name');
+    $("html").load("/callback");
+    $.ajax({
+            url: "{{ url_for('view_instruction', key='')}}" + key,
+            method: "GET",
+            success: function(response) {
+                window.open(response, "_blank");
+        }})
+    });
+</script>
+
+<script>
+    function displayDetails(t) {
+        // If a checkbox is clicked, we pass the index to flask to display the contents within the second div
+        $('input[type="checkbox"]').on('change', function() {
+            $('input[type="checkbox"]').not(this).prop('checked', false);
+        });
+        if (t.is(':checked')) {
+            var value = t.attr('value');
+            $.ajax({
+                    url: "{{ url_for('get_item', index='')}}" + value,
+                    method: "POST",
+                    success: function(response) {
+                        console.log(response);
+                        $('#details').replaceWith(response);
+                        $('#update_instruct').prop('disabled', false);
+                        $("#delete_instruct").prop('disabled', false);
+                        $("#view_instruct").prop('disabled', false);
+                    },
+                });
+        }
+        else
+        {
+            $('#details').replaceWith("<div id=details></div");
+            $('#update_instruct').prop('disabled', true);
+            $("#delete_instruct").prop('disabled', true);
+            $("#view_instruct").prop('disabled', true);
+        }
+    }
+</script>
+<script>
+    // Modified version of https://github.com/chniter/bstreeview to create treeview of scraper instructions
+    // TODO: Update this match the Query Manager list
+    $(function () {
+
+        var json = JSON.parse('{{json_data | tojson | safe}}');
+
+        $('#tree').bstreeview({
+            data: json,
+            expandIcon: 'fa fa-angle-down fa-fw',
+            collapseIcon: 'fa fa-angle-right fa-fw',
+            indent: 1.25,
+            parentsMarginLeft: '1.25rem',
+            openNodeLinkOnNewTab: true,
+            
+        });
+    }); (function ($, window, document, undefined) {
+    "use strict";
+    /**
+     * Default bstreeview  options.
+     */
+    var pluginName = "bstreeview",
+        defaults = {
+            expandIcon: 'fa fa-angle-down fa-fw',
+            collapseIcon: 'fa fa-angle-right fa-fw',
+            expandClass: 'show',
+            indent: 1.25,
+            parentsMarginLeft: '1.25rem',
+            openNodeLinkOnNewTab: true,
+    
+        };
+    /**
+     * bstreeview HTML templates.
+     */
+    var templates = {
+        treeview: '<div class="bstreeview"></div>',
+        treeviewItem: '<div role="treeitem" class="list-group-item" data-bs-toggle="collapse"></div>',
+        treeviewGroupItem: '<div role="group" class="list-group-flush collapse" id="itemid"></div>',
+        treeviewItemStateIcon: '<i class="state-icon"></i>',
+        treeviewItemIcon: '<i class="item-icon"></i>',
+        treeviewSelectItem: '<input class="form-check-input" type="checkbox" name="teecheck" onclick="displayDetails($(this));">'
+    };
+    /**
+     * BsTreeview Plugin constructor.
+     * @param {*} element
+     * @param {*} options
+     */
+    function bstreeView(element, options) {
+        this.element = element;
+        this.itemIdPrefix = element.id + "-item-";
+        this.settings = $.extend({}, defaults, options);
+        this.init();
+    }
+    /**
+     * Avoid plugin conflict.
+     */
+    $.extend(bstreeView.prototype, {
+        /**
+         * bstreeview intialize.
+         */
+        init: function () {
+            this.tree = [];
+            this.nodes = [];
+            // Retrieve bstreeview Json Data.
+            if (this.settings.data) {
+                if (this.settings.data.isPrototypeOf(String)) {
+                    this.settings.data = $.parseJSON(this.settings.data);
+                }
+                this.tree = $.extend(true, [], this.settings.data);
+                delete this.settings.data;
+            }
+            // Set main bstreeview class to element.
+            $(this.element).addClass('bstreeview');
+    
+            this.initData({ nodes: this.tree });
+            var _this = this;
+            this.build($(this.element), this.tree, 0);
+            // Update angle icon on collapse
+            $(this.element).on('click', '.list-group-item', function (e) {
+                $('.state-icon', this)
+                    .toggleClass(_this.settings.expandIcon)
+                    .toggleClass(_this.settings.collapseIcon);
+                // navigate to href if present
+                if (e.target.hasAttribute('href')) {
+                    if (_this.settings.openNodeLinkOnNewTab) {
+                        window.open(e.target.getAttribute('href'), '_blank');
+                    }
+                    else {
+                        window.location = e.target.getAttribute('href');
+                    }
+                }
+                else
+                {
+                    // Toggle the data-bs-target. Issue with Bootstrap toggle and dynamic code
+                    $($(this).attr("data-bs-target")).collapse('toggle');
+                }
+            });
+        },
+        /**
+         * Initialize treeview Data.
+         * @param {*} node
+         */
+        initData: function (node) {
+            if (!node.nodes) return;
+            var parent = node;
+            var _this = this;
+            $.each(node.nodes, function checkStates(index, node) {
+    
+                node.nodeId = _this.nodes.length;
+                node.parentId = parent.nodeId;
+                _this.nodes.push(node);
+    
+                if (node.nodes) {
+                    _this.initData(node);
+                }
+            });
+        },
+        /**
+         * Build treeview.
+         * @param {*} parentElement
+         * @param {*} nodes
+         * @param {*} depth
+         */
+        build: function (parentElement, nodes, depth) {
+            var _this = this;
+            // Calculate item padding.
+            var leftPadding = _this.settings.parentsMarginLeft;
+    
+            if (depth > 0) {
+                leftPadding = (_this.settings.indent + depth * _this.settings.indent).toString() + "rem;";
+            }
+            depth += 1;
+            // Add each node and sub-nodes.
+            $.each(nodes, function addNodes(id, node) {
+                // Main node element.
+                var treeItem = $(templates.treeviewItem)
+                    .attr('data-bs-target', "#" + _this.itemIdPrefix + node.nodeId)
+                    .attr('style', 'margin-left:' + leftPadding)
+                    .attr('aria-level', depth);
+                // set node icon if exist.
+                if (node.icon) {
+                    var treeItemIcon = $(templates.treeviewItemIcon)
+                        .addClass(node.icon);
+                    treeItem.append(treeItemIcon);
+                }
+                // Set node Text.
+                // My edit
+                if (node.text)
+                {
+                    var treeItemText = $(templates.treeviewSelectItem)
+                        .attr('value', node.index) // Add checkbox, then add text as the label for the checkbox, index be name of box?
+                        treeItem.append(treeItemText)
+                }
+                treeItem.append(node.text);
+                // Set Expand and Collapse icones.
+                // Move this to the end so that the arrow is on the other side
+                if (node.nodes) {
+                    var treeItemStateIcon = $(templates.treeviewItemStateIcon)
+                        .addClass((node.expanded)?_this.settings.expandIcon:_this.settings.collapseIcon);
+                    treeItem.append(treeItemStateIcon);
+                }
+                // Reset node href if present
+                if (node.href) {
+                    treeItem.attr('href', node.href);
+                }
+                // Add class to node if present
+                if (node.class) {
+                    treeItem.addClass(node.class);
+                }
+                // Add custom id to node if present
+                if (node.id) {
+                    treeItem.attr('id', node.id);
+                }
+                // if (node.index) {
+                //     treeItem.attr('id', "node_" + node.index)
+                // }
+                // Attach node to parent.
+                parentElement.append(treeItem);
+                // Build child nodes.
+                if (node.nodes) {
+                    // Node group item.
+                    var treeGroup = $(templates.treeviewGroupItem)
+                        .attr('id', _this.itemIdPrefix + node.nodeId);
+                    parentElement.append(treeGroup);
+                    _this.build(treeGroup, node.nodes, depth);
+                    if (node.expanded) {
+                        treeGroup.addClass(_this.settings.expandClass);
+                    }
+                }
+            });
+        }
+    });
+    
+    // A really lightweight plugin wrapper around the constructor,
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function (options) {
+        return this.each(function () {
+            if (!$.data(this, "plugin_" + pluginName)) {
+                $.data(this, "plugin_" +
+                    pluginName, new bstreeView(this, options));
+            }
+        });
+    };
+    })(jQuery, window, document);
+</script>
+{% endblock %}

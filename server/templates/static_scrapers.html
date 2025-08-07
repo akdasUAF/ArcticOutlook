@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Static Scrapers</title>
+    
+{% endblock %}
+
+{% block body %}
+<a class="return" href="{{ url_for('index') }}">Return to Main Page</a>
+<div ID="scriptselection">
+    <h3> Script Selection </h3>
+    <p>Please select a script to run.</p>
+    <form method="POST" enctype=multipart/form-data>
+        <select id="SelectScript" name="SelectScript">
+            <option value="Operators" {% if val== "Operators" %} selected {% endif %}>Operators Spider</option>
+            <option value="Systems" {% if val== "Systems" %} selected {% endif %}>Systems Spider</option>
+            <option value="Community_Profiles"{% if val== "Community_Profiles" %} selected {% endif %}>Community Profiles</option>
+        </select>
+        <br/>
+        <input type="submit" value="Submit" name="script"/>
+    </form>
+</div>
+
+{% if operation == True %}
+<div ID="mongodb">
+    <h3>Please input the following MongoDB information:</h3>
+    <p><strong>This information can be found in your MongoDB Database.</strong><br/>The <b>connection string</b>, or 
+        <a href="https://www.mongodb.com/docs/manual/reference/connection-string/">URI</a>, is what allows the script
+    to input the information into the database. Following the link will show you how to collect the URI string from your 
+    MongoDB database.<br/>The <b>Database</b> name is the name of the Database in which the scraper should store this information.<br/>The 
+    <b>Collection(s)</b> name refers to the Collection/Table within the Database in which you wish to store the information.</p>
+    <p>These fields are automatically populated based on the values found in the settings.json file in /files. To change any of these
+        values, please visit this file and adjust the needed fields.
+    </p>
+    <form method="POST" ID="mongoDB">
+        <label for="download">Download as CSV?</label>
+        <input type="checkbox" id="download" name="download" value="download">
+        <div class="row">
+            <label for="Connection">Connection String (Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test)</label>
+            <input name="Connection" type="text" value={{default[0]}}>
+        </div>
+
+        <div class="row">
+            <label for="Database">Database Name (Example: Outlook)</label>
+            <input name="Database" type="text" value={{default[1]}}>
+        </div>
+
+        {% if val == "Operators" %}
+        <div class="row">
+            <label for="Operators">Operators Collection Name (Example: Operators)</label>
+            <input name="Operators" type="text" value={{default[2]}}>
+        </div>
+        <br/>
+        <input type="submit" value="Submit" name="op"/>
+        {% endif %}
+
+        {% if val == "Systems" %}
+        <div class="row">
+            <label for="Systems">Systems Collection Name (Example: Systems)</label>
+            <input name="Systems" type="text" value={{default[2]}}>
+        </div>
+
+        <div class="row">
+            <label for="SContact">Systems Contact Collection Name (Example: SystemContacts)</label>
+            <input name="SContact" type="text" value={{default[3]}}>
+        </div>
+        <br/>
+        <input type="submit" value="Submit" name="sys"/>
+        {% endif %}
+
+        {% if val == "Community_Profiles" %}
+        <div class="row">
+            <label for="Community">Community Collection Name (Example: Community)</label>
+            <input name="Community" type="text" value={{default[2]}}>
+        </div>
+
+        <div class="row">
+            <label for="CContact">Community Contact Collection Name (Example: Contacts)</label>
+            <input name="CContact" type="text" value={{default[3]}}>
+        </div>
+        <br/>
+        <input type="submit" value="Submit" name="cc"/>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+{% if operation == False %}
+<br/>
+<p>{{msg}}</p>
+
+{% endif %}
+{% endblock %}

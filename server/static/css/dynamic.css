@@ -1,0 +1,93 @@
+#main
+{
+    justify-content: space-between;
+    word-wrap: break-word;
+}
+
+#output
+{
+    width: 100%;
+}
+
+#form
+{
+    float:right;
+}
+
+#selections 
+{
+    float:left;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    border-style: ridge;
+    border-width: 2px;
+    max-height: 75%;
+}
+
+#scrape, #url_submit, #update, #orig, #scraped_values {
+    border-style: ridge;
+    border-width: 2px;
+    padding: 5px;
+}
+
+
+#follow_through {
+    display: none;
+}
+
+table, td, th {
+    border: 1px solid;
+  }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+.error {
+    color: red;
+}
+
+.form-label {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+/* input[type=text],
+select
+{
+    padding: 5px;
+    margin: 5px;
+    border-radius:10px;
+    border: 1px solid rgba(238, 238, 238, 0.405);
+    background-color: #fafafa;
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+    transition: .3s box-shadow;
+}
+
+input[type=text]:hover, select:hover 
+{
+    box-shadow:0 0 4px rgba(0,0,0,0.5);
+} */
+
+/* .form-text
+{
+    font-size: 12px;
+} */
+
+fieldset
+{
+    padding: 5px;
+    margin: 5px;
+    border-radius:10px;
+    border: 1px solid rgba(238, 238, 238, 0.405);
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+}
+
+legend
+{
+    background-color: #f2f2f2;
+}
+.legend { list-style: none; }
+.legend li { float: left; margin-right: 10px; }
+.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }

@@ -1,0 +1,827 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <title>Scraper Documentation</title>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light mb-3 sticky-top" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="https://www.arcticoutlook.com/" target="_blank">
+            <img src="/static/images/arctic_outlook_logo_2.png" width="400" height="50" class="d-inline-block align-top" alt="">
+        </a>
+        <!-- <a class="navbar-brand disabled" href="#">Arctic Outlook Webtool</a> -->
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item px-1">
+                    <a id="home" class="nav-link border border" href="{{ url_for('index') }}">Home</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row border p-3">
+    <div class="col-4" style="overflow: scroll; height:100vh;">
+      <nav id="navbar-example3" class="flex-column align-items-stretch pe-4 border-end">
+        <nav class="nav nav-pills flex-column">
+          <a class="nav-link" href="#page_nav">Page Navigation</a>
+          <nav class="nav nav-pills flex-column">
+            <a class="nav-link ms-3 my-1" href="#skip_to_tag">Skip to Tag</a>
+            <a class="nav-link ms-3 my-1" href="#skip_to_class">Skip to Class</a>
+            <a class="nav-link ms-3 my-1" href="#back_to_beginning">Back to Beginning (of page)</a>
+            <a class="nav-link ms-3 my-1" href="#skip_to_element_with_attribute">Skip to Element with Attribute</a>
+            <a class="nav-link ms-3 my-1" href="#click_element">Click Element</a>
+            <a class="nav-link ms-3 my-1" href="#goto_previous_page">Go to Previous Page</a>
+            <a class="nav-link ms-3 my-1" href="#form_send_keys">Send Form Keys</a>
+            <a class="nav-link ms-3 my-1" href="#form_submit">Submit Form</a>
+            <a class="nav-link ms-3 my-1" href="#delay">Delay</a>
+            <a class="nav-link ms-3 my-1" href="#check_for_text">Check for Text</a>
+          </nav>
+          <a class="nav-link" href="#save_item">Save Item</a>
+          <nav class="nav nav-pills flex-column">
+            <a class="nav-link ms-3 my-1" href="#save_value_as_property">Save Value</a>
+            <a class="nav-link ms-3 my-1" href="#save_attribute_as_property">Save Attribute as Property</a>
+            <a class="nav-link ms-3 my-1" href="#scrape_table">Scrape Table</a>
+            <a class="nav-link ms-3 my-1" href="#save_webpage_url">Save Webpage URL</a>
+          </nav>
+          <a class="nav-link" href="#loops_and_func">Loops and Functions</a>
+          <nav class="nav nav-pills flex-column">
+            <a class="nav-link ms-3 my-1" href="#run_function">Run Function</a>
+            <a class="nav-link ms-3 my-1" href="#create_function">Create Function</a>
+            <a class="nav-link ms-3 my-1" href="#end_function">End Function</a>
+            <a class="nav-link ms-3 my-1" href="#for_each">For Each</a>
+            <a class="nav-link ms-3 my-1" href="#special_for_each">Special For Each</a>
+            <a class="nav-link ms-3 my-1" href="#loop_list">Loop Through List</a>
+          </nav>
+        </nav>
+      </nav>
+    </div>
+  
+    <div class="col-8">
+      <div data-bs-spy="scroll" data-bs-target="#navbar-example3" data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
+        <div id="page_nav">
+            <h5>Page Navigation Commands</h5>
+            <p>The following sections cover the documentation for scraper commands relating to page navigation.</p>
+          </div>
+        <div id="skip_to_tag" class="border mb-3 p-3">
+            <h5>Skip to Tag</h5>
+            <p>This instruction will skip from the current scraper position to the
+            next located <a href="https://www.w3schools.com/TAGS/default.asp">HTML
+            Element</a> provided by the user.</p>
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th scope="col">Input Name</th>
+                        <th scope="col">User Input</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Parameter</td>
+                        <td>A HTML element</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h6 id="example">Example</h6>
+            <p>Say there is a div with a span that contains text we need to
+            save.</p>
+            <div class="sourceCode" id="cb1"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">&quot;test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Hello World<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;</span></span>
+            <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>Say I use the instruction with the following input:</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>span</td>
+            </tr>
+            </tbody>
+            </table>
+            <p>This will move the scraper to the first <em>span</em> it finds
+            <em>after</em> it’s current location.</p>
+        </div>
+        <div id="skip_to_class" class="border mb-3 p-3">
+            <h5>Skip To Class</h5>
+            <p>This instruction will skip from the current scraper position to the
+            next element with the class value specified by the user.</p>
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th scope="col">Input Name</th>
+                        <th scope="col">User Input</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Parameter</td>
+                        <td>A HTML element</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h6 id="example-1">Example</h6>
+            <p>Say there is a div with a class called <em>test</em> located after
+            where my scraper is currently located.</p>
+            <div class="sourceCode" id="cb2"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">&quot;test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>Say I use the instruction with the following input:</p>
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th scope="col">Input Name</th>
+                        <th scope="col">User Input</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        <tr>
+                            <td>Parameter</td>
+                            <td>test</td>
+                        </tr>
+                </tbody>
+            </table>
+            <p>This will skip the scraper to the first element it finds with this
+            class name <em>after</em> it’s current location.</p>
+        </div>
+        <div id="back_to_beginning" class="border mb-3 p-3">
+            <h5>Back to Beginning (of page)</h5>
+            <p>This instruction will tell the scraper to return to the start of the
+            webpage it is currently looking at.</p>
+        </div>
+        <div id="skip_to_element_with_attribute" class="border mb-3 p-3">
+            <h5 id="skip_to_element_with_attribute">Skip to Element with Attribute</h5>
+                <p>This instruction will tell the scraper to skip to a <a
+                href="https://www.w3schools.com/TAGS/default.asp">HTML Element</a> with
+                a specific <a
+                href="https://www.w3schools.com/html/html_attributes.asp">HTML
+                Attribute</a> value.</p>
+                <table class="table table-primary">
+                <thead>
+                <tr>
+                <th>Input Name</th>
+                <th>Expected User Input</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td>Tag</td>
+                <td>A HTML Element</td>
+                </tr>
+                <tr>
+                <td>Attribute</td>
+                <td>A HTML Attribute</td>
+                </tr>
+                <tr>
+                <td>Value</td>
+                <td>The value of the given HTML Attribute</td>
+                </tr>
+                </tbody>
+                </table>
+                <h6 id="example-4">Example</h6>
+                <p>Say there is a webpage that has something like this:</p>
+                <div class="sourceCode" id="cb7"><pre
+                class="sourceCode html"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;test-div&quot;</span><span class="dt">&gt;</span></span>
+                <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">table</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;test-table&quot;</span><span class="dt">&gt;</span>Google.com<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;</span></span>
+                <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+                <p>If I use skip_to_element_with_attribute with the following input:</p>
+                <table class="table table-primary">
+                <thead>
+                <tr>
+                <th>Input Name</th>
+                <th>User Input</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td>Tag</td>
+                <td>table</td>
+                </tr>
+                <tr>
+                <td>Attribute</td>
+                <td>id</td>
+                </tr>
+                <tr>
+                <td>Value</td>
+                <td>test-table</td>
+                </tr>
+                </tbody>
+                </table>
+                <p>This will skip the scraper until it finds an <em>table</em> with an
+                id equal to <em>test-table</em>.</p>
+        </div>
+        <div id="click_element" class="border mb-3 p-3">
+            <h5>Click Element</h5>
+            <p>This instruction will tell the scraper to click the element the
+            scraper is currently looking at. - If this redirects to a new page (form
+            submit), the scraper will follow to a new page. - This instruction will
+            always return the scraper to the top of the page!</p>
+        </div>
+        <div id="goto_previous_page" class="border mb-3 p-3">
+            <h5>Go to Previous Page</h5>
+            <p>This instruction will tell the scraper to return to the previous
+            webpage. - This will also return the scraper to the top of the previous
+            webpage.</p>
+        </div>
+        <div id="form_send_keys" class="border mb-3 p-3">
+            <h5>Form Send Keys</h5>
+            <p>This instruction allows the user to interact with the webpage by
+            providing user input. - <em>select</em> tags require an option with a
+            valid <em>value</em> attribute to ensure they can be selected - More
+            form options can be implemented as needed.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>The user input</td>
+            </tr>
+            <tr>
+            <td>Tag</td>
+            <td>A HTML Element</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>A HTML Attribute</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>The value of the given HTML Attribute</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="select-example">Select Example</h6>
+            <p>Say I have a webpage that looks something like this:</p>
+            <div class="sourceCode" id="cb11"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;form-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">select</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;select-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;name&quot;</span><span class="dt">&gt;</span>Name<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;date&quot;</span><span class="dt">&gt;</span>Date<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">select</span><span class="dt">&gt;</span></span>
+            <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;input-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;text&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;submit-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;submit&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>To continue scraping, I need to sort a list by Name. To do this, I
+            would provide the following input to <em>form_send_keys</em>:</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>name</td>
+            </tr>
+            <tr>
+            <td>Tag</td>
+            <td>select</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>id</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>select-test</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="text-example">Text Example</h6>
+            <p>Say I have a webpage that looks something like this:</p>
+            <div class="sourceCode" id="cb12"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;form-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">select</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;select-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;name&quot;</span><span class="dt">&gt;</span>Name<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;date&quot;</span><span class="dt">&gt;</span>Date<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">select</span><span class="dt">&gt;</span></span>
+            <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;input-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;text&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;submit-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;submit&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>To continue scraping, I need to input “Fairbanks” into the search bar
+            <em>input-test</em>. To do this, I would provide the following input to
+            <em>form_send_keys</em>.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>Fairbanks</td>
+            </tr>
+            <tr>
+            <td>Tag</td>
+            <td>input</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>id</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>input-test</td>
+            </tr>
+            </tbody>
+            </table>
+        </div>
+        <div id="form_submit" class="border mb-3 p-3">
+            <h5 id="form_submit">Form Submit</h5>
+            <p>This instruction will attempt to submit a form by clicking a button.
+            The user can specify which button on the page is the correct button to
+            submit a form. After this instruction, the scraper will return to the
+            top of the webpage as seen in [[#back_to_beginning = 5]]. If submitting
+            the form redirects to a new page, this will result in the scraper
+            looking at the top of the next page.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Tag</td>
+            <td>A HTML Element</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>A HTML Attribute</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>The value of the given HTML Attribute</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="example-8">Example</h6>
+            <p>Say I have a webpage that looks something like this:</p>
+            <div class="sourceCode" id="cb13"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;form-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">select</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;select-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;name&quot;</span><span class="dt">&gt;</span>Name<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">option</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;date&quot;</span><span class="dt">&gt;</span>Date<span class="dt">&lt;/</span><span class="kw">option</span><span class="dt">&gt;</span></span>
+            <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">select</span><span class="dt">&gt;</span></span>
+            <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;input-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;text&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;submit-test&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;submit&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Tag</td>
+            <td>input</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>id</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>submit-test</td>
+            </tr>
+            </tbody>
+            </table>
+            <p>This will result in the form being submitted.</p>
+        </div>
+        <div id="delay" class="border mb-3 p-3">
+            <h5>Delay</h5>
+            <p>This instruction will tell the scraper to delay for a certain amount
+            of time. This is primarily used to ensure that the webpage has enough
+            time to load before continuing a scrape.</p>
+        </div>
+        <div id="check_for_text" class="border mb-3 p-3">
+            <h5>Check for Text</h5>
+            <p>This instruction will tell the scraper to look for a specific text phrase on the page.</p>
+        </div>
+        <div id="save_item">
+            <h5>Save Item Commands</h5>
+            <p>The following sections cover the documentation for scraper commands relating to scraping items and storing them.</p>
+          </div>
+        <div id="save_value_as_property" class="border mb-3 p-3">
+            <h5>Save Value as Property</h5>
+            <p>This instruction will tell the scraper to scrape the current item and
+            save it as the name given by the user. This defaults to the <a
+            href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText">innerText</a>,
+            which will save the text inside of the element.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>div, a, etc.</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="example-2">Example</h6>
+            <p>Say the scraper is currently looking at the element below.</p>
+            <div class="sourceCode" id="cb3"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>AK2123456<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>Say I use the instruction with the following input:</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>WaterSystemNumber</td>
+            </tr>
+            </tbody>
+            </table>
+            <p>This will save the value into <em>WaterSystemNumber</em>, and I will
+            receive the following json as output:</p>
+            <div class="sourceCode" id="cb4"><pre
+            class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+            <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;WaterSystemNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;AK2123456&quot;</span></span>
+            <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        </div>
+        <div id="save_attribute_as_property" class="border mb-3 p-3">
+            <h5>Save Attribute as Property</h5>
+                <p>This instruction will tell the scraper to scrape a specific <a
+                href="https://www.w3schools.com/html/html_attributes.asp">HTML
+                Attribute</a> of the current item and save it as the name given by the
+                user.</p>
+                <table class="table table-primary">
+                <thead>
+                <tr>
+                <th>Input Name</th>
+                <th>Expected User Input</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td>Parameter</td>
+                <td>The name of the saved value</td>
+                </tr>
+                <tr>
+                <td>Tag</td>
+                <td>An HTML Attribute</td>
+                </tr>
+                </tbody>
+                </table>
+                <h6 id="example-3">Example</h6>
+                <p>Say the scraper is currently looking at the element below.</p>
+                <div class="sourceCode" id="cb5"><pre
+                class="sourceCode html"><code class="sourceCode html"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;www.google.com&quot;</span><span class="dt">&gt;</span>Google.com<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;</span></span></code></pre></div>
+                <p>If I use:</p>
+                <table class="table table-primary">
+                <thead>
+                <tr>
+                <th>Input Name</th>
+                <th>User Input</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td>Parameter</td>
+                <td>UrlLink</td>
+                </tr>
+                <tr>
+                <td>Tag</td>
+                <td>href</td>
+                </tr>
+                </tbody>
+                </table>
+                <p>This will save the <strong>href</strong> value into <em>UrlLink</em>,
+                and I will receive the following json as output:</p>
+                <div class="sourceCode" id="cb6"><pre
+                class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+                <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;UrlLink&quot;</span><span class="fu">:</span> <span class="st">&quot;www.google.com&quot;</span></span>
+                <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>                
+        </div>
+        <div id="scrape_table" class="border mb-3 p-3">
+            <h5>Scrape Table</h5>
+            <p>This instruction will tell the scraper to scrape a table. - The
+            instruction expects that the scraper is looking at a table. - The
+            instruction expects that the table is formatted as a regular table. -
+            Columns - Column names should be wrapped in the <em>th</em> tag. -
+            Column names will be recorded as the innerText of the <em>th</em> tag. -
+            Rows - Row values should be wrapped in the <em>td</em> tag - Row values
+            will be recorded as the innerText of the <em>td</em> tag.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>The user given name of the table</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="example-5">Example</h6>
+            <p>Say that there is a table with the following contents. Note that our
+            scraper is currently looking at this table (if it is not, you will need
+            to skip to it first):</p>
+            <div class="sourceCode" id="cb8"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">table</span><span class="ot"> id </span><span class="op">=</span> <span class="st">&quot;table-test&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">th</span><span class="dt">&gt;</span>Name<span class="dt">&lt;/</span><span class="kw">th</span><span class="dt">&gt;</span></span>
+            <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">th</span><span class="dt">&gt;</span>Date<span class="dt">&lt;/</span><span class="kw">th</span><span class="dt">&gt;</span></span>
+            <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>John Doe<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span>
+            <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>04/20/1999<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span>
+            <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>Jane Doe<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span>
+            <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>04/20/2099<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span>
+            <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+            <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">table</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>And that I call scrape_table with the following input:</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>TestTable</td>
+            </tr>
+            </tbody>
+            </table>
+            <p>I will receive the following json as the output:</p>
+            <div class="sourceCode" id="cb9"><pre
+            class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+            <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;TestTable&quot;</span><span class="fu">:</span></span>
+            <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span></span>
+            <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+            <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Name&quot;</span><span class="fu">:</span> <span class="st">&quot;John Doe&quot;</span><span class="fu">,</span></span>
+            <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Date&quot;</span><span class="fu">:</span> <span class="st">&quot;04/20/1999&quot;</span></span>
+            <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span></span>
+            <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+            <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Name&quot;</span><span class="fu">:</span> <span class="st">&quot;Jane Doe&quot;</span><span class="fu">,</span></span>
+            <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Date&quot;</span><span class="fu">:</span> <span class="st">&quot;04/20/2099&quot;</span></span>
+            <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            </span>
+            <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+            <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+            <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        </div>
+        <div id="save_webpage_url" class="border mb-3 p-3">
+            <h5>Save Webpage URL</h5>
+            <p>This instruction will tell the scraper to save the current webpage.</p>
+        </div>
+        <div id="loops_and_func">
+            <h5>Loops & Functions Commands</h5>
+            <p>The following sections cover the documentation for scraper commands relating to loops and function.</p>
+          </div>
+        <div id="run_function" class="border mb-3 p-3">
+            <h5>Run Function</h5>
+            <p>This instruction will run a user defined function. This function is
+            defined previously in the instruction list and is called by the name
+            specified in the <em>create_function</em> instruction.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>The name of a user defined function</td>
+            </tr>
+            </tbody>
+            </table>
+        </div>
+        <div id="create_function" class="border mb-3 p-3">
+            <h5>Create Function</h5>
+            <p>This instruction will start the creation of a user defined function.
+            This should be used primarily if a list of instructions should be
+            repeated multiple times. All instructions given after
+            <em>create_function</em> will be assumed as part of the function up
+            until it reaches an <em>end_function</em> instruction. This function can
+            be called with <em>run_function</em>, or within a loop.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>The name of a user defined function</td>
+            </tr>
+            </tbody>
+            </table>
+        </div>
+        <div id="end_function" class="border mb-3 p-3">
+            <h5>End Function</h5>
+            <p>This instruction will end the creation of a user defined function.
+            All instructions between this instruction and <em>create_function</em>
+            will be assumed to be one function under the name specified in
+            <em>create_function</em>.</p>
+        </div>
+        <div id="for_each" class="border mb-3 p-3">
+            <h5>For Each</h5>
+            <p>This instruction will loop over all items within a group. For each
+            item found on the page that matches a html item with a specific tag
+            value, this instruction will attempt to run a user defined function (see
+            <em>create_function</em>).</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Tag</td>
+            <td>A HTML Element</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>A HTML Attribute</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>The value of the given HTML Attribute</td>
+            </tr>
+            <tr>
+            <td>Function Name</td>
+            <td>Name of a user defined function</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="example-6">Example</h6>
+            <p>Say I have a list of items in a div on a webpage.</p>
+            <div class="sourceCode" id="cb10"><pre
+            class="sourceCode html"><code class="sourceCode html"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;operators&quot;</span><span class="dt">&gt;</span></span>
+            <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">span</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;.../john-doe&quot;</span><span class="ot"> title</span><span class="op">=</span><span class="st">&quot;operator-name&quot;</span><span class="dt">&gt;</span>John Doe<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">span</span><span class="dt">&gt;</span></span>
+            <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">span</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;.../jane-doe&quot;</span><span class="ot"> title</span><span class="op">=</span><span class="st">&quot;operator-name&quot;</span><span class="dt">&gt;</span>Jane Doe<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">span</span><span class="dt">&gt;</span></span>
+            <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span></code></pre></div>
+            <p>For this example, say that I have defined a function named
+            ‘OperatorInfo’. This function will follow the link and pull some
+            information off of the subsequent webpage. If I wanted to use this
+            function on every link within this div, I could use the
+            <em>for_each</em> instruction to create a list of each of these
+            items.</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Tag</td>
+            <td>span</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>title</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>operator-name</td>
+            </tr>
+            <tr>
+            <td>Function Name</td>
+            <td>OperatorInfo</td>
+            </tr>
+            </tbody>
+            </table>
+            <p>This would result in the scraper attempting to use this OperatorInfo
+            function on each a element that has the title “operator-name”.</p>
+        </div>
+        <div id="special_for_each" class="border mb-3 p-3">
+            <h5>Special For Each</h5>
+            <p>This instruction is very similar to <em>for_each</em>. This is used
+            when you need to iterate over a list of items (HTML elements) that may
+            have duplicates. (For example: the drinking water watch table provides
+            the same url link and title for the PWSID and water system name
+            links.)</p>
+            <table class="table table-primary">
+            <colgroup>
+            <col style="width: 14%" />
+            <col style="width: 85%" />
+            </colgroup>
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>The part of the CSS Selector <em>before</em> the iteration.</td>
+            </tr>
+            <tr>
+            <td>Tag</td>
+            <td>The HTML Element that is being iterated</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>The part of the CSS Selector <em>after</em> the iteration (this can
+            be left blank)</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>The name of the list of saved values within the json file</td>
+            </tr>
+            <tr>
+            <td>Function Name</td>
+            <td>Name of a user defined function</td>
+            </tr>
+            </tbody>
+            </table>
+            <h6 id="example-7">Example</h6>
+            <p>Say we have a table that we want to scrape / interact with
+            <em>only</em> the first column of each row. We have previously defined a
+            function ‘WaterSystems’ that will scrape the relevant data. The
+            CSS-Selectors for the first 2 rows are as follows (bolded is the
+            iteration):</p>
+            <p>.col-md-12 &gt; table:nth-child(3) &gt; tbody:nth-child(1) &gt;
+            <strong>tr:nth-child(2)</strong> &gt; td:nth-child(1) &gt;
+            a:nth-child(1) .col-md-12 &gt; table:nth-child(3) &gt;
+            tbody:nth-child(1) &gt; <strong>tr:nth-child(3)</strong> &gt;
+            td:nth-child(1) &gt; a:nth-child(1)</p>
+            <p>We can use this information with this instruction with the following
+            inputs to perform our loop:</p>
+            <table class="table table-primary">
+            <thead>
+            <tr>
+            <th>Input Name</th>
+            <th>Expected User Input</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Parameter</td>
+            <td>.col-md-12 &gt; table:nth-child(3) &gt; tbody:nth-child(1)</td>
+            </tr>
+            <tr>
+            <td>Tag</td>
+            <td>tr</td>
+            </tr>
+            <tr>
+            <td>Attribute</td>
+            <td>td:nth-child(1) &gt; a:nth-child(1)</td>
+            </tr>
+            <tr>
+            <td>Value</td>
+            <td>Systems</td>
+            </tr>
+            <tr>
+            <td>Function Name</td>
+            <td>WaterSystems</td>
+            </tr>
+            </tbody>
+            </table>
+        </div>
+        <div id="loop_list" class="border mb-3 p-3">
+            <h5>Loop Through List</h5>
+            <p>This instruction will tell the scrape to loop over a list (e.g., PWSIDS) and perform specific
+                actions per looped item.</p>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

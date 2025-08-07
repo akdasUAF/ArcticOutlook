@@ -1,0 +1,14 @@
+[
+    {
+        "Index": "0",
+        "Name": "Template Format",
+        "Filename": "Name of the file",
+        "Header": "yes",
+        "Rows": "Edit to the rows in the generated table. The default for this is an empty string.",
+        "Columns": "Edit to the columns in the generated table. The default for this is an empty string.",
+        "Database": "Demo",
+        "Collection": "Dump",
+        "Notes": "Any additional notes to be saved to the template.",
+        "Queries": []
+    }
+]

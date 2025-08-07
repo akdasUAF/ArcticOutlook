@@ -1,0 +1,350 @@
+{
+    "UnwindPointsOfContact": {
+        "Description": "This query unwinds the points of contact array into individual records within the collection that can then be modified / sorted / etc.",
+        "Pipeline": [
+            {
+                "$unwind": {
+                    "path": "$points_of_contact"
+                }
+            },
+            {
+                "$set": {
+                    "Name": "$points_of_contact.NAME"
+                }
+            },
+            {
+                "$set": {
+                    "Job_Title": "$points_of_contact.JOB TITLE"
+                }
+            },
+            {
+                "$set": {
+                    "Type": "$points_of_contact.TYPE"
+                }
+            },
+            {
+                "$set": {
+                    "Phone": "$points_of_contact.PHONE"
+                }
+            },
+            {
+                "$set": {
+                    "Address": "$points_of_contact.ADDRESS"
+                }
+            },
+            {
+                "$set": {
+                    "Email": "$points_of_contact.EMAIL.value"
+                }
+            },
+            {
+                "$unset": "points_of_contact"
+            },
+            {
+                "$addFields": {
+                    "Clean_Phone": {
+                        "$reduce": {
+                            "input": {
+                                "$filter": {
+                                    "input": {
+                                        "$map": {
+                                            "input": {
+                                                "$range": [
+                                                    0,
+                                                    14,
+                                                    1
+                                                ]
+                                            },
+                                            "in": {
+                                                "$substrCP": [
+                                                    "$Phone",
+                                                    "$$this",
+                                                    1
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "cond": {
+                                        "$regexMatch": {
+                                            "input": "$$this",
+                                            "regex": "[0-9]"
+                                        }
+                                    }
+                                }
+                            },
+                            "initialValue": "",
+                            "in": {
+                                "$concat": [
+                                    "$$value",
+                                    "$$this"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "$out": {
+                    "db": "Arctic-Outlook-Raw",
+                    "coll": "Contacts"
+                }
+            }
+        ],
+        "JSArray": [
+            {
+                "id": "step_0_unwind",
+                "name": "Unwind Array",
+                "contents": [
+                    {
+                        "name": "unwind_0",
+                        "contents": "$points_of_contact"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_1_set",
+                "name": "Set Name",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Name"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.NAME"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_2_set",
+                "name": "Set Job Title",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Job_Title"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.JOB TITLE"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_3_set",
+                "name": "Set Type",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Type"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.TYPE"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_4_set",
+                "name": "Set Phone",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Phone"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.PHONE"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_5_set",
+                "name": "Set Address",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Address"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.ADDRESS"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_6_set",
+                "name": "Set Email",
+                "contents": [
+                    {
+                        "name": "set_0",
+                        "contents": "Email"
+                    },
+                    {
+                        "name": "set_1",
+                        "contents": "$points_of_contact.EMAIL.value"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_7_unset",
+                "name": "Remove Array",
+                "contents": [
+                    {
+                        "name": "unset_0",
+                        "contents": "points_of_contact"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Unsets the original array so each record only contains the ids and various fields."
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_8_userFunction:PhoneNumber",
+                "name": "Clean Phone Number",
+                "contents": [
+                    {
+                        "name": "userFunction:PhoneNumber_0",
+                        "contents": "Clean_Phone"
+                    },
+                    {
+                        "name": "userFunction:PhoneNumber_1",
+                        "contents": "$Phone"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": "Strips the \"-\" character from phone numbers.\n$PARAMETER:NEW_FIELD: Adds a new field. This is where the phone number is saved.\n$PARAMETER:FIELD_NAME: Field where the phone number is stored."
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_9_out",
+                "name": "Output aggregated data",
+                "contents": [
+                    {
+                        "name": "out_0",
+                        "contents": "Arctic-Outlook-Raw"
+                    },
+                    {
+                        "name": "out_1",
+                        "contents": "Contacts"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "function_name": "UnwindPointsOfContact"
+            },
+            {
+                "description": "This query unwinds the points of contact array into individual records within the collection that can then be modified / sorted / etc."
+            }
+        ],
+        "Div": "\n                    <div class=\"query_step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step_0_unwind\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> unwind<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"unwind\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">path</span><input class=\"form-control user-text\" type=\"text\" name=\"unwind_0\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step_1_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step_2_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step_3_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step_4_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-primary\" data-lvl=\"1\" data-id=\"step_5_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step_6_set\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Set Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"set\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Set</span><input class=\"form-control user-text\" type=\"text\" name=\"set_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"set_1\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-secondary\" data-lvl=\"1\" data-id=\"step_7_unset\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Remove Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"unset\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Field</span><input class=\"form-control user-text\" type=\"text\" name=\"unset_0\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step_8_userFunction:PhoneNumber\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> PhoneNumber<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"userFunction:PhoneNumber\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">NEW_FIELD</span><input class=\"form-control user-text\" type=\"text\" name=\"userFunction:PhoneNumber_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">FIELD_NAME</span><input class=\"form-control user-text\" type=\"text\" name=\"userFunction:PhoneNumber_1\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\" disabled=\"\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item list-group-item-action list-group-item-warning nested-1 final\" data-lvl=\"1\" data-id=\"step_9_out\"> Output Data<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\" style=\"color: rgb(0, 0, 0);\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"out\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Database</span><input class=\"form-control user-text\" type=\"text\" name=\"out_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Collection</span><input class=\"form-control user-text\" type=\"text\" name=\"out_1\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
+        "Parameters": [
+            "NEW_FIELD"
+        ]
+    },
+    "PointsOfContactDB": {
+        "Description": "A query that moves the points of contact to a separate collection.",
+        "Pipeline": [
+            {
+                "$project": {
+                    "_id": 0,
+                    "points_of_contact": 1,
+                    "parent": "$_id"
+                }
+            },
+            {
+                "$out": {
+                    "db": "Arctic-Outlook-Raw",
+                    "coll": "Points-Of-Contact-Temp"
+                }
+            }
+        ],
+        "JSArray": [
+            {
+                "id": "step_0_projectMulti",
+                "name": "",
+                "contents": [
+                    {
+                        "name": "projectMulti_0",
+                        "contents": "{\"_id\": 0, \"points_of_contact\": 1, \"parent\": \"$_id\" }"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "id": "step_1_out",
+                "name": "",
+                "contents": [
+                    {
+                        "name": "out_0",
+                        "contents": "Arctic-Outlook-Raw"
+                    },
+                    {
+                        "name": "out_1",
+                        "contents": "Points-Of-Contact-Temp"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": []
+            },
+            {
+                "function_name": "PointsOfContactDB"
+            },
+            {
+                "description": "A query that moves the points of contact to a separate collection."
+            }
+        ],
+        "Div": "\n                    <div class=\"query_step list-group-item nested-1 list-group-item-info\" data-lvl=\"1\" data-id=\"step_0_projectMulti\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Select Fields<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"projectMulti\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">{'Field 1': [0, 1], 'Field 2': [0, 1], etc.}</span><input class=\"form-control user-text\" type=\"text\" name=\"projectMulti_0\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div><div class=\"query_step list-group-item list-group-item-action list-group-item-warning nested-1 final\" data-lvl=\"1\" data-id=\"step_1_out\"> Output Data<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"out\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Database</span><input class=\"form-control user-text\" type=\"text\" name=\"out_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">Collection</span><input class=\"form-control user-text\" type=\"text\" name=\"out_1\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"></div></div>",
+        "Parameters": []
+    }
+}

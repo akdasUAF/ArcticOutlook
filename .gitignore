@@ -225,4 +225,30 @@ pyrightconfig.json
 .history
 .ionide
 
+# Ignore program generated csv output files
+contacts.csv
+systems.csv
+operators.csv
+communities.csv
+community_contacts.csv
+results.json
+output.csv
+*.zip
+
+# Ignore template file updates
+server/template_info/*
+!server/template_info/templates.json
+!server/template_info/mongodb_settings.json
+
+# Ignore misc files in the files directory
+server/files/*
+!server/files/settings.json
+!server/files/functions.json
+!server/files/instruction_lists.json
+!server/files/queries.json
+!server/files/query_functions.json
+
+# Ignore WIP files
+Dockerfile
+requirements.txt
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,visualstudiocode

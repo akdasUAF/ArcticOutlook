@@ -1,0 +1,524 @@
+{
+    "PhoneNumber": {
+        "Description": "Strips the \"-\" character from phone numbers.\n$PARAMETER:NEW_FIELD: Adds a new field. This is where the phone number is saved.\n$PARAMETER:FIELD_NAME: Field where the phone number is stored.",
+        "Counter": 2,
+        "Pipeline": [
+            {
+                "$addFields": {
+                    "$PARAMETER:NEW_FIELD": {
+                        "$reduce": {
+                            "input": {
+                                "$filter": {
+                                    "input": {
+                                        "$map": {
+                                            "input": {
+                                                "$range": [
+                                                    0,
+                                                    14,
+                                                    1
+                                                ]
+                                            },
+                                            "in": {
+                                                "$substrCP": [
+                                                    "$PARAMETER:FIELD_NAME",
+                                                    "$$this",
+                                                    1
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "cond": {
+                                        "$regexMatch": {
+                                            "input": "$$this",
+                                            "regex": "[0-9]"
+                                        }
+                                    }
+                                }
+                            },
+                            "initialValue": "",
+                            "in": {
+                                "$concat": [
+                                    "$$value",
+                                    "$$this"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "JSArray": [
+            {
+                "id": "step_2_addFields",
+                "name": "",
+                "contents": [
+                    {
+                        "name": "addFields_0",
+                        "contents": "$PARAMETER:NEW_FIELD"
+                    },
+                    {
+                        "name": "addFields_1",
+                        "contents": "@reduce"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "reduce_0",
+                        "contents": "@filter"
+                    },
+                    {
+                        "name": "reduce_1",
+                        "contents": ""
+                    },
+                    {
+                        "name": "reduce_2",
+                        "contents": "@concat"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "filter_0",
+                        "contents": "@map"
+                    },
+                    {
+                        "name": "filter_1",
+                        "contents": ""
+                    },
+                    {
+                        "name": "filter_2",
+                        "contents": "@regexMatch"
+                    },
+                    {
+                        "name": "filter_3",
+                        "contents": ""
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "map_0",
+                        "contents": "@range"
+                    },
+                    {
+                        "name": "map_1",
+                        "contents": ""
+                    },
+                    {
+                        "name": "map_2",
+                        "contents": "@substrCP"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "range_0",
+                        "contents": "0"
+                    },
+                    {
+                        "name": "range_1",
+                        "contents": "14"
+                    },
+                    {
+                        "name": "range_2",
+                        "contents": "1"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "substrCP_0",
+                        "contents": "$PARAMETER:FIELD_NAME"
+                    },
+                    {
+                        "name": "substrCP_1",
+                        "contents": "$$this"
+                    },
+                    {
+                        "name": "substrCP_2",
+                        "contents": "1"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "regexMatch_0",
+                        "contents": "$$this"
+                    },
+                    {
+                        "name": "regexMatch_1",
+                        "contents": "[0-9]"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    },
+                    {
+                        "name": "concat_0",
+                        "contents": "[\"$$value\", \"$$this\"]"
+                    },
+                    {
+                        "name": "notes",
+                        "contents": ""
+                    }
+                ],
+                "subs": [
+                    {
+                        "id": "step_3_reduce",
+                        "name": "reduce",
+                        "contents": [
+                            {
+                                "name": "reduce_0",
+                                "contents": "@filter"
+                            },
+                            {
+                                "name": "reduce_1",
+                                "contents": ""
+                            },
+                            {
+                                "name": "reduce_2",
+                                "contents": "@concat"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "filter_0",
+                                "contents": "@map"
+                            },
+                            {
+                                "name": "filter_1",
+                                "contents": ""
+                            },
+                            {
+                                "name": "filter_2",
+                                "contents": "@regexMatch"
+                            },
+                            {
+                                "name": "filter_3",
+                                "contents": ""
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "map_0",
+                                "contents": "@range"
+                            },
+                            {
+                                "name": "map_1",
+                                "contents": ""
+                            },
+                            {
+                                "name": "map_2",
+                                "contents": "@substrCP"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "range_0",
+                                "contents": "0"
+                            },
+                            {
+                                "name": "range_1",
+                                "contents": "14"
+                            },
+                            {
+                                "name": "range_2",
+                                "contents": "1"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "substrCP_0",
+                                "contents": "$PARAMETER:FIELD_NAME"
+                            },
+                            {
+                                "name": "substrCP_1",
+                                "contents": "$$this"
+                            },
+                            {
+                                "name": "substrCP_2",
+                                "contents": "1"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "regexMatch_0",
+                                "contents": "$$this"
+                            },
+                            {
+                                "name": "regexMatch_1",
+                                "contents": "[0-9]"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            },
+                            {
+                                "name": "concat_0",
+                                "contents": "[\"$$value\", \"$$this\"]"
+                            },
+                            {
+                                "name": "notes",
+                                "contents": ""
+                            }
+                        ],
+                        "subs": [
+                            {
+                                "id": "step_4_filter",
+                                "name": "filter",
+                                "contents": [
+                                    {
+                                        "name": "filter_0",
+                                        "contents": "@map"
+                                    },
+                                    {
+                                        "name": "filter_1",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "filter_2",
+                                        "contents": "@regexMatch"
+                                    },
+                                    {
+                                        "name": "filter_3",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "map_0",
+                                        "contents": "@range"
+                                    },
+                                    {
+                                        "name": "map_1",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "map_2",
+                                        "contents": "@substrCP"
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "range_0",
+                                        "contents": "0"
+                                    },
+                                    {
+                                        "name": "range_1",
+                                        "contents": "14"
+                                    },
+                                    {
+                                        "name": "range_2",
+                                        "contents": "1"
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "substrCP_0",
+                                        "contents": "$PARAMETER:FIELD_NAME"
+                                    },
+                                    {
+                                        "name": "substrCP_1",
+                                        "contents": "$$this"
+                                    },
+                                    {
+                                        "name": "substrCP_2",
+                                        "contents": "1"
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    },
+                                    {
+                                        "name": "regexMatch_0",
+                                        "contents": "$$this"
+                                    },
+                                    {
+                                        "name": "regexMatch_1",
+                                        "contents": "[0-9]"
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    }
+                                ],
+                                "subs": [
+                                    {
+                                        "id": "step_5_map",
+                                        "name": "map",
+                                        "contents": [
+                                            {
+                                                "name": "map_0",
+                                                "contents": "@range"
+                                            },
+                                            {
+                                                "name": "map_1",
+                                                "contents": ""
+                                            },
+                                            {
+                                                "name": "map_2",
+                                                "contents": "@substrCP"
+                                            },
+                                            {
+                                                "name": "notes",
+                                                "contents": ""
+                                            },
+                                            {
+                                                "name": "range_0",
+                                                "contents": "0"
+                                            },
+                                            {
+                                                "name": "range_1",
+                                                "contents": "14"
+                                            },
+                                            {
+                                                "name": "range_2",
+                                                "contents": "1"
+                                            },
+                                            {
+                                                "name": "notes",
+                                                "contents": ""
+                                            },
+                                            {
+                                                "name": "substrCP_0",
+                                                "contents": "$PARAMETER:FIELD_NAME"
+                                            },
+                                            {
+                                                "name": "substrCP_1",
+                                                "contents": "$$this"
+                                            },
+                                            {
+                                                "name": "substrCP_2",
+                                                "contents": "1"
+                                            },
+                                            {
+                                                "name": "notes",
+                                                "contents": ""
+                                            }
+                                        ],
+                                        "subs": [
+                                            {
+                                                "id": "step_6_range",
+                                                "name": "range",
+                                                "contents": [
+                                                    {
+                                                        "name": "range_0",
+                                                        "contents": "0"
+                                                    },
+                                                    {
+                                                        "name": "range_1",
+                                                        "contents": "14"
+                                                    },
+                                                    {
+                                                        "name": "range_2",
+                                                        "contents": "1"
+                                                    },
+                                                    {
+                                                        "name": "notes",
+                                                        "contents": ""
+                                                    }
+                                                ],
+                                                "subs": []
+                                            },
+                                            {
+                                                "id": "step_7_substrCP",
+                                                "name": "substrCP",
+                                                "contents": [
+                                                    {
+                                                        "name": "substrCP_0",
+                                                        "contents": "$PARAMETER:FIELD_NAME"
+                                                    },
+                                                    {
+                                                        "name": "substrCP_1",
+                                                        "contents": "$$this"
+                                                    },
+                                                    {
+                                                        "name": "substrCP_2",
+                                                        "contents": "1"
+                                                    },
+                                                    {
+                                                        "name": "notes",
+                                                        "contents": ""
+                                                    }
+                                                ],
+                                                "subs": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "step_8_regexMatch",
+                                        "name": "regexMatch",
+                                        "contents": [
+                                            {
+                                                "name": "regexMatch_0",
+                                                "contents": "$$this"
+                                            },
+                                            {
+                                                "name": "regexMatch_1",
+                                                "contents": "[0-9]"
+                                            },
+                                            {
+                                                "name": "notes",
+                                                "contents": ""
+                                            }
+                                        ],
+                                        "subs": []
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "step_9_concat",
+                                "name": "concat",
+                                "contents": [
+                                    {
+                                        "name": "concat_0",
+                                        "contents": "[\"$$value\", \"$$this\"]"
+                                    },
+                                    {
+                                        "name": "notes",
+                                        "contents": ""
+                                    }
+                                ],
+                                "subs": []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "function_name": "PhoneNumber"
+            },
+            {
+                "description": "Strips the \"-\" character from phone numbers.\n$PARAMETER:NEW_FIELD: Adds a new field. This is where the phone number is saved.\n$PARAMETER:FIELD_NAME: Field where the phone number is stored."
+            }
+        ],
+        "Div": "\n                    <div class=\"query_step list-group-item nested-1 list-group-item-success\" data-lvl=\"1\" data-id=\"step_2_addFields\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Add New Field<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"addFields\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"addFields_0\" style=\"color: rgb(0, 128, 0);\"><span class=\"input-group-text\">Value</span><input class=\"form-control user-text\" type=\"text\" name=\"addFields_1\" style=\"color: rgb(255, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"2\"><div class=\"query_step list-group-item nested-2 list-group-item-secondary\" data-lvl=\"2\" data-id=\"step_3_reduce\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Reduce<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"reduce\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">input</span><input class=\"form-control user-text\" type=\"text\" name=\"reduce_0\" style=\"color: rgb(255, 0, 0);\"><span class=\"input-group-text\">initialValue</span><input class=\"form-control user-text\" type=\"text\" name=\"reduce_1\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">in</span><input class=\"form-control user-text\" type=\"text\" name=\"reduce_2\" style=\"color: rgb(255, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"3\"><div class=\"query_step list-group-item nested-3 list-group-item-info\" data-lvl=\"3\" data-id=\"step_4_filter\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Filter<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"filter\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">input</span><input class=\"form-control user-text\" type=\"text\" name=\"filter_0\" style=\"color: rgb(255, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"filter_1\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">cond</span><input class=\"form-control user-text\" type=\"text\" name=\"filter_2\" style=\"color: rgb(255, 0, 0);\"><span class=\"input-group-text\">limit</span><input class=\"form-control user-text\" type=\"text\" name=\"filter_3\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"4\"><div class=\"query_step list-group-item nested-4 list-group-item-primary\" data-lvl=\"4\" data-id=\"step_5_map\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Map<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"map\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">input</span><input class=\"form-control user-text\" type=\"text\" name=\"map_0\" style=\"color: rgb(255, 0, 0);\"><span class=\"input-group-text\">as</span><input class=\"form-control user-text\" type=\"text\" name=\"map_1\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">in</span><input class=\"form-control user-text\" type=\"text\" name=\"map_2\" style=\"color: rgb(255, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"5\"><div class=\"query_step list-group-item nested-5 list-group-item-success\" data-lvl=\"5\" data-id=\"step_6_range\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Range<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"range\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">start</span><input class=\"form-control user-text\" type=\"text\" name=\"range_0\" style=\"color: rgb(0, 0, 0);\"><span class=\"input-group-text\">end</span><input class=\"form-control user-text\" type=\"text\" name=\"range_1\" style=\"color: rgb(0, 0, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">step</span><input class=\"form-control user-text\" type=\"text\" name=\"range_2\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"6\"></div></div><div class=\"query_step list-group-item nested-5 list-group-item-secondary\" data-lvl=\"5\" data-id=\"step_7_substrCP\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> substrCP<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"substrCP\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">string</span><input class=\"form-control user-text\" type=\"text\" name=\"substrCP_0\" style=\"color: rgb(0, 128, 0);\"><span class=\"input-group-text\">index</span><input class=\"form-control user-text\" type=\"text\" name=\"substrCP_1\" style=\"color: rgb(0, 128, 0);\"></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">count</span><input class=\"form-control user-text\" type=\"text\" name=\"substrCP_2\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"6\"></div></div></div></div><div class=\"query_step list-group-item nested-4 list-group-item-info\" data-lvl=\"4\" data-id=\"step_8_regexMatch\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> regexMatch<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"regexMatch\" style=\"\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">input</span><input class=\"form-control user-text\" type=\"text\" name=\"regexMatch_0\" style=\"color: rgb(0, 128, 0);\"><span class=\"input-group-text\">regex</span><input class=\"form-control user-text\" type=\"text\" name=\"regexMatch_1\" style=\"color: rgb(0, 0, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"5\"></div></div></div></div><div class=\"query_step list-group-item nested-3 list-group-item-primary\" data-lvl=\"3\" data-id=\"step_9_concat\" draggable=\"false\" style=\"\"><i class=\"fa-solid fa-arrows-up-down-left-right handle\"></i> Concat<div class=\"input-group mb-3\"><span class=\"input-group-text\">Name</span><input class=\"form-control user-text\" type=\"text\" name=\"name\"><button type=\"button\" class=\"btn btn-info\" id=\"show-step\">Hide</button></div><div class=\"query-contents\" id=\"concat\"><div class=\"input-group mb-3\"><span class=\"input-group-text\">[ &lt;expression1&gt;, &lt;expression2&gt;, ... ]</span><input class=\"form-control user-text\" type=\"text\" name=\"concat_0\" style=\"color: rgb(0, 128, 0);\"><div class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-danger\" id=\"delete_step\">X</button></div></div><div class=\"input-group mb-3\"><span class=\"input-group-text\">User Notes</span><textarea class=\"form-control\" rows=\"1\" name=\"notes\"></textarea></div></div><div class=\"nested-sortable\" data-nest=\"4\"></div></div></div></div></div></div>",
+        "Parameters": [
+            "NEW_FIELD",
+            "FIELD_NAME"
+        ]
+    }
+}

@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dynamic.css') }}">    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+    <title>Edit Table</title>
+    <!-- This file is specifically if the user is doing a 1 time upload. No worries about comparison, just uploading to MongoDB. -->
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light mb-3" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+        <a class="navbar-brand disabled" href="#">Uploading a file to MongoDB.</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item px-1">
+                    <a id="step_1" class="nav-link border border" href="{{ url_for('reset_upload') }}">Reset</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_1" class="nav-link border" href="{{ url_for('upload_csv') }}">Step 1: Upload CSV</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_2" class="nav-link border border-primary active" href="#">Step 2: View Table</a>
+                </li>
+                <li class="nav-item px-1">
+                    <a id="step_5" class="nav-link border disabled" href="{{ url_for('query_manager') }}">Query Manager</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div id="main">  
+    <div id="output" class="row">
+        <form id="upload" method="POST" class="col mb-3">
+            <div class="col-md-6">
+                <label class="form-label" for="upload_confirm">Upload to MongoDB?</label>
+                <select class="form-select" id="upload_confirm" onchange="showMore(this)">
+                    <option selected disabled value="">Select Option</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div id="upload_yes" style="display:none">
+                <div class="col-md-12">
+                    <label class="form-label" for="Connection">Connection String</label>
+                    <input name="Connection" class="form-control" type="text" aria-describedby=" con_tip">
+                </div>
+                <div class="form-text mb-3" id="con_tip">Example: mongodb+srv://<username>:<password>@beyondthebasics.abcde.mongodb.net/test</div>
+                <div class="col-md-12">
+                    <label class="form-label" for="Database">Database Name</label>
+                    <input name="Database" class="form-control" type="text" aria-describedby=" db_tip">
+                </div>
+                <div class="form-text mb-3" id="db_tip">Example: Outlook</div>
+                <div class="col-md-12">
+                    <label class="form-label" for="Collection">Collection Name</label>
+                    <input name="Collection" class="form-control" type="text" aria-describedby=" coll_tip">
+                </div>
+                <div class="form-text mb-3" id="coll_tip">Example: Data_Dump</div>
+                <input type="submit" class="btn btn-outline-secondary" name="upload" value="Upload to MongoDB">
+            </div>
+        </form>
+
+        <form id="edit_table" method="POST" class="col mb-3">
+            <div class="col-md-6">
+                <label class="form-label" for="display_confirm">Display Table Edit Options</label>
+                <select class="form-select" id="display_confirm" onchange="showMoreTab(this)">
+                    <option selected disabled value="">Select Option</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div id="display_yes" style="display:none">
+                <div class="col-md-12">
+                    <label class="form-label" for="usecols">Which columns would you like to drop?</label>
+                    <input type="text" class="form-control" name="usecols" value="{{col}}" aria-describedby=" col_tip">
+                </div>
+                <div class="form-text mb-3" id="col_tip">Leave empty if you would like all of the columns.</div>
+                <div class="col-md-12">
+                    <label class="form-label" for="skiprows">Which rows would you like to skip?</label>
+                    <input type="text" class="form-control" name="skiprows" value="{{row}}" aria-describedby=" row_tip">
+                </div>
+                <div class="form-text mb-3" id="row_tip">Leave empty if you would like all of the rows.</div>
+                <div class="col-md-9 mb-3">
+                    <label class="form-label" for="visualize_rowcol">Visualization Selection</label>
+                    <select class="form-select" id="visualize_rowcol" name="visualize_rowcol" required>
+                        <option selected disabled value="">Choose...</option>
+                        <option value="1">Remove Row/Col Selection</option>
+                        <option value="2">Highlight Row/Col Selection</option>
+                        <option value="3">Return to Original Table</option>
+                    </select>
+                </div>
+                <input type="submit" class="btn btn-outline-secondary" name="update_table" value="Update Table"></input>
+            </div>
+        </form>
+        <div>   
+            <h4>CSV Table</h4>
+            <form id="download" method="POST">
+                <div class="col-md-4 mb-3">
+                    <div class="input-group">
+                        <select class="form-select" id="download_type" name="download_type" required>
+                            <option selected disabled value="">Choose...</option>
+                            <option value="JSON">Download as JSON</option>
+                            <option value="CSV">Download as CSV</option>
+                            <option value="Excel">Download as Excel</option>
+                        </select>
+                        <input type="submit" class="btn btn-outline-secondary" name="download_table" value="Download Table"></input>
+                    </div>
+                </div>
+                <!-- <input type="submit" name="download" value="Download as JSON"> -->
+            </form>
+            <div style="overflow-y: scroll; overflow-x: scroll; max-height: 700px;">
+                {% for table in tables %}
+                    {{ table|safe }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+<script>
+    $(document).ready(function () {
+    $('#uploaded_file').DataTable();
+    $('#T_uploaded_file').DataTable();
+    });
+</script>
+<script>
+    var showMoreTab = function(option)
+        {
+            if (option.value == 'Yes')
+            {
+                document.getElementById('display_yes').style.display = '';
+            }
+            else
+            {
+                document.getElementById('display_yes').style.display = 'none';
+            }
+        }
+</script>
+<script>
+    var showMore = function(option)
+    {
+        if (option.value == 'Yes')
+        {
+            document.getElementById('upload_yes').style.display = '';
+        }
+        else
+        {
+            document.getElementById('upload_yes').style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
